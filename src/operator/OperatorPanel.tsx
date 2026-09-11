@@ -381,9 +381,9 @@ export default function OperatorPanel() {
   const participantsArray = Object.values(participants);
   const confirmedCount = participantsArray.filter(p => p.status === 'CONFIRMED').length;
   const scenarioItems = [
-    { key: 'ceremony' as const, apply: applyScenario1Ceremony, run: runScenario1Ceremony, desc: 'Code-native docs.md flow' },
-    { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: undefined, desc: '100% local video 0328 layer' },
-    { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: undefined, desc: '100% Visual_PlaceCard layer' }
+    { key: 'ceremony' as const, apply: applyScenario1Ceremony, run: runScenario1Ceremony, desc: t.scenario1Desc },
+    { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: undefined, desc: t.scenario2Desc },
+    { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: undefined, desc: t.scenario3Desc }
   ];
 
   return (
@@ -442,17 +442,18 @@ export default function OperatorPanel() {
             <div className="grid grid-cols-2 gap-2">
               <button onClick={handleActivateAll} className="py-2 bg-gab-cyan-light text-black text-xs font-bold rounded hover:opacity-90 shadow">{t.activateAll}</button>
               <button onClick={() => eventController.runDemo()} className="py-2 bg-yellow-500 text-black text-xs font-bold rounded hover:opacity-90 shadow">{t.autoDemo}</button>
-              <button onClick={runFullLogoTest} className="py-2 bg-white text-black text-xs font-bold rounded hover:bg-gray-200 shadow col-span-2">FULL LOGO TEST</button>
-              <button onClick={() => store.resetLayout()} className="py-2 bg-cyan-950/70 border border-cyan-700 text-gab-cyan text-xs font-bold rounded hover:bg-cyan-900 shadow col-span-2">RESET LAYOUT / POSITIONS</button>
-              <button onClick={hardResetLocalConfig} className="py-2 border border-orange-500 text-orange-300 text-xs font-bold rounded hover:bg-orange-500 hover:text-black col-span-2 transition">HARD RESET LOCAL CONFIG</button>
+              <button onClick={runFullLogoTest} className="py-2 bg-white text-black text-xs font-bold rounded hover:bg-gray-200 shadow col-span-2">{t.fullLogoTest}</button>
+              <button onClick={() => store.resetLayout()} className="py-2 bg-cyan-950/70 border border-cyan-700 text-gab-cyan text-xs font-bold rounded hover:bg-cyan-900 shadow col-span-2">{t.resetLayoutPositions}</button>
+              <button onClick={hardResetLocalConfig} className="py-2 border border-orange-500 text-orange-300 text-xs font-bold rounded hover:bg-orange-500 hover:text-black col-span-2 transition">{t.hardResetLocalConfig}</button>
               <button onClick={handleReset} className="py-2 border border-red-500 text-red-500 text-xs font-bold rounded hover:bg-red-500 hover:text-white col-span-2 transition">{t.resetEvent}</button>
             </div>
 
             <div className="mt-3 bg-black/40 border border-yellow-700/50 rounded-lg p-2.5">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[11px] font-bold text-yellow-300 uppercase">3 Scenarios Ready</h3>
-                <span className="text-[9px] text-gray-500">SETUP / RUN</span>
+                <h3 className="text-[11px] font-bold text-yellow-300 uppercase">{t.scenarioLibraryReady}</h3>
+                <span className="text-[9px] text-gray-500">{t.scenarioLoadRun}</span>
               </div>
+              <p className="text-[9px] text-yellow-100/70 leading-tight mb-2">{t.scenarioLibraryHint}</p>
               <div className="space-y-1.5">
                 {scenarioItems.map((item, index) => (
                   <div key={item.key} className="grid grid-cols-[1fr_auto_auto] gap-1.5 items-center">
@@ -460,8 +461,8 @@ export default function OperatorPanel() {
                       <p className="text-[10px] font-bold text-white truncate">{index + 1}. {scenarioNames[item.key]}</p>
                       <p className="text-[9px] text-gray-500 truncate">{item.desc}</p>
                     </div>
-                    <button onClick={item.apply} className="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-[10px] font-bold">SETUP</button>
-                    <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">RUN</button>
+                    <button onClick={item.apply} className="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-[10px] font-bold">{t.btnSetupScenario}</button>
+                    <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">{t.btnRunScenario}</button>
                   </div>
                 ))}
               </div>
@@ -469,18 +470,18 @@ export default function OperatorPanel() {
 
             <div className="mt-3 bg-[#0E1217] border border-cyan-900/70 rounded-lg p-2.5">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Audio Cue System</h3>
+                <h3 className="text-[11px] font-bold text-gab-cyan uppercase">{t.audioCueSystem}</h3>
                 <button onClick={() => setAudioEnabled(!audioEnabled)} className={`px-2 py-0.5 rounded text-[10px] font-bold ${audioEnabled ? 'bg-gab-cyan text-black' : 'bg-gray-700 text-gray-300'}`}>
-                  {audioEnabled ? 'ON' : 'OFF'}
+                  {audioEnabled ? t.audioOn : t.audioOff}
                 </button>
               </div>
               <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
                 <label className="block">
-                  <span className="text-[9px] text-gray-500">Volume {Math.round(audioVolume * 100)}%</span>
+                  <span className="text-[9px] text-gray-500">{t.audioVolume} {Math.round(audioVolume * 100)}%</span>
                   <input type="range" min="0" max="1" step="0.01" value={audioVolume} onChange={(e) => setAudioVolume(Number(e.target.value))} className="w-full accent-gab-cyan" />
                 </label>
                 <button onClick={unlockAndTestAudio} className="px-2 py-1.5 rounded bg-cyan-950/80 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
-                  TEST
+                  {t.audioTest}
                 </button>
               </div>
             </div>
@@ -697,8 +698,8 @@ export default function OperatorPanel() {
           {/* 2. MẪU MÀN HÌNH LÚC KẾT (ENDING TEMPLATES) */}
           <div className="p-4 border-b border-gray-800 bg-[#10151d]">
              <div className="flex items-center justify-between mb-3">
-               <h2 className="text-xs font-bold text-gab-cyan uppercase tracking-wider">LED Sync / Auto Director</h2>
-               <span className="text-[9px] text-gray-400 border border-gray-700 px-1.5 py-0.5 rounded">PREVIEW = LED</span>
+               <h2 className="text-xs font-bold text-gab-cyan uppercase tracking-wider">{t.ledSyncTitle}</h2>
+               <span className="text-[9px] text-gray-400 border border-gray-700 px-1.5 py-0.5 rounded">{t.previewEqualsLed}</span>
              </div>
 
              <div className="grid grid-cols-2 gap-2 text-xs mb-3">
@@ -721,9 +722,10 @@ export default function OperatorPanel() {
 
              <div className="bg-black/40 border border-yellow-700/50 rounded p-2.5 mb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[11px] font-bold text-yellow-300 uppercase">3 Editable Scenarios</h3>
-                  <button onClick={runScenario1Ceremony} className="text-[10px] bg-yellow-400 text-black px-2 py-0.5 rounded font-bold">RUN CODE</button>
+                  <h3 className="text-[11px] font-bold text-yellow-300 uppercase">{t.scenarioLibraryEditable}</h3>
+                  <button onClick={runScenario1Ceremony} className="text-[10px] bg-yellow-400 text-black px-2 py-0.5 rounded font-bold">{t.btnRunCodeScenario}</button>
                 </div>
+                <p className="text-[9px] text-yellow-100/70 leading-tight mb-2">{t.scenarioLibraryHint}</p>
                 {scenarioItems.map((item) => (
                   <div key={item.key} className="bg-[#0E1217] border border-gray-800 rounded p-2 mb-2 last:mb-0">
                     <input
@@ -734,8 +736,8 @@ export default function OperatorPanel() {
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-[9px] text-gray-500 leading-tight">{item.desc}</p>
                       <div className="flex gap-1">
-                        <button onClick={item.apply} className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded font-bold">SETUP</button>
-                        <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="text-[10px] bg-yellow-400 hover:bg-yellow-300 text-black px-2 py-1 rounded font-bold">RUN</button>
+                        <button onClick={item.apply} className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded font-bold">{t.btnSetupScenario}</button>
+                        <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="text-[10px] bg-yellow-400 hover:bg-yellow-300 text-black px-2 py-1 rounded font-bold">{t.btnRunScenario}</button>
                       </div>
                     </div>
                   </div>
@@ -744,19 +746,19 @@ export default function OperatorPanel() {
 
              <div className="bg-[#0E1217] border border-cyan-900/70 rounded p-2.5 mb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Segment Control</h3>
-                  <button onClick={runScenario1Ceremony} className="text-[10px] bg-gab-cyan-light text-black px-2 py-0.5 rounded font-bold">RUN ALL</button>
+                  <h3 className="text-[11px] font-bold text-gab-cyan uppercase">{t.segmentControl}</h3>
+                  <button onClick={runScenario1Ceremony} className="text-[10px] bg-gab-cyan-light text-black px-2 py-0.5 rounded font-bold">{t.runAll}</button>
                 </div>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[
-                    { label: 'Touch', phase: EventPhase.WAITING_FOR_PARTICIPANTS },
-                    { label: 'Ready', phase: EventPhase.ALL_PARTICIPANTS_READY },
-                    { label: 'Count', phase: EventPhase.COUNTDOWN },
-                    { label: 'Logo', phase: EventPhase.GAB_REVEAL },
-                    { label: 'Energy', phase: EventPhase.ENERGY_CONVERGENCE },
-                    { label: '400+', phase: EventPhase.COUNTER_SEQUENCE },
-                    { label: 'Burst', phase: EventPhase.EXPLOSION },
-                    { label: 'Final', phase: EventPhase.SUCCESS }
+                    { label: t.segTouch, phase: EventPhase.WAITING_FOR_PARTICIPANTS },
+                    { label: t.segReady, phase: EventPhase.ALL_PARTICIPANTS_READY },
+                    { label: t.segCount, phase: EventPhase.COUNTDOWN },
+                    { label: t.segLogo, phase: EventPhase.GAB_REVEAL },
+                    { label: t.segEnergy, phase: EventPhase.ENERGY_CONVERGENCE },
+                    { label: t.segCounter, phase: EventPhase.COUNTER_SEQUENCE },
+                    { label: t.segBurst, phase: EventPhase.EXPLOSION },
+                    { label: t.segFinal, phase: EventPhase.SUCCESS }
                   ].map(item => (
                     <button
                       key={item.label}
@@ -772,7 +774,7 @@ export default function OperatorPanel() {
              <div className="bg-[#0E1217] border border-gray-800 rounded p-2.5 space-y-2 text-xs">
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Device / LED preset</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.deviceLedPreset}</span>
                     <select value={devicePreset} onChange={(e) => setDevicePreset(e.target.value as typeof devicePreset)} className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-white">
                       <option value="led-fhd">LED FHD 1920x1080</option>
                       <option value="led-2k">LED 2K 2560x1440</option>
@@ -785,7 +787,7 @@ export default function OperatorPanel() {
                     </select>
                   </label>
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Stage fit</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.stageFitLabel}</span>
                     <select value={stageFit} onChange={(e) => setStageFit(e.target.value as typeof stageFit)} className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-white">
                       <option value="fill">Fill viewport - het vien den</option>
                       <option value="stretch">Stretch - khop moi man</option>
@@ -797,22 +799,22 @@ export default function OperatorPanel() {
 
                 <div className="grid grid-cols-3 gap-2">
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Width</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.stageWidthLabel}</span>
                     <input type="number" min="240" max="7680" value={stageWidth || 1920} onChange={(e) => setStageSize(Math.max(240, Number(e.target.value)), stageHeight || 1080)} className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-white" />
                   </label>
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Height</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.stageHeightLabel}</span>
                     <input type="number" min="240" max="4320" value={stageHeight || 1080} onChange={(e) => setStageSize(stageWidth || 1920, Math.max(240, Number(e.target.value)))} className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-white" />
                   </label>
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Overscan LED: {stageOverscan.toFixed(1)}%</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.overscanLed}: {stageOverscan.toFixed(1)}%</span>
                     <input type="range" min="-3" max="5" step="0.1" value={stageOverscan} onChange={(e) => setStageOverscan(Number(e.target.value))} className="w-full accent-gab-cyan" />
                   </label>
                 </div>
 
                 <div className="grid grid-cols-[1fr_92px] gap-2 items-end">
                   <label className="block">
-                    <span className="text-[10px] text-gray-400 block mb-1">Touch automation</span>
+                    <span className="text-[10px] text-gray-400 block mb-1">{t.touchAutomation}</span>
                     <select value={touchAutomationMode} onChange={(e) => setTouchAutomationMode(e.target.value as typeof touchAutomationMode)} className="w-full bg-black border border-gray-700 rounded px-2 py-1.5 text-white">
                       <option value="manual">Manual - bam tung diem</option>
                       <option value="sequential">Sequential - tuan tu</option>
@@ -821,7 +823,7 @@ export default function OperatorPanel() {
                     </select>
                   </label>
                   <button onClick={() => eventController.runTouchAutomation()} className="h-8 bg-gab-cyan-light text-black text-[10px] font-bold rounded hover:opacity-90">
-                    RUN TOUCH
+                    {t.runTouch}
                   </button>
                 </div>
 
