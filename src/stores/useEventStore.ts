@@ -40,6 +40,11 @@ interface EventState {
   backgroundType: 'particles' | 'starfield' | 'digital-network';
   explosionType: 'shockwave' | 'golden-burst' | 'supernova';
   trailColor: string;
+
+  // Timeline & Scrubber State
+  globalTime: number; // in seconds
+  isScrubbing: boolean;
+  totalDuration: number;
   
   timelineConfig: {
     countdown: number;
@@ -54,6 +59,8 @@ interface EventState {
     logo: { x: number; y: number; scale: number };
     counter: { x: number; y: number; scale: number };
     finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
+    cardVietkings: { x: number; y: number; scale: number; endX: number; endY: number };
+    cardGAB: { x: number; y: number; scale: number; endX: number; endY: number };
   };
   
   // Actions
@@ -69,6 +76,8 @@ interface EventState {
   setBackgroundType: (type: EventState['backgroundType']) => void;
   setExplosionType: (type: EventState['explosionType']) => void;
   setTrailColor: (color: string) => void;
+  setGlobalTime: (time: number) => void;
+  setScrubbing: (val: boolean) => void;
   updateTimeline: (phase: keyof EventState['timelineConfig'], seconds: number) => void;
   updateLayout: (component: keyof EventState['layout'], props: any) => void;
 }
@@ -85,6 +94,10 @@ export const useEventStore = create<EventState>((set, get) => ({
   backgroundType: 'particles',
   explosionType: 'shockwave',
   trailColor: '#FACC15', // Yellow
+  
+  globalTime: 0,
+  isScrubbing: false,
+  totalDuration: 6 + 3 + 6 + 8 + 2 + 2, // 27 seconds sum of default timelineConfig
   
   timelineConfig: {
     countdown: 6,
@@ -104,7 +117,9 @@ export const useEventStore = create<EventState>((set, get) => ({
       x: 0,
       y: 0, 
       scale: 1 
-    }
+    },
+    cardVietkings: { x: -300, y: -100, scale: 1, endX: -400, endY: -150 },
+    cardGAB: { x: 300, y: 100, scale: 1, endX: 400, endY: 150 }
   },
   
   setPhase: (phase) => set({ phase }),
@@ -145,12 +160,16 @@ export const useEventStore = create<EventState>((set, get) => ({
   setBackgroundType: (type) => set({ backgroundType: type }),
   setExplosionType: (type) => set({ explosionType: type }),
   setTrailColor: (color) => set({ trailColor: color }),
-  updateTimeline: (phase, seconds) => set((state) => ({
-    timelineConfig: {
-      ...state.timelineConfig,
-      [phase]: seconds
-    }
-  })),
+  setGlobalTime: (time) => set({ globalTime: time }),
+  setScrubbing: (val) => set({ isScrubbing: val }),
+  updateTimeline: (phase, seconds) => set((state) => {
+    const newConfig = { ...state.timelineConfig, [phase]: seconds };
+    const total = Object.values(newConfig).reduce((a, b) => a + b, 0);
+    return {
+      timelineConfig: newConfig,
+      totalDuration: total
+    };
+  }),
   updateLayout: (component, props) => set((state) => ({
     layout: {
       ...state.layout,
