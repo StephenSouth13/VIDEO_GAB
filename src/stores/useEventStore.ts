@@ -21,6 +21,7 @@ export type EventPhase = typeof EventPhase[keyof typeof EventPhase];
 
 export interface ParticipantState {
   id: number;
+  name: string;
   status: 'WAITING' | 'DETECTED' | 'CONFIRMING' | 'CONFIRMED';
   progress: number; // 0 to 100
 }
@@ -33,6 +34,8 @@ interface EventState {
   // Controls
   isBlackout: boolean;
   customBackgroundHTML: string;
+  particleCount: number;
+  nodeShape: 'circle' | 'rectangle';
   
   // Actions
   setPhase: (phase: EventPhase) => void;
@@ -41,6 +44,8 @@ interface EventState {
   resetParticipants: () => void;
   setBlackout: (val: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
+  setParticleCount: (count: number) => void;
+  setNodeShape: (shape: 'circle' | 'rectangle') => void;
 }
 
 export const useEventStore = create<EventState>((set, get) => ({
@@ -49,6 +54,8 @@ export const useEventStore = create<EventState>((set, get) => ({
   participants: {},
   isBlackout: false,
   customBackgroundHTML: '',
+  particleCount: 2000,
+  nodeShape: 'rectangle',
   
   setPhase: (phase) => set({ phase }),
   
@@ -61,7 +68,7 @@ export const useEventStore = create<EventState>((set, get) => ({
     participants: {
       ...state.participants,
       [id]: {
-        ...(state.participants[id] || { id, status: 'WAITING', progress: 0 }),
+        ...(state.participants[id] || { id, name: `KLG ${id.toString().padStart(2, '0')}`, status: 'WAITING', progress: 0 }),
         ...update
       }
     }
@@ -70,11 +77,34 @@ export const useEventStore = create<EventState>((set, get) => ({
   resetParticipants: () => set((state) => {
     const newParticipants: Record<number, ParticipantState> = {};
     for(let i=1; i<=state.requiredParticipants; i++) {
-      newParticipants[i] = { id: i, status: 'WAITING', progress: 0 };
+      newParticipants[i] = { 
+        id: i, 
+        name: state.participants[i]?.name || `KLG ${i.toString().padStart(2, '0')}`,
+        status: 'WAITING', 
+        progress: 0 
+      };
     }
     return { participants: newParticipants };
   }),
   
   setBlackout: (val) => set({ isBlackout: val }),
-  setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html })
+  setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
+  setParticleCount: (count) => set({ particleCount: count }),
+  setNodeShape: (shape) => set({ nodeShape: shape })
 }));
+
+const channel = new BroadcastChannel('gab-event-sync');
+let isSyncing = false;
+
+useEventStore.subscribe((state) => {
+  if (!isSyncing) {
+    channel.postMessage(JSON.stringify(state));
+  }
+});
+
+channel.onmessage = (e) => {
+  isSyncing = true;
+  useEventStore.setState(JSON.parse(e.data));
+  isSyncing = false;
+};
+

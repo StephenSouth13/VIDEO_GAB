@@ -2,7 +2,7 @@ import { useEventStore } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
 
 export default function OperatorPanel() {
-  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML } = useEventStore();
+  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML, setRequiredParticipants, particleCount, setParticleCount, updateParticipant, nodeShape, setNodeShape } = useEventStore();
   
   const handleActivateAll = () => {
     eventController.activateAll();
@@ -67,6 +67,13 @@ export default function OperatorPanel() {
               </button>
               
               <button 
+                onClick={() => eventController.runDemo()}
+                className="w-full py-2 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400 transition"
+              >
+                ▶ RUN AUTO DEMO
+              </button>
+              
+              <button 
                 onClick={handleReset}
                 className="w-full py-2 border border-red-500 text-red-500 font-bold rounded hover:bg-red-500 hover:text-white transition"
               >
@@ -76,8 +83,47 @@ export default function OperatorPanel() {
           </div>
         </div>
 
+        {/* Dynamic Controls */}
+        <div className="bg-gab-blue p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Settings</h2>
+          <div className="space-y-4">
+             <div>
+               <label className="block text-sm text-gray-400 mb-1">Số lượng người tham gia (8-15)</label>
+               <input 
+                 type="number" 
+                 min="8" max="15" 
+                 value={requiredParticipants}
+                 onChange={(e) => setRequiredParticipants(Number(e.target.value))}
+                 className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white"
+               />
+             </div>
+             <div>
+               <label className="block text-sm text-gray-400 mb-1">Mật độ Particle (Sao bay)</label>
+               <input 
+                 type="range" 
+                 min="100" max="5000" step="100"
+                 value={particleCount}
+                 onChange={(e) => setParticleCount(Number(e.target.value))}
+                 className="w-full"
+               />
+               <div className="text-right text-xs text-gab-cyan-light">{particleCount} particles</div>
+             </div>
+             <div>
+               <label className="block text-sm text-gray-400 mb-1">Kiểu dáng trạm (Node Shape)</label>
+               <select 
+                 value={nodeShape}
+                 onChange={(e) => setNodeShape(e.target.value as 'circle' | 'rectangle')}
+                 className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white"
+               >
+                 <option value="circle">Hình tròn (Circle)</option>
+                 <option value="rectangle">Hình chữ nhật đứng (Card)</option>
+               </select>
+             </div>
+          </div>
+        </div>
+
         {/* Participants Panel */}
-        <div className="md:col-span-2 bg-gab-blue p-6 rounded-lg shadow-lg">
+        <div className="md:col-span-3 bg-gab-blue p-6 rounded-lg shadow-lg">
            <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Sensors / Participants</h2>
            
            <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
@@ -90,7 +136,12 @@ export default function OperatorPanel() {
                       : 'bg-gab-navy border-gab-cyan text-gray-400'
                   }`}
                 >
-                  <p className="font-bold text-lg mb-2">KLG {p.id.toString().padStart(2, '0')}</p>
+                  <input 
+                    type="text"
+                    value={p.name}
+                    onChange={(e) => updateParticipant(p.id, { name: e.target.value })}
+                    className="w-full bg-transparent border-b border-gray-600 text-center font-bold text-lg mb-2 focus:outline-none focus:border-white"
+                  />
                   <p className="text-xs mb-3">{p.status}</p>
                   <button 
                     onClick={() => handleConfirm(p.id)}

@@ -1,26 +1,30 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useEventStore } from '../stores/useEventStore';
 
 export default function ParticlesBackground() {
-  const count = 2000;
+  const { particleCount } = useEventStore();
   const mesh = useRef<THREE.InstancedMesh>(null);
   
   // Dummy initialization for now
-  const dummy = new THREE.Object3D();
-  const particles = new Float32Array(count * 3);
-  const speeds = new Float32Array(count);
-
-  for (let i = 0; i < count; i++) {
-    particles[i * 3] = (Math.random() - 0.5) * 40;
-    particles[i * 3 + 1] = (Math.random() - 0.5) * 20;
-    particles[i * 3 + 2] = (Math.random() - 0.5) * 20;
-    speeds[i] = Math.random() * 0.02 + 0.005;
-  }
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  
+  const { particles, speeds } = useMemo(() => {
+    const p = new Float32Array(5000 * 3); // Max alloc
+    const s = new Float32Array(5000);
+    for (let i = 0; i < 5000; i++) {
+      p[i * 3] = (Math.random() - 0.5) * 40;
+      p[i * 3 + 1] = (Math.random() - 0.5) * 20;
+      p[i * 3 + 2] = (Math.random() - 0.5) * 20;
+      s[i] = Math.random() * 0.02 + 0.005;
+    }
+    return { particles: p, speeds: s };
+  }, []);
 
   useFrame(() => {
     if (mesh.current) {
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < particleCount; i++) {
         // Slow float up
         particles[i * 3 + 1] += speeds[i];
         if (particles[i * 3 + 1] > 10) {
@@ -31,12 +35,13 @@ export default function ParticlesBackground() {
         dummy.updateMatrix();
         mesh.current.setMatrixAt(i, dummy.matrix);
       }
+      mesh.current.count = particleCount;
       mesh.current.instanceMatrix.needsUpdate = true;
     }
   });
 
   return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
+    <instancedMesh ref={mesh} args={[undefined, undefined, 5000]}>
       <sphereGeometry args={[0.05, 8, 8]} />
       <meshBasicMaterial color="#5BC0BE" transparent opacity={0.6} />
     </instancedMesh>

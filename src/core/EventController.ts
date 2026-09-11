@@ -148,6 +148,23 @@ export class EventController {
     }, 1500);
   }
 
+  public runDemo() {
+    this.boot();
+    this.startWaiting();
+    const store = useEventStore.getState();
+    let current = 1;
+    
+    // Simulate people placing hands one by one
+    const interval = setInterval(() => {
+      if (current <= store.requiredParticipants) {
+        this.confirmParticipant(current);
+        current++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 400);
+  }
+
   public toggleBlackout() {
     const store = useEventStore.getState();
     store.setBlackout(!store.isBlackout);
