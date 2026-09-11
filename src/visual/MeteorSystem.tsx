@@ -9,7 +9,7 @@ export default function MeteorSystem() {
   
   const isActive = phase === EventPhase.ENERGY_CONVERGENCE || phase === EventPhase.COUNTER_SEQUENCE;
 
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current && isActive) {
       groupRef.current.rotation.z += 0.01;
     }

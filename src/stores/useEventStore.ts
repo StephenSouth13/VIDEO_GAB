@@ -1,21 +1,23 @@
 import { create } from 'zustand';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
-export enum EventPhase {
-  BOOT = 'BOOT',
-  IDLE = 'IDLE',
-  WAITING_FOR_PARTICIPANTS = 'WAITING_FOR_PARTICIPANTS',
-  PARTICIPANT_CONFIRMING = 'PARTICIPANT_CONFIRMING',
-  ALL_PARTICIPANTS_READY = 'ALL_PARTICIPANTS_READY',
-  COUNTDOWN = 'COUNTDOWN',
-  GAB_REVEAL = 'GAB_REVEAL',
-  ENERGY_CONVERGENCE = 'ENERGY_CONVERGENCE',
-  COUNTER_SEQUENCE = 'COUNTER_SEQUENCE',
-  FINAL_CHARGE = 'FINAL_CHARGE',
-  EXPLOSION = 'EXPLOSION',
-  SUCCESS = 'SUCCESS',
-  RESETTING = 'RESETTING'
-}
+export const EventPhase = {
+  BOOT: 'BOOT',
+  IDLE: 'IDLE',
+  WAITING_FOR_PARTICIPANTS: 'WAITING_FOR_PARTICIPANTS',
+  PARTICIPANT_CONFIRMING: 'PARTICIPANT_CONFIRMING',
+  ALL_PARTICIPANTS_READY: 'ALL_PARTICIPANTS_READY',
+  COUNTDOWN: 'COUNTDOWN',
+  GAB_REVEAL: 'GAB_REVEAL',
+  ENERGY_CONVERGENCE: 'ENERGY_CONVERGENCE',
+  COUNTER_SEQUENCE: 'COUNTER_SEQUENCE',
+  FINAL_CHARGE: 'FINAL_CHARGE',
+  EXPLOSION: 'EXPLOSION',
+  SUCCESS: 'SUCCESS',
+  RESETTING: 'RESETTING'
+} as const;
+
+export type EventPhase = typeof EventPhase[keyof typeof EventPhase];
 
 export interface ParticipantState {
   id: number;
@@ -30,6 +32,7 @@ interface EventState {
   
   // Controls
   isBlackout: boolean;
+  customBackgroundHTML: string;
   
   // Actions
   setPhase: (phase: EventPhase) => void;
@@ -37,6 +40,7 @@ interface EventState {
   updateParticipant: (id: number, update: Partial<ParticipantState>) => void;
   resetParticipants: () => void;
   setBlackout: (val: boolean) => void;
+  setCustomBackgroundHTML: (html: string) => void;
 }
 
 export const useEventStore = create<EventState>((set, get) => ({
@@ -44,6 +48,7 @@ export const useEventStore = create<EventState>((set, get) => ({
   requiredParticipants: EVENT_CONFIG.participants.required,
   participants: {},
   isBlackout: false,
+  customBackgroundHTML: '',
   
   setPhase: (phase) => set({ phase }),
   
@@ -70,5 +75,6 @@ export const useEventStore = create<EventState>((set, get) => ({
     return { participants: newParticipants };
   }),
   
-  setBlackout: (val) => set({ isBlackout: val })
+  setBlackout: (val) => set({ isBlackout: val }),
+  setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html })
 }));

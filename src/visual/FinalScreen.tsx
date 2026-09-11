@@ -10,8 +10,8 @@ export default function FinalScreen() {
         {EVENT_CONFIG.finalMessage.line2}
       </h2>
       <div className="mt-16 opacity-50 flex items-center justify-center gap-8">
-        <img src="/assets/logos/vietkings.png" alt="VietKings" className="h-16" onError={(e) => e.currentTarget.style.display='none'}/>
-        <img src="/assets/cards/gab-card.png" alt="GAB Card" className="h-24" onError={(e) => e.currentTarget.style.display='none'}/>
+        <img src="/logo/vietkings.webp" alt="VietKings" className="h-16" onError={(e) => e.currentTarget.style.display='none'}/>
+        <img src="/logo/GAB.png" alt="GAB Card" className="h-24" onError={(e) => e.currentTarget.style.display='none'}/>
       </div>
     </div>
   );

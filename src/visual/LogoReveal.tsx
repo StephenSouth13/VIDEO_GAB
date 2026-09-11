@@ -13,7 +13,7 @@ export default function LogoReveal() {
     <div className={`transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'} flex flex-col items-center`}>
        {/* Use an img placeholder if gab.svg is missing */}
        <img 
-         src="/assets/logos/gab.svg" 
+         src="/logo/GAB.png" 
          alt="GAB Logo" 
          onError={(e) => {
             e.currentTarget.style.display = 'none';

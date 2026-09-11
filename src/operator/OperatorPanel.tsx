@@ -1,8 +1,8 @@
-import { useEventStore, EventPhase } from '../stores/useEventStore';
+import { useEventStore } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
 
 export default function OperatorPanel() {
-  const { phase, requiredParticipants, participants, isBlackout } = useEventStore();
+  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML } = useEventStore();
   
   const handleActivateAll = () => {
     eventController.activateAll();
@@ -102,6 +102,18 @@ export default function OperatorPanel() {
                 </div>
               ))}
            </div>
+        </div>
+        
+        {/* Custom Background Embed Panel */}
+        <div className="md:col-span-3 bg-gab-blue p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Custom Background / Video Embed</h2>
+          <p className="text-sm text-gray-400 mb-2">Nhúng mã HTML, Iframe hoặc Video (ví dụ: `&lt;video src="/video.mp4" autoPlay loop muted className="w-full h-full object-cover"&gt;&lt;/video&gt;`) để hiển thị làm background trên màn LED thay vì code cứng.</p>
+          <textarea
+            className="w-full h-32 bg-gab-navy border border-gab-cyan rounded p-3 text-sm font-mono text-white focus:outline-none focus:border-gab-cyan-light"
+            placeholder="<!-- Paste your custom HTML or iframe here -->"
+            value={customBackgroundHTML}
+            onChange={(e) => setCustomBackgroundHTML(e.target.value)}
+          ></textarea>
         </div>
         
       </div>

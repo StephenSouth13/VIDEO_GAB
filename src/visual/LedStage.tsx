@@ -11,9 +11,12 @@ import FinalScreen from './FinalScreen';
 import Counter from './Counter';
 import ParticlesBackground from './ParticlesBackground';
 import ParticipantNodes from './ParticipantNodes';
+import MeteorSystem from './MeteorSystem';
+import EnergyTrailSystem from './EnergyTrailSystem';
+import ExplosionSystem from './ExplosionSystem';
 
 export default function LedStage() {
-  const { phase, isBlackout } = useEventStore();
+  const { phase, isBlackout, customBackgroundHTML } = useEventStore();
   
   useEffect(() => {
     // Prevent default scrolling on LED stage
@@ -30,18 +33,28 @@ export default function LedStage() {
   return (
     <div className="w-full h-screen bg-black overflow-hidden relative">
       
+      {/* Custom Embedded Background Layer */}
+      {customBackgroundHTML && (
+        <div 
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
+          dangerouslySetInnerHTML={{ __html: customBackgroundHTML }}
+        ></div>
+      )}
+
       {/* 3D Scene Layer */}
-      <div className="absolute inset-0 z-0">
+      <div className={`absolute inset-0 ${customBackgroundHTML ? 'z-10' : 'z-0'}`}>
         <Canvas 
           camera={{ position: [0, 0, 10], fov: 50 }} 
           dpr={[1, 1.5]}
-          gl={{ antialias: false }} // postprocessing deals with it
+          gl={{ antialias: false, alpha: true }} // alpha true for custom background
         >
-          <color attach="background" args={['#050810']} />
+          {/* Only render background color if no custom HTML is provided */}
+          {!customBackgroundHTML && <color attach="background" args={['#050810']} />}
           <ambientLight intensity={0.5} />
           
           <Suspense fallback={null}>
             <ParticlesBackground />
+            <MeteorSystem />
           </Suspense>
 
           {EVENT_CONFIG.visual.enableBloom && (
@@ -53,7 +66,7 @@ export default function LedStage() {
       </div>
       
       {/* HTML / 2D Overlay Layer */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+      <div className={`absolute inset-0 ${customBackgroundHTML ? 'z-20' : 'z-10'} flex flex-col items-center justify-center pointer-events-none`}>
          
          {/* COUNTDOWN */}
          {phase === EventPhase.COUNTDOWN && <Countdown />}
@@ -63,11 +76,17 @@ export default function LedStage() {
            <ParticipantNodes />
          )}
          
+         {/* ENERGY TRAILS */}
+         <EnergyTrailSystem />
+
          {/* LOGO REVEAL */}
          {(phase === EventPhase.GAB_REVEAL || phase === EventPhase.ENERGY_CONVERGENCE) && <LogoReveal />}
          
          {/* COUNTER */}
          {(phase === EventPhase.COUNTER_SEQUENCE || phase === EventPhase.FINAL_CHARGE) && <Counter />}
+         
+         {/* EXPLOSION */}
+         <ExplosionSystem />
          
          {/* FINAL SCREEN */}
          {phase === EventPhase.SUCCESS && <FinalScreen />}
