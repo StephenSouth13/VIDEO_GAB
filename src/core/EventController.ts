@@ -1,9 +1,45 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
+class PausableTimer {
+  private timerId: number | null = null;
+  private start: number;
+  private remaining: number;
+  private callback: () => void;
+
+  constructor(callback: () => void, delay: number) {
+    this.callback = callback;
+    this.remaining = delay;
+    this.start = Date.now();
+    this.resume();
+  }
+
+  pause() {
+    if (this.timerId !== null) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+      this.remaining -= Date.now() - this.start;
+    }
+  }
+
+  resume() {
+    if (this.timerId === null && this.remaining > 0) {
+      this.start = Date.now();
+      this.timerId = window.setTimeout(this.callback, this.remaining);
+    }
+  }
+
+  clear() {
+    if (this.timerId !== null) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+}
+
 export class EventController {
   private static instance: EventController;
-  private countdownTimer: number | null = null;
+  private currentTimer: PausableTimer | null = null;
 
   private constructor() {}
 
@@ -60,52 +96,58 @@ export class EventController {
     store.setPhase(EventPhase.ALL_PARTICIPANTS_READY);
     
     // Auto start countdown after a short delay for synchronization visual
-    setTimeout(() => {
+    this.setTimer(() => {
       this.startCountdown();
     }, 1500);
+  }
+
+  private setTimer(cb: () => void, delay: number) {
+    if (this.currentTimer) this.currentTimer.clear();
+    this.currentTimer = new PausableTimer(cb, delay);
+    
+    // If we're already paused, pause the new timer immediately
+    if (useEventStore.getState().isPaused) {
+      this.currentTimer.pause();
+    }
   }
 
   public startCountdown() {
     const store = useEventStore.getState();
     store.setPhase(EventPhase.COUNTDOWN);
     
-    // Countdown is visually handled by a component that watches phase, 
-    // but the controller coordinates the next state
-    if (this.countdownTimer) clearTimeout(this.countdownTimer);
-    
-    this.countdownTimer = window.setTimeout(() => {
+    this.setTimer(() => {
       this.triggerReveal();
     }, EVENT_CONFIG.countdown.seconds * 1000 + 1000); // Wait for countdown to finish + 1 sec
   }
 
   public cancelCountdown() {
-    if (this.countdownTimer) clearTimeout(this.countdownTimer);
+    if (this.currentTimer) this.currentTimer.clear();
     useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
   }
 
   private triggerReveal() {
     useEventStore.getState().setPhase(EventPhase.GAB_REVEAL);
-    setTimeout(() => this.triggerEnergyConvergence(), 3000);
+    this.setTimer(() => this.triggerEnergyConvergence(), 3000);
   }
 
   private triggerEnergyConvergence() {
     useEventStore.getState().setPhase(EventPhase.ENERGY_CONVERGENCE);
-    setTimeout(() => this.triggerCounterSequence(), 6000); // 6s of streams
+    this.setTimer(() => this.triggerCounterSequence(), 6000); // 6s of streams
   }
   
   private triggerCounterSequence() {
     useEventStore.getState().setPhase(EventPhase.COUNTER_SEQUENCE);
-    setTimeout(() => this.triggerFinalCharge(), 8000); // 8s of counter
+    this.setTimer(() => this.triggerFinalCharge(), 8000); // 8s of counter
   }
 
   private triggerFinalCharge() {
     useEventStore.getState().setPhase(EventPhase.FINAL_CHARGE);
-    setTimeout(() => this.triggerExplosion(), 2000); // 2s final hold
+    this.setTimer(() => this.triggerExplosion(), 2000); // 2s final hold
   }
 
   private triggerExplosion() {
     useEventStore.getState().setPhase(EventPhase.EXPLOSION);
-    setTimeout(() => this.showFinalScreen(), 2000); // 2s explosion
+    this.setTimer(() => this.showFinalScreen(), 2000); // 2s explosion
   }
 
   public showFinalScreen() {
@@ -113,6 +155,7 @@ export class EventController {
   }
   
   public skipToNextPhase() {
+    if (this.currentTimer) this.currentTimer.clear();
     const currentPhase = useEventStore.getState().phase;
     const phases = Object.values(EventPhase);
     const idx = phases.indexOf(currentPhase);
@@ -132,18 +175,19 @@ export class EventController {
   }
 
   public resetEvent() {
-    if (this.countdownTimer) clearTimeout(this.countdownTimer);
+    if (this.currentTimer) this.currentTimer.clear();
     const store = useEventStore.getState();
     store.setPhase(EventPhase.RESETTING);
+    store.setPaused(false);
     store.resetParticipants();
-    setTimeout(() => {
+    this.setTimer(() => {
       store.setPhase(EventPhase.IDLE);
     }, 1000);
   }
   
   public replayEvent() {
     this.resetEvent();
-    setTimeout(() => {
+    this.setTimer(() => {
       this.activateAll();
     }, 1500);
   }
@@ -168,6 +212,18 @@ export class EventController {
   public toggleBlackout() {
     const store = useEventStore.getState();
     store.setBlackout(!store.isBlackout);
+  }
+  
+  public togglePause() {
+    const store = useEventStore.getState();
+    const isNowPaused = !store.isPaused;
+    store.setPaused(isNowPaused);
+    
+    if (isNowPaused) {
+      if (this.currentTimer) this.currentTimer.pause();
+    } else {
+      if (this.currentTimer) this.currentTimer.resume();
+    }
   }
 }
 

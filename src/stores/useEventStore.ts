@@ -33,9 +33,18 @@ interface EventState {
   
   // Controls
   isBlackout: boolean;
+  isPaused: boolean;
   customBackgroundHTML: string;
   particleCount: number;
   nodeShape: 'circle' | 'rectangle';
+  backgroundType: 'particles' | 'starfield' | 'digital-network';
+  explosionType: 'shockwave' | 'golden-burst' | 'supernova';
+  
+  layout: {
+    logo: { y: number; scale: number };
+    counter: { y: number; scale: number };
+    finalMessage: { line1: string; line2: string; y: number; scale: number };
+  };
   
   // Actions
   setPhase: (phase: EventPhase) => void;
@@ -46,6 +55,10 @@ interface EventState {
   setCustomBackgroundHTML: (html: string) => void;
   setParticleCount: (count: number) => void;
   setNodeShape: (shape: 'circle' | 'rectangle') => void;
+  setPaused: (val: boolean) => void;
+  setBackgroundType: (type: EventState['backgroundType']) => void;
+  setExplosionType: (type: EventState['explosionType']) => void;
+  updateLayout: (component: keyof EventState['layout'], props: any) => void;
 }
 
 export const useEventStore = create<EventState>((set, get) => ({
@@ -53,9 +66,23 @@ export const useEventStore = create<EventState>((set, get) => ({
   requiredParticipants: EVENT_CONFIG.participants.required,
   participants: {},
   isBlackout: false,
+  isPaused: false,
   customBackgroundHTML: '',
   particleCount: 2000,
   nodeShape: 'rectangle',
+  backgroundType: 'particles',
+  explosionType: 'shockwave',
+  
+  layout: {
+    logo: { y: 0, scale: 1 },
+    counter: { y: 0, scale: 1 },
+    finalMessage: { 
+      line1: "CHÚC MỪNG CÁC KỶ LỤC GIA", 
+      line2: "ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG", 
+      y: 0, 
+      scale: 1 
+    }
+  },
   
   setPhase: (phase) => set({ phase }),
   
@@ -90,15 +117,32 @@ export const useEventStore = create<EventState>((set, get) => ({
   setBlackout: (val) => set({ isBlackout: val }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setParticleCount: (count) => set({ particleCount: count }),
-  setNodeShape: (shape) => set({ nodeShape: shape })
+  setNodeShape: (shape) => set({ nodeShape: shape }),
+  setPaused: (val) => set({ isPaused: val }),
+  setBackgroundType: (type) => set({ backgroundType: type }),
+  setExplosionType: (type) => set({ explosionType: type }),
+  updateLayout: (component, props) => set((state) => ({
+    layout: {
+      ...state.layout,
+      [component]: {
+        ...state.layout[component],
+        ...props
+      }
+    }
+  }))
 }));
 
 const channel = new BroadcastChannel('gab-event-sync');
 let isSyncing = false;
 
+let syncTimeout: any;
+
 useEventStore.subscribe((state) => {
   if (!isSyncing) {
-    channel.postMessage(JSON.stringify(state));
+    clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(() => {
+      channel.postMessage(JSON.stringify(state));
+    }, 16); // ~60fps throttle
   }
 });
 

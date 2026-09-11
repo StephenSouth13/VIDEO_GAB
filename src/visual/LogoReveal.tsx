@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useEventStore } from '../stores/useEventStore';
 
 export default function LogoReveal() {
+  const { phase, layout } = useEventStore();
   const [visible, setVisible] = useState(false);
   
   useEffect(() => {
@@ -10,20 +12,23 @@ export default function LogoReveal() {
   }, []);
 
   return (
-    <div className={`transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'} flex flex-col items-center`}>
+    <div 
+      className={`transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'} flex flex-col items-center absolute`}
+      style={{
+        transform: `translateY(${layout.logo.y}px) scale(${layout.logo.scale})`
+      }}
+    >
        {/* Use an img placeholder if gab.svg is missing */}
        <img 
          src="/logo/GAB.png" 
          alt="GAB Logo" 
          onError={(e) => {
             e.currentTarget.style.display = 'none';
-            document.getElementById('gab-placeholder')!.style.display = 'block';
+            // Fallback text if image fails to load
+            e.currentTarget.parentElement!.innerHTML = '<div class="text-6xl font-bold text-gab-cyan-light font-mono shadow-[0_0_50px_rgba(91,192,190,0.8)] px-12 py-8 border-4 border-gab-cyan rounded-xl backdrop-blur-sm bg-gab-navy bg-opacity-50">GAB</div>';
          }}
-         className="w-[600px] h-auto drop-shadow-[0_0_40px_rgba(0,240,255,0.6)]" 
+         className="w-[60vw] max-w-[800px] object-contain drop-shadow-[0_0_50px_rgba(91,192,190,0.8)]"
        />
-       <div id="gab-placeholder" className="hidden text-6xl font-bold text-gab-cyan-light border-4 border-gab-cyan-light p-8 rounded-lg shadow-[0_0_50px_rgba(91,192,190,0.5)]">
-          [GAB LOGO PLACEHOLDER]
-       </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { useEventStore } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
 
 export default function OperatorPanel() {
-  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML, setRequiredParticipants, particleCount, setParticleCount, updateParticipant, nodeShape, setNodeShape } = useEventStore();
+  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML, setRequiredParticipants, particleCount, setParticleCount, updateParticipant, nodeShape, setNodeShape, isPaused, backgroundType, setBackgroundType, explosionType, setExplosionType, layout, updateLayout } = useEventStore();
   
   const handleActivateAll = () => {
     eventController.activateAll();
@@ -24,6 +24,12 @@ export default function OperatorPanel() {
       <header className="mb-8 border-b border-gab-cyan pb-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gab-cyan-light">GAB Operator Control Panel</h1>
         <div className="flex gap-4">
+           <button 
+            onClick={() => eventController.togglePause()} 
+            className={`px-6 py-2 font-bold rounded text-white ${isPaused ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-gab-cyan hover:bg-gab-cyan-light'}`}
+          >
+            {isPaused ? '▶ RESUME' : '⏸ PAUSE'}
+          </button>
            <button 
             onClick={() => eventController.toggleBlackout()} 
             className={`px-4 py-2 font-bold rounded ${isBlackout ? 'bg-red-600' : 'bg-gray-700'}`}
@@ -119,6 +125,72 @@ export default function OperatorPanel() {
                  <option value="rectangle">Hình chữ nhật đứng (Card)</option>
                </select>
              </div>
+             <div>
+               <label className="block text-sm text-gray-400 mb-1">Hiệu ứng Background</label>
+               <select 
+                 value={backgroundType}
+                 onChange={(e) => setBackgroundType(e.target.value as any)}
+                 className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white"
+               >
+                 <option value="particles">Sao bay cơ bản (Particles)</option>
+                 <option value="starfield">Vũ trụ chuyển động (Starfield)</option>
+                 <option value="digital-network">Lưới Cyber (Digital Network)</option>
+               </select>
+             </div>
+             <div>
+               <label className="block text-sm text-gray-400 mb-1">Hiệu ứng Nổ (Explosion)</label>
+               <select 
+                 value={explosionType}
+                 onChange={(e) => setExplosionType(e.target.value as any)}
+                 className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white"
+               >
+                 <option value="shockwave">Sóng xung kích trắng (Shockwave)</option>
+                 <option value="golden-burst">Vàng nổ tung (Golden Burst)</option>
+                 <option value="supernova">Supernova</option>
+               </select>
+             </div>
+          </div>
+        </div>
+
+        {/* Studio Layout Editor */}
+        <div className="bg-gab-blue p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Studio Layout Editor</h2>
+          <div className="space-y-6 overflow-y-auto max-h-[400px] pr-2">
+            
+            {/* Logo Layout */}
+            <div className="border border-gray-700 p-3 rounded">
+              <h3 className="font-bold text-sm mb-2 text-white">Logo GAB</h3>
+              <label className="block text-xs text-gray-400">Vị trí dọc (Y Offset): {layout.logo.y}px</label>
+              <input type="range" min="-500" max="500" value={layout.logo.y} onChange={(e) => updateLayout('logo', { y: Number(e.target.value) })} className="w-full mb-2"/>
+              <label className="block text-xs text-gray-400">Kích thước (Scale): {layout.logo.scale}</label>
+              <input type="range" min="0.1" max="3" step="0.1" value={layout.logo.scale} onChange={(e) => updateLayout('logo', { scale: Number(e.target.value) })} className="w-full"/>
+            </div>
+
+            {/* Counter Layout */}
+            <div className="border border-gray-700 p-3 rounded">
+              <h3 className="font-bold text-sm mb-2 text-white">Bộ đếm (Counter 400+)</h3>
+              <label className="block text-xs text-gray-400">Vị trí dọc (Y Offset): {layout.counter.y}px</label>
+              <input type="range" min="-500" max="500" value={layout.counter.y} onChange={(e) => updateLayout('counter', { y: Number(e.target.value) })} className="w-full mb-2"/>
+              <label className="block text-xs text-gray-400">Kích thước (Scale): {layout.counter.scale}</label>
+              <input type="range" min="0.1" max="3" step="0.1" value={layout.counter.scale} onChange={(e) => updateLayout('counter', { scale: Number(e.target.value) })} className="w-full"/>
+            </div>
+
+            {/* Final Screen Editor */}
+            <div className="border border-gray-700 p-3 rounded">
+              <h3 className="font-bold text-sm mb-2 text-white">Màn hình Cuối (Final Screen)</h3>
+              
+              <label className="block text-xs text-gray-400 mb-1">Dòng 1</label>
+              <input type="text" value={layout.finalMessage.line1} onChange={(e) => updateLayout('finalMessage', { line1: e.target.value })} className="w-full bg-gab-navy border border-gab-cyan rounded px-2 py-1 mb-2 text-sm text-white"/>
+              
+              <label className="block text-xs text-gray-400 mb-1">Dòng 2</label>
+              <input type="text" value={layout.finalMessage.line2} onChange={(e) => updateLayout('finalMessage', { line2: e.target.value })} className="w-full bg-gab-navy border border-gab-cyan rounded px-2 py-1 mb-3 text-sm text-white"/>
+              
+              <label className="block text-xs text-gray-400">Vị trí dọc (Y Offset): {layout.finalMessage.y}px</label>
+              <input type="range" min="-500" max="500" value={layout.finalMessage.y} onChange={(e) => updateLayout('finalMessage', { y: Number(e.target.value) })} className="w-full mb-2"/>
+              <label className="block text-xs text-gray-400">Kích thước (Scale): {layout.finalMessage.scale}</label>
+              <input type="range" min="0.1" max="3" step="0.1" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
+            </div>
+            
           </div>
         </div>
 
