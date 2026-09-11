@@ -273,6 +273,13 @@ export default function OperatorPanel() {
     }
   };
 
+  const runSavedProfile = (name: string) => {
+    loadProfile(name);
+    window.setTimeout(() => {
+      eventController.runDemo();
+    }, 60);
+  };
+
   const applyBundledLogos = () => {
     setCustomLogo('customLogoCenter', '/logo/GAB.png');
     setCustomLogo('customLogoFly1', '/logo/vietkings.webp');
@@ -796,6 +803,7 @@ export default function OperatorPanel() {
                         <span className="truncate max-w-[190px] text-gray-300 font-mono">{name}</span>
                         <div className="flex gap-1">
                           <button onClick={() => loadProfile(name)} className="px-2 py-0.5 bg-gab-cyan/20 text-gab-cyan text-[10px] rounded hover:bg-gab-cyan hover:text-black font-bold">{t.btnLoad}</button>
+                          <button onClick={() => runSavedProfile(name)} className="px-2 py-0.5 bg-yellow-400 text-black text-[10px] rounded hover:bg-yellow-300 font-bold">{t.btnRunScenario}</button>
                           <button onClick={() => deleteProfile(name)} className="px-1.5 py-0.5 text-red-400 hover:text-red-200 text-[10px] rounded" title="Delete">✕</button>
                         </div>
                      </div>

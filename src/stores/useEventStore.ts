@@ -554,6 +554,19 @@ const isEditPreviewInstance = window.location.search.includes('edit=true');
 let isReceivingExternalUpdate = false;
 let syncTimeout: any;
 
+const pickPreviewEditableState = (state: EventState) => ({
+  layout: state.layout,
+  customLogoCenter: state.customLogoCenter,
+  customLogoFly1: state.customLogoFly1,
+  customLogoFly2: state.customLogoFly2,
+  showCardVietkings: state.showCardVietkings,
+  showCardGAB: state.showCardGAB,
+  showCenterLogoFinal: state.showCenterLogoFinal,
+  finalTemplate: state.finalTemplate,
+  finalCardVietkingsConfig: state.finalCardVietkingsConfig,
+  finalCardGABConfig: state.finalCardGABConfig,
+});
+
 useEventStore.subscribe((state) => {
   if (isReceivingExternalUpdate) return;
   if (!isOperatorInstance && !isEditPreviewInstance) return;
@@ -563,14 +576,14 @@ useEventStore.subscribe((state) => {
     try {
       channel.postMessage({
         senderId: myInstanceId,
-        type: 'state-update',
+        type: isOperatorInstance ? 'state-update' : 'preview-edit-update',
         source: isOperatorInstance ? 'operator' : 'preview',
-        state
+        state: isOperatorInstance ? state : pickPreviewEditableState(state)
       });
     } catch {
       // Ignore serialization errors
     }
-  }, 25); // ~40fps max broadcast rate
+  }, isOperatorInstance ? 25 : 80);
 });
 
 channel.onmessage = (e) => {
@@ -586,7 +599,22 @@ channel.onmessage = (e) => {
     return;
   }
   
-  if (e.data.state) {
+  if (e.data.type === 'preview-edit-update') {
+    if (!isOperatorInstance || !e.data.state) return;
+    isReceivingExternalUpdate = true;
+    useEventStore.setState((state) => ({
+      ...state,
+      ...e.data.state
+    }));
+    setTimeout(() => {
+      isReceivingExternalUpdate = false;
+    }, 10);
+    return;
+  }
+
+  if (e.data.type === 'state-update' && e.data.state) {
+    if (e.data.source !== 'operator' && !isOperatorInstance) return;
+    if (e.data.source !== 'operator' && isOperatorInstance) return;
     isReceivingExternalUpdate = true;
     useEventStore.setState(e.data.state);
     setTimeout(() => {
@@ -598,6 +626,7 @@ channel.onmessage = (e) => {
 window.addEventListener('storage', (event) => {
   if (event.key !== 'gab-event-storage' || !event.newValue) return;
   if (isReceivingExternalUpdate) return;
+  if (isOperatorInstance || isEditPreviewInstance) return;
 
   try {
     const parsed = JSON.parse(event.newValue);
