@@ -24,7 +24,7 @@ export default function Counter() {
     <div 
       className={`transition-all duration-1000 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'} flex flex-col items-center absolute`}
       style={{
-        transform: `translateY(${layout.counter.y}px) scale(${layout.counter.scale * (visible ? 1 : 0.5)})`
+        transform: `translate(${layout.counter.x}px, ${layout.counter.y}px) scale(${layout.counter.scale * (visible ? 1 : 0.5)})`
       }}
     >
       <h2 className="text-4xl text-gab-cyan-light mb-4 tracking-[0.5em] uppercase">Global Activation</h2>

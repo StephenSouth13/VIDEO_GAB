@@ -51,9 +51,9 @@ interface EventState {
   };
   
   layout: {
-    logo: { y: number; scale: number };
-    counter: { y: number; scale: number };
-    finalMessage: { line1: string; line2: string; y: number; scale: number };
+    logo: { x: number; y: number; scale: number };
+    counter: { x: number; y: number; scale: number };
+    finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
   };
   
   // Actions
@@ -96,11 +96,12 @@ export const useEventStore = create<EventState>((set, get) => ({
   },
   
   layout: {
-    logo: { y: 0, scale: 1 },
-    counter: { y: 0, scale: 1 },
+    logo: { x: 0, y: 0, scale: 1 },
+    counter: { x: 0, y: 0, scale: 1 },
     finalMessage: { 
       line1: "CHÚC MỪNG CÁC KỶ LỤC GIA", 
       line2: "ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG", 
+      x: 0,
       y: 0, 
       scale: 1 
     }
@@ -128,7 +129,7 @@ export const useEventStore = create<EventState>((set, get) => ({
     for(let i=1; i<=state.requiredParticipants; i++) {
       newParticipants[i] = { 
         id: i, 
-        name: state.participants[i]?.name || `KLG ${i.toString().padStart(2, '0')}`,
+        name: state.participants[i]?.name ?? `KLG ${i.toString().padStart(2, '0')}`,
         status: 'WAITING', 
         progress: 0 
       };

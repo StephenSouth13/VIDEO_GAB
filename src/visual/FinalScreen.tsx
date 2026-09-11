@@ -13,7 +13,7 @@ export default function FinalScreen() {
     <div 
       className="absolute inset-0 flex flex-col items-center justify-center text-center animate-fade-in duration-1000"
       style={{
-        transform: `translateY(${finalMessage.y}px) scale(${finalMessage.scale})`,
+        transform: `translate(${finalMessage.x}px, ${finalMessage.y}px) scale(${finalMessage.scale})`,
       }}
     >
       <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)]">

@@ -156,16 +156,20 @@ export default function OperatorPanel() {
               
               <div className="border border-gray-700 p-3 rounded">
                 <h3 className="font-bold text-sm mb-2 text-white">Logo GAB</h3>
+                <label className="block text-xs text-gray-400">X Offset: {layout.logo.x}px</label>
+                <input type="range" min="-500" max="500" value={layout.logo.x} onChange={(e) => updateLayout('logo', { x: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Y Offset: {layout.logo.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.logo.y} onChange={(e) => updateLayout('logo', { y: Number(e.target.value) })} className="w-full mb-2"/>
+                <input type="range" min="-500" max="500" value={layout.logo.y} onChange={(e) => updateLayout('logo', { y: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Scale: {layout.logo.scale}</label>
                 <input type="range" min="0.1" max="3" step="0.1" value={layout.logo.scale} onChange={(e) => updateLayout('logo', { scale: Number(e.target.value) })} className="w-full"/>
               </div>
 
               <div className="border border-gray-700 p-3 rounded">
                 <h3 className="font-bold text-sm mb-2 text-white">Counter (400+)</h3>
+                <label className="block text-xs text-gray-400">X Offset: {layout.counter.x}px</label>
+                <input type="range" min="-500" max="500" value={layout.counter.x} onChange={(e) => updateLayout('counter', { x: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Y Offset: {layout.counter.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.counter.y} onChange={(e) => updateLayout('counter', { y: Number(e.target.value) })} className="w-full mb-2"/>
+                <input type="range" min="-500" max="500" value={layout.counter.y} onChange={(e) => updateLayout('counter', { y: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Scale: {layout.counter.scale}</label>
                 <input type="range" min="0.1" max="3" step="0.1" value={layout.counter.scale} onChange={(e) => updateLayout('counter', { scale: Number(e.target.value) })} className="w-full"/>
               </div>
@@ -173,9 +177,11 @@ export default function OperatorPanel() {
               <div className="border border-gray-700 p-3 rounded">
                 <h3 className="font-bold text-sm mb-2 text-white">Final Screen</h3>
                 <input type="text" value={layout.finalMessage.line1} onChange={(e) => updateLayout('finalMessage', { line1: e.target.value })} className="w-full bg-gab-navy border border-gray-600 rounded px-2 py-1 mb-2 text-sm text-white"/>
-                <input type="text" value={layout.finalMessage.line2} onChange={(e) => updateLayout('finalMessage', { line2: e.target.value })} className="w-full bg-gab-navy border border-gray-600 rounded px-2 py-1 mb-3 text-sm text-white"/>
+                <input type="text" value={layout.finalMessage.line2} onChange={(e) => updateLayout('finalMessage', { line2: e.target.value })} className="w-full bg-gab-navy border border-gray-600 rounded px-2 py-1 mb-2 text-sm text-white"/>
+                <label className="block text-xs text-gray-400">X Offset: {layout.finalMessage.x}px</label>
+                <input type="range" min="-500" max="500" value={layout.finalMessage.x} onChange={(e) => updateLayout('finalMessage', { x: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Y Offset: {layout.finalMessage.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.finalMessage.y} onChange={(e) => updateLayout('finalMessage', { y: Number(e.target.value) })} className="w-full mb-2"/>
+                <input type="range" min="-500" max="500" value={layout.finalMessage.y} onChange={(e) => updateLayout('finalMessage', { y: Number(e.target.value) })} className="w-full mb-1"/>
                 <label className="block text-xs text-gray-400">Scale: {layout.finalMessage.scale}</label>
                 <input type="range" min="0.1" max="3" step="0.1" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
               </div>

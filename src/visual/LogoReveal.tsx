@@ -15,7 +15,7 @@ export default function LogoReveal() {
     <div 
       className={`transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'} flex flex-col items-center absolute`}
       style={{
-        transform: `translateY(${layout.logo.y}px) scale(${layout.logo.scale})`
+        transform: `translate(${layout.logo.x}px, ${layout.logo.y}px) scale(${layout.logo.scale})`
       }}
     >
        {/* Use an img placeholder if gab.svg is missing */}

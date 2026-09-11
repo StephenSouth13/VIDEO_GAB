@@ -11,6 +11,10 @@ export default function ParticipantNodes() {
       {nodes.map(node => {
         const isConfirmed = node.status === 'CONFIRMED';
         
+        if (!node.name || node.name.trim() === '') {
+          return <div key={node.id} className={`flex flex-col items-center opacity-0 pointer-events-none ${nodeShape === 'circle' ? 'w-[8%]' : 'w-[6%] md:w-[5%]'}`}></div>;
+        }
+
         return (
           <div key={node.id} className={`flex flex-col items-center ${nodeShape === 'circle' ? 'max-w-[8%]' : 'w-[6%] md:w-[5%]'}`}>
             {/* Visual Node */}
