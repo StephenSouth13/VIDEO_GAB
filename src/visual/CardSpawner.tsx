@@ -1,13 +1,10 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { motion } from 'framer-motion';
 import DraggableItem from './DraggableItem';
-import { useEffect, useState } from 'react';
 
 export default function CardSpawner() {
   const { 
     phase, 
-    globalTime, 
-    timelineConfig, 
     customLogoFly1, 
     customLogoFly2, 
     showCardVietkings, 
@@ -16,30 +13,8 @@ export default function CardSpawner() {
     finalCardVietkingsConfig,
     finalCardGABConfig
   } = useEventStore();
-  const [spawned, setSpawned] = useState(false);
 
-  // Trigger spawn when energy convergence starts
-  useEffect(() => {
-    if (
-      phase === EventPhase.ENERGY_CONVERGENCE || 
-      phase === EventPhase.COUNTER_SEQUENCE || 
-      phase === EventPhase.FINAL_CHARGE || 
-      phase === EventPhase.EXPLOSION || 
-      phase === EventPhase.SUCCESS
-    ) {
-      setSpawned(true);
-    } else if (phase === EventPhase.IDLE || phase === EventPhase.RESETTING) {
-      setSpawned(false);
-    }
-  }, [phase]);
-
-  // Calculate start time of explosion to trigger fly out
-  const explosionStartTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge;
-  
-  // Progress of flying out (from 0 to 1 during the explosion phase)
-  const flyProgress = Math.max(0, Math.min(1, (globalTime - explosionStartTime) / timelineConfig.explosion));
-
-  if (!spawned) return null;
+  if (phase !== EventPhase.SUCCESS) return null;
 
   // Compute template-specific target transforms
   let vietkingsRot = finalCardVietkingsConfig.rotate ?? -15;
@@ -70,11 +45,11 @@ export default function CardSpawner() {
           <motion.div
             initial={{ opacity: 0, scale: 0, x: 400, y: 150 }}
             animate={{ 
-              opacity: phase === EventPhase.ENERGY_CONVERGENCE ? 0 : 1, 
-              scale: (flyProgress * 1.5 > 1 ? 1 : flyProgress * 1.5) * (finalCardVietkingsConfig.scale || 1),
-              x: 400 * (1 - flyProgress),
-              y: 150 * (1 - flyProgress),
-              rotate: vietkingsRot * flyProgress
+              opacity: 1, 
+              scale: finalCardVietkingsConfig.scale || 1,
+              x: 0,
+              y: 0,
+              rotate: vietkingsRot
             }}
             transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
             className={vietkingsCardStyle}
@@ -94,11 +69,11 @@ export default function CardSpawner() {
           <motion.div
             initial={{ opacity: 0, scale: 0, x: -400, y: -150 }}
             animate={{ 
-              opacity: phase === EventPhase.ENERGY_CONVERGENCE ? 0 : 1, 
-              scale: (flyProgress * 1.5 > 1 ? 1 : flyProgress * 1.5) * (finalCardGABConfig.scale || 1),
-              x: -400 * (1 - flyProgress),
-              y: -150 * (1 - flyProgress),
-              rotate: gabRot * flyProgress
+              opacity: 1, 
+              scale: finalCardGABConfig.scale || 1,
+              x: 0,
+              y: 0,
+              rotate: gabRot
             }}
             transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
             className={gabCardStyle}
@@ -115,4 +90,3 @@ export default function CardSpawner() {
     </>
   );
 }
-

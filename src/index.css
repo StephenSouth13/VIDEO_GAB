@@ -32,3 +32,60 @@ body, html {
   20% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
   100% { transform: translate(25vw, 15vh) scale(1) rotate(10deg); opacity: 0.8; }
 }
+
+@keyframes ledAuroraFlow {
+  0% { transform: translate3d(-8%, 4%, 0) rotate(0deg) scale(1.05); filter: hue-rotate(0deg); }
+  50% { transform: translate3d(6%, -5%, 0) rotate(5deg) scale(1.18); filter: hue-rotate(40deg); }
+  100% { transform: translate3d(-8%, 4%, 0) rotate(0deg) scale(1.05); filter: hue-rotate(0deg); }
+}
+
+@keyframes ledTunnelSpin {
+  0% { transform: scale(0.72) rotate(0deg); opacity: 0.35; }
+  50% { transform: scale(1.15) rotate(35deg); opacity: 0.75; }
+  100% { transform: scale(0.72) rotate(0deg); opacity: 0.35; }
+}
+
+@keyframes ledScanTravel {
+  0% { background-position: 0 0, 0 0; opacity: 0.28; }
+  100% { background-position: 0 80px, 120px 0; opacity: 0.42; }
+}
+
+@keyframes ledPrismShift {
+  0% { transform: translateX(-6%) skewX(-8deg); filter: hue-rotate(0deg); }
+  100% { transform: translateX(6%) skewX(8deg); filter: hue-rotate(80deg); }
+}
+
+.led-atmosphere {
+  opacity: 0.8;
+}
+
+.led-atmosphere-aurora {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.55), transparent 28%),
+    radial-gradient(circle at 75% 30%, rgba(250, 204, 21, 0.35), transparent 26%),
+    linear-gradient(115deg, transparent 0%, rgba(14, 165, 233, 0.25) 35%, rgba(217, 70, 239, 0.28) 55%, transparent 82%);
+  animation: ledAuroraFlow 9s ease-in-out infinite;
+  filter: blur(14px) saturate(1.25);
+}
+
+.led-atmosphere-light-tunnel {
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,0.18) 0deg 5deg, transparent 5deg 15deg),
+    radial-gradient(circle, transparent 0 18%, rgba(34,211,238,0.45) 21%, transparent 24%, rgba(250,204,21,0.25) 38%, transparent 62%);
+  animation: ledTunnelSpin 3.8s ease-in-out infinite;
+}
+
+.led-atmosphere-scanlines {
+  background:
+    repeating-linear-gradient(0deg, rgba(34, 211, 238, 0.0) 0 8px, rgba(34, 211, 238, 0.25) 9px 11px),
+    linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: ledScanTravel 1.8s linear infinite;
+}
+
+.led-atmosphere-prism {
+  background:
+    linear-gradient(105deg, transparent 0 18%, rgba(255,255,255,0.4) 24%, transparent 32%),
+    linear-gradient(75deg, rgba(34,211,238,0.28), rgba(236,72,153,0.25), rgba(250,204,21,0.24), transparent);
+  animation: ledPrismShift 5s ease-in-out infinite alternate;
+  filter: blur(6px) saturate(1.4);
+}

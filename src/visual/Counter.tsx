@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 export default function Counter() {
   const { phase, globalTime, timelineConfig } = useEventStore();
   
-  const visible = phase === EventPhase.COUNTER_SEQUENCE || phase === EventPhase.FINAL_CHARGE || phase === EventPhase.EXPLOSION || phase === EventPhase.SUCCESS;
+  const visible = phase === EventPhase.COUNTER_SEQUENCE || phase === EventPhase.FINAL_CHARGE;
 
   const counterStartTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy;
   const counterDuration = timelineConfig.counter;

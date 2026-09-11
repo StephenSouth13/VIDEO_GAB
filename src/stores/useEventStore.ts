@@ -38,12 +38,26 @@ interface EventState {
   isPaused: boolean;
   customBackgroundHTML: string;
   customBackgroundVideo: string | null;
+  backgroundVideoOpacity: number;
+  backgroundVideoFit: 'cover' | 'contain' | 'fill';
+  backgroundVideoPlaybackRate: number;
+  backgroundVideoPaused: boolean;
   particleCount: number;
   nodeShape: 'rectangle' | 'circle' | 'hand' | 'card' | 'diamond' | 'hexagon' | 'shield' | 'star' | 'cylinder' | 'ring';
+  nodeGlowStyle: 'classic' | 'energy' | 'blinding' | 'neon' | 'plasma' | 'halo';
   allReadyDelay: number; // delay in seconds before countdown starts after all nodes confirmed
-  backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum';
-  explosionType: 'cosmic-expansion' | 'vortex-spin' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring' | 'golden-burst' | 'shockwave';
-  energyType: 'expert-convergence' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'default';
+  autoAdvanceEnabled: boolean;
+  devicePreset: 'led-fhd' | 'led-2k' | 'led-4k' | 'led-ultrawide' | 'laptop' | 'tablet' | 'mobile' | 'custom';
+  stageWidth: number;
+  stageHeight: number;
+  stageFit: 'fill' | 'contain' | 'cover' | 'stretch';
+  stageOverscan: number;
+  autoDirectorPreset: 'manual' | 'premium-led' | 'high-energy' | 'ceremony' | 'touch-fast';
+  touchAutomationMode: 'manual' | 'sequential' | 'burst' | 'instant';
+  touchAutomationSpeed: number;
+  backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum' | 'aurora' | 'light-tunnel' | 'scanlines' | 'prism';
+  explosionType: 'cosmic-expansion' | 'vortex-spin' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring' | 'golden-burst' | 'shockwave' | 'radial-strobe' | 'glass-shatter' | 'data-burst' | 'aurora-flare';
+  energyType: 'expert-convergence' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'ribbon-weave' | 'orbital-rings' | 'rain-up' | 'heartbeat-pulse' | 'default';
   trailColor: string;
   backgroundColor: string;
   explosionColor: string;
@@ -69,6 +83,11 @@ interface EventState {
 
   // Profile Manager
   savedProfiles: Record<string, any>;
+  scenarioNames: {
+    ceremony: string;
+    videoEnergy: string;
+    placeCard: string;
+  };
   
   timelineConfig: {
     countdown: number;
@@ -97,10 +116,23 @@ interface EventState {
   setBlackout: (val: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
   setCustomBackgroundVideo: (url: string | null) => void;
+  setBackgroundVideoOpacity: (opacity: number) => void;
+  setBackgroundVideoFit: (fit: EventState['backgroundVideoFit']) => void;
+  setBackgroundVideoPlaybackRate: (rate: number) => void;
+  setBackgroundVideoPaused: (paused: boolean) => void;
   setParticleCount: (count: number) => void;
   setNodeShape: (shape: EventState['nodeShape']) => void;
+  setNodeGlowStyle: (style: EventState['nodeGlowStyle']) => void;
   setAllReadyDelay: (seconds: number) => void;
+  setAutoAdvanceEnabled: (enabled: boolean) => void;
   setPaused: (val: boolean) => void;
+  setDevicePreset: (preset: EventState['devicePreset']) => void;
+  setStageSize: (width: number, height: number) => void;
+  setStageFit: (fit: EventState['stageFit']) => void;
+  setStageOverscan: (percent: number) => void;
+  setAutoDirectorPreset: (preset: EventState['autoDirectorPreset']) => void;
+  setTouchAutomationMode: (mode: EventState['touchAutomationMode']) => void;
+  setTouchAutomationSpeed: (seconds: number) => void;
   setBackgroundType: (type: EventState['backgroundType']) => void;
   setExplosionType: (type: EventState['explosionType']) => void;
   setEnergyType: (type: EventState['energyType']) => void;
@@ -119,9 +151,26 @@ interface EventState {
   saveProfile: (name: string) => void;
   loadProfile: (name: string) => void;
   deleteProfile: (name: string) => void;
+  setScenarioName: (key: keyof EventState['scenarioNames'], name: string) => void;
   updateTimeline: (phase: keyof EventState['timelineConfig'], seconds: number) => void;
   updateLayout: (component: keyof EventState['layout'], props: any) => void;
+  resetLayout: () => void;
 }
+
+const createDefaultLayout = (): EventState['layout'] => ({
+  countdown: { x: 0, y: 0, scale: 1 },
+  logo: { x: 0, y: -35, scale: 1 },
+  counter: { x: 0, y: 0, scale: 1 },
+  finalMessage: { 
+    line1: "CHUC MUNG CAC KY LUC GIA", 
+    line2: "DA KICH HOAT THE GAB THANH CONG", 
+    x: 0,
+    y: -40, 
+    scale: 1 
+  },
+  cardVietkings: { x: -300, y: -100, scale: 1, endX: -430, endY: -170 },
+  cardGAB: { x: 300, y: 100, scale: 1, endX: 430, endY: 170 }
+});
 
 export const useEventStore = create<EventState>()(
   persist(
@@ -134,9 +183,23 @@ export const useEventStore = create<EventState>()(
   isPaused: false,
   customBackgroundHTML: '',
   customBackgroundVideo: null,
+  backgroundVideoOpacity: 1,
+  backgroundVideoFit: 'cover',
+  backgroundVideoPlaybackRate: 1,
+  backgroundVideoPaused: false,
   particleCount: 2000,
   nodeShape: 'rectangle',
+  nodeGlowStyle: 'energy',
   allReadyDelay: 1.5,
+  autoAdvanceEnabled: false,
+  devicePreset: 'led-fhd',
+  stageWidth: 1920,
+  stageHeight: 1080,
+  stageFit: 'fill',
+  stageOverscan: 0,
+  autoDirectorPreset: 'manual',
+  touchAutomationMode: 'manual',
+  touchAutomationSpeed: 0.35,
   backgroundType: 'particles',
   explosionType: 'cosmic-expansion',
   energyType: 'expert-convergence',
@@ -160,6 +223,11 @@ export const useEventStore = create<EventState>()(
   
   showNodes: true,
   savedProfiles: {},
+  scenarioNames: {
+    ceremony: 'S1 GAB Ceremony Core',
+    videoEnergy: 'S2 Video Energy 0328',
+    placeCard: 'S3 PlaceCard Visual'
+  },
   
   timelineConfig: {
     countdown: 6,
@@ -170,20 +238,7 @@ export const useEventStore = create<EventState>()(
     explosion: 2,
   },
   
-  layout: {
-    countdown: { x: 0, y: 0, scale: 1 },
-    logo: { x: 0, y: 0, scale: 1 },
-    counter: { x: 0, y: 0, scale: 1 },
-    finalMessage: { 
-      line1: "CHÚC MỪNG CÁC KỶ LỤC GIA", 
-      line2: "ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG", 
-      x: 0,
-      y: 0, 
-      scale: 1 
-    },
-    cardVietkings: { x: -300, y: -100, scale: 1, endX: -400, endY: -150 },
-    cardGAB: { x: 300, y: 100, scale: 1, endX: 400, endY: 150 }
-  },
+  layout: createDefaultLayout(),
   
   setLanguage: (lang) => set({ language: lang }),
   setPhase: (phase) => set({ phase }),
@@ -219,10 +274,35 @@ export const useEventStore = create<EventState>()(
   setBlackout: (val) => set({ isBlackout: val }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
+  setBackgroundVideoOpacity: (opacity) => set({ backgroundVideoOpacity: opacity }),
+  setBackgroundVideoFit: (fit) => set({ backgroundVideoFit: fit }),
+  setBackgroundVideoPlaybackRate: (rate) => set({ backgroundVideoPlaybackRate: rate }),
+  setBackgroundVideoPaused: (paused) => set({ backgroundVideoPaused: paused }),
   setParticleCount: (count) => set({ particleCount: count }),
   setNodeShape: (shape) => set({ nodeShape: shape }),
+  setNodeGlowStyle: (style) => set({ nodeGlowStyle: style }),
   setAllReadyDelay: (seconds) => set({ allReadyDelay: seconds }),
+  setAutoAdvanceEnabled: (enabled) => set({ autoAdvanceEnabled: enabled }),
   setPaused: (val) => set({ isPaused: val }),
+  setDevicePreset: (preset) => set(() => {
+    const sizes: Record<EventState['devicePreset'], { width: number; height: number }> = {
+      'led-fhd': { width: 1920, height: 1080 },
+      'led-2k': { width: 2560, height: 1440 },
+      'led-4k': { width: 3840, height: 2160 },
+      'led-ultrawide': { width: 3840, height: 1080 },
+      laptop: { width: 1440, height: 900 },
+      tablet: { width: 1024, height: 1366 },
+      mobile: { width: 390, height: 844 },
+      custom: { width: get().stageWidth, height: get().stageHeight },
+    };
+    return { devicePreset: preset, ...sizes[preset] };
+  }),
+  setStageSize: (width, height) => set({ stageWidth: width, stageHeight: height, devicePreset: 'custom' }),
+  setStageFit: (fit) => set({ stageFit: fit }),
+  setStageOverscan: (percent) => set({ stageOverscan: percent }),
+  setAutoDirectorPreset: (preset) => set({ autoDirectorPreset: preset }),
+  setTouchAutomationMode: (mode) => set({ touchAutomationMode: mode }),
+  setTouchAutomationSpeed: (seconds) => set({ touchAutomationSpeed: seconds }),
   setBackgroundType: (type) => set({ backgroundType: type }),
   setExplosionType: (type) => set({ explosionType: type }),
   setEnergyType: (type) => set({ energyType: type }),
@@ -250,7 +330,17 @@ export const useEventStore = create<EventState>()(
       requiredParticipants: state.requiredParticipants,
       particleCount: state.particleCount,
       nodeShape: state.nodeShape,
+      nodeGlowStyle: state.nodeGlowStyle,
       allReadyDelay: state.allReadyDelay,
+      autoAdvanceEnabled: state.autoAdvanceEnabled,
+      devicePreset: state.devicePreset,
+      stageWidth: state.stageWidth,
+      stageHeight: state.stageHeight,
+      stageFit: state.stageFit,
+      stageOverscan: state.stageOverscan,
+      autoDirectorPreset: state.autoDirectorPreset,
+      touchAutomationMode: state.touchAutomationMode,
+      touchAutomationSpeed: state.touchAutomationSpeed,
       backgroundType: state.backgroundType,
       explosionType: state.explosionType,
       energyType: state.energyType,
@@ -258,6 +348,10 @@ export const useEventStore = create<EventState>()(
       backgroundColor: state.backgroundColor,
       explosionColor: state.explosionColor,
       customBackgroundVideo: state.customBackgroundVideo,
+      backgroundVideoOpacity: state.backgroundVideoOpacity,
+      backgroundVideoFit: state.backgroundVideoFit,
+      backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,
+      backgroundVideoPaused: state.backgroundVideoPaused,
       timelineConfig: state.timelineConfig,
       layout: state.layout,
       customLogoCenter: state.customLogoCenter,
@@ -297,6 +391,12 @@ export const useEventStore = create<EventState>()(
     delete newProfiles[name];
     return { savedProfiles: newProfiles };
   }),
+  setScenarioName: (key, name) => set((state) => ({
+    scenarioNames: {
+      ...state.scenarioNames,
+      [key]: name
+    }
+  })),
 
   updateTimeline: (phase, seconds) => set((state) => {
     const newConfig = { ...state.timelineConfig, [phase]: seconds };
@@ -314,15 +414,53 @@ export const useEventStore = create<EventState>()(
         ...props
       }
     }
-  }))
+  })),
+  resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
+  version: 2,
+  migrate: (persistedState: any, version) => {
+    if (version < 2) {
+      return {
+        ...persistedState,
+        devicePreset: persistedState?.devicePreset ?? 'led-fhd',
+        stageWidth: persistedState?.stageWidth ?? 1920,
+        stageHeight: persistedState?.stageHeight ?? 1080,
+        stageFit: persistedState?.stageFit === 'contain' ? 'fill' : (persistedState?.stageFit ?? 'fill'),
+        stageOverscan: persistedState?.stageOverscan ?? 0,
+        backgroundVideoOpacity: persistedState?.backgroundVideoOpacity ?? 1,
+        backgroundVideoFit: persistedState?.backgroundVideoFit ?? 'cover',
+        backgroundVideoPlaybackRate: persistedState?.backgroundVideoPlaybackRate ?? 1,
+        backgroundVideoPaused: persistedState?.backgroundVideoPaused ?? false,
+        nodeGlowStyle: persistedState?.nodeGlowStyle ?? 'energy',
+        scenarioNames: persistedState?.scenarioNames ?? {
+          ceremony: 'S1 GAB Ceremony Core',
+          videoEnergy: 'S2 Video Energy 0328',
+          placeCard: 'S3 PlaceCard Visual'
+        },
+      };
+    }
+    return persistedState;
+  },
   partialize: (state) => ({
+    phase: state.phase,
     language: state.language,
     requiredParticipants: state.requiredParticipants,
+    isBlackout: state.isBlackout,
+    isPaused: state.isPaused,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
+    nodeGlowStyle: state.nodeGlowStyle,
     allReadyDelay: state.allReadyDelay,
+    autoAdvanceEnabled: state.autoAdvanceEnabled,
+    devicePreset: state.devicePreset,
+    stageWidth: state.stageWidth,
+    stageHeight: state.stageHeight,
+    stageFit: state.stageFit,
+    stageOverscan: state.stageOverscan,
+    autoDirectorPreset: state.autoDirectorPreset,
+    touchAutomationMode: state.touchAutomationMode,
+    touchAutomationSpeed: state.touchAutomationSpeed,
     backgroundType: state.backgroundType,
     explosionType: state.explosionType,
     energyType: state.energyType,
@@ -330,6 +468,13 @@ export const useEventStore = create<EventState>()(
     backgroundColor: state.backgroundColor,
     explosionColor: state.explosionColor,
     customBackgroundVideo: state.customBackgroundVideo,
+    backgroundVideoOpacity: state.backgroundVideoOpacity,
+    backgroundVideoFit: state.backgroundVideoFit,
+    backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,
+    backgroundVideoPaused: state.backgroundVideoPaused,
+    globalTime: state.globalTime,
+    totalDuration: state.totalDuration,
+    isScrubbing: false,
     timelineConfig: state.timelineConfig,
     layout: state.layout,
     customLogoCenter: state.customLogoCenter,
@@ -343,24 +488,30 @@ export const useEventStore = create<EventState>()(
     finalCardGABConfig: state.finalCardGABConfig,
     participants: state.participants,
     showNodes: state.showNodes,
-    savedProfiles: state.savedProfiles
+    savedProfiles: state.savedProfiles,
+    scenarioNames: state.scenarioNames
   })
 }));
 
 // Efficient BroadcastChannel sync with senderId to eliminate ping-pong loops and lag
 const myInstanceId = Math.random().toString(36).substring(2, 9);
 const channel = new BroadcastChannel('gab-event-sync');
+const isOperatorInstance = window.location.pathname.startsWith('/operator');
+const isEditPreviewInstance = window.location.search.includes('edit=true');
 let isReceivingExternalUpdate = false;
 let syncTimeout: any;
 
 useEventStore.subscribe((state) => {
   if (isReceivingExternalUpdate) return;
+  if (!isOperatorInstance && !isEditPreviewInstance) return;
   
   clearTimeout(syncTimeout);
   syncTimeout = setTimeout(() => {
     try {
       channel.postMessage({
         senderId: myInstanceId,
+        type: 'state-update',
+        source: isOperatorInstance ? 'operator' : 'preview',
         state
       });
     } catch {
@@ -371,6 +522,16 @@ useEventStore.subscribe((state) => {
 
 channel.onmessage = (e) => {
   if (!e.data || e.data.senderId === myInstanceId) return;
+
+  if (e.data.type === 'sync-request' && isOperatorInstance) {
+    channel.postMessage({
+      senderId: myInstanceId,
+      type: 'state-update',
+      source: 'operator',
+      state: useEventStore.getState()
+    });
+    return;
+  }
   
   if (e.data.state) {
     isReceivingExternalUpdate = true;
@@ -380,4 +541,32 @@ channel.onmessage = (e) => {
     }, 10);
   }
 };
+
+window.addEventListener('storage', (event) => {
+  if (event.key !== 'gab-event-storage' || !event.newValue) return;
+  if (isReceivingExternalUpdate) return;
+
+  try {
+    const parsed = JSON.parse(event.newValue);
+    if (!parsed?.state) return;
+
+    isReceivingExternalUpdate = true;
+    useEventStore.setState(parsed.state);
+    window.setTimeout(() => {
+      isReceivingExternalUpdate = false;
+    }, 10);
+  } catch {
+    // Ignore malformed storage payloads.
+  }
+});
+
+if (!isOperatorInstance) {
+  window.setTimeout(() => {
+    channel.postMessage({
+      senderId: myInstanceId,
+      type: 'sync-request',
+      source: isEditPreviewInstance ? 'preview' : 'led'
+    });
+  }, 50);
+}
 

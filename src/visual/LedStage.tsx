@@ -2,7 +2,7 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { EVENT_CONFIG } from '../config/eventConfig';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 
 // Components
 import LogoReveal from './LogoReveal';
@@ -15,10 +15,27 @@ import MeteorSystem from './MeteorSystem';
 import EnergyTrailSystem from './EnergyTrailSystem';
 import ExplosionSystem from './ExplosionSystem';
 import CardSpawner from './CardSpawner';
-import TimelineManager from '../core/TimelineManager';
+
+const isEditPreview = new URLSearchParams(window.location.search).get('edit') === 'true';
 
 export default function LedStage() {
-  const { phase, isBlackout, customBackgroundHTML, customBackgroundVideo, backgroundColor } = useEventStore();
+  const { 
+    phase, 
+    isBlackout, 
+    customBackgroundHTML, 
+    customBackgroundVideo, 
+    backgroundVideoOpacity,
+    backgroundVideoFit,
+    backgroundVideoPlaybackRate,
+    backgroundVideoPaused,
+    backgroundColor,
+    backgroundType,
+    stageWidth,
+    stageHeight,
+    stageFit,
+    stageOverscan
+  } = useEventStore();
+  const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
     // Prevent default scrolling on LED stage
@@ -27,23 +44,60 @@ export default function LedStage() {
       document.body.style.overflow = 'auto';
     };
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = backgroundVideoPlaybackRate || 1;
+    if (backgroundVideoPaused) {
+      video.pause();
+    } else {
+      void video.play().catch(() => undefined);
+    }
+  }, [backgroundVideoPaused, backgroundVideoPlaybackRate, customBackgroundVideo]);
   
   if (isBlackout) {
     return <div className="w-full h-screen bg-black"></div>;
   }
 
+  const safeStageWidth = Math.max(1, stageWidth || 1920);
+  const safeStageHeight = Math.max(1, stageHeight || 1080);
+  const stageAspect = safeStageWidth / safeStageHeight;
+  const safeStageOverscan = Number.isFinite(stageOverscan) ? stageOverscan : 0;
+  const fillWidth = stageFit === 'stretch' || stageFit === 'fill';
+  const fillHeight = stageFit === 'stretch' || stageFit === 'fill';
+  const frameStyle = {
+    width: isEditPreview 
+      ? `${safeStageWidth}px`
+      : fillWidth ? '100vw' : stageFit === 'cover' ? `max(100vw, calc(100vh * ${stageAspect}))` : `min(100vw, calc(100vh * ${stageAspect}))`,
+    height: isEditPreview
+      ? `${safeStageHeight}px`
+      : fillHeight ? '100vh' : stageFit === 'cover' ? `max(100vh, calc(100vw / ${stageAspect}))` : `min(100vh, calc(100vw / ${stageAspect}))`,
+    transform: `scale(${1 + safeStageOverscan / 100})`,
+    transformOrigin: 'center center'
+  };
+
   return (
-    <div className="w-full h-screen overflow-hidden relative" style={{ backgroundColor }}>
+    <div className="w-full h-screen overflow-hidden relative bg-black flex items-center justify-center">
+      <div 
+        className="relative overflow-hidden shrink-0"
+        style={{ ...frameStyle, backgroundColor }}
+      >
       
       {/* Background Video Layer */}
       {customBackgroundVideo && (
         <video 
+          ref={videoRef}
           src={customBackgroundVideo} 
-          autoPlay 
+          autoPlay={!backgroundVideoPaused}
           loop 
           muted 
           playsInline 
-          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+          className="absolute inset-0 w-full h-full z-0 pointer-events-none"
+          style={{
+            opacity: backgroundVideoOpacity,
+            objectFit: backgroundVideoFit === 'fill' ? 'fill' : backgroundVideoFit
+          }}
         />
       )}
 
@@ -78,6 +132,10 @@ export default function LedStage() {
           )}
         </Canvas>
       </div>
+
+      {['aurora', 'light-tunnel', 'scanlines', 'prism'].includes(backgroundType) && (
+        <div className={`led-atmosphere led-atmosphere-${backgroundType} absolute inset-0 z-[8] pointer-events-none mix-blend-screen`} />
+      )}
       
       {/* HTML / 2D Overlay Layer */}
       <div className={`absolute inset-0 ${customBackgroundHTML ? 'z-20' : 'z-10'} flex flex-col items-center justify-center pointer-events-none`}>
@@ -86,7 +144,13 @@ export default function LedStage() {
          {phase === EventPhase.COUNTDOWN && <Countdown />}
          
          {/* PARTICIPANT NODES */}
-         {(phase === EventPhase.IDLE || phase === EventPhase.WAITING_FOR_PARTICIPANTS || phase === EventPhase.PARTICIPANT_CONFIRMING || phase === EventPhase.ALL_PARTICIPANTS_READY) && (
+         {[
+           EventPhase.BOOT,
+           EventPhase.IDLE,
+           EventPhase.WAITING_FOR_PARTICIPANTS,
+           EventPhase.PARTICIPANT_CONFIRMING,
+           EventPhase.ALL_PARTICIPANTS_READY
+         ].includes(phase as any) && (
            <ParticipantNodes />
          )}
          
@@ -108,7 +172,7 @@ export default function LedStage() {
          {/* CARD SPAWNER */}
          <CardSpawner />
          
-         <TimelineManager />
+      </div>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ export default function Countdown() {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="text-[250px] md:text-[320px] font-black text-white drop-shadow-[0_0_60px_rgba(0,240,255,1)] leading-none select-none font-mono"
+          className="text-[180px] md:text-[260px] font-black text-white drop-shadow-[0_0_60px_rgba(0,240,255,1)] leading-none select-none font-mono"
         >
           {remaining}
         </motion.h1>
@@ -26,4 +26,3 @@ export default function Countdown() {
     </DraggableItem>
   );
 }
-

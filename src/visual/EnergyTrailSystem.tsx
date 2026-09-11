@@ -6,8 +6,6 @@ export default function EnergyTrailSystem() {
   
   const isConvergenceActive = 
     phase === EventPhase.ENERGY_CONVERGENCE || 
-    phase === EventPhase.GAB_REVEAL ||
-    phase === EventPhase.COUNTER_SEQUENCE || 
     phase === EventPhase.FINAL_CHARGE;
 
   if (!isConvergenceActive) {
@@ -228,7 +226,117 @@ export default function EnergyTrailSystem() {
           />
         </div>
       )}
+
+      {energyType === 'ribbon-weave' && (
+        <div className="relative w-full h-full flex items-center justify-center">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute h-2 w-[120vw] rounded-full mix-blend-screen"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${i % 2 ? '#FFFFFF' : trailColor}, transparent)`,
+                boxShadow: `0 0 24px ${trailColor}`,
+                transform: `rotate(${i * 18 - 80}deg)`
+              }}
+              animate={{
+                x: ['-28vw', '28vw', '-28vw'],
+                opacity: [0.1, 0.85, 0.1],
+                scaleY: [0.5, 2.4, 0.5]
+              }}
+              transition={{ duration: 2.6 + i * 0.08, repeat: Infinity, ease: "easeInOut", delay: i * 0.05 }}
+            />
+          ))}
+          <motion.div
+            className="absolute w-72 h-72 rounded-full border-4 mix-blend-screen"
+            style={{ borderColor: trailColor, boxShadow: `0 0 70px ${trailColor}` }}
+            animate={{ scale: [0.8, 1.4, 0.8], rotate: [0, 180, 360] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      )}
+
+      {energyType === 'orbital-rings' && (
+        <div className="relative w-full h-full flex items-center justify-center">
+          {[0, 1, 2, 3].map((ring) => (
+            <motion.div
+              key={ring}
+              className="absolute rounded-full border-2 border-dashed mix-blend-screen"
+              style={{
+                width: `${360 + ring * 120}px`,
+                height: `${160 + ring * 70}px`,
+                borderColor: ring % 2 ? '#FFFFFF' : trailColor,
+                boxShadow: `0 0 36px ${trailColor}`
+              }}
+              animate={{ rotate: ring % 2 ? -360 : 360, opacity: [0.35, 0.9, 0.35] }}
+              transition={{ duration: 5 + ring, repeat: Infinity, ease: "linear" }}
+            />
+          ))}
+          {beams.slice(0, 16).map((b) => (
+            <motion.div
+              key={b.id}
+              className="absolute w-4 h-4 rounded-full bg-white mix-blend-screen"
+              style={{ boxShadow: `0 0 28px ${trailColor}` }}
+              animate={{
+                x: [Math.cos((b.angle * Math.PI) / 180) * 420, 0, Math.cos(((b.angle + 180) * Math.PI) / 180) * 120],
+                y: [Math.sin((b.angle * Math.PI) / 180) * 230, 0, Math.sin(((b.angle + 180) * Math.PI) / 180) * 80],
+                opacity: [0, 1, 0]
+              }}
+              transition={{ duration: 1.8, repeat: Infinity, delay: b.delay, ease: "easeInOut" }}
+            />
+          ))}
+        </div>
+      )}
+
+      {energyType === 'rain-up' && (
+        <div className="relative w-full h-full flex items-center justify-center">
+          {Array.from({ length: 44 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1.5 h-28 rounded-full mix-blend-screen"
+              style={{
+                left: `${(i * 7) % 100}%`,
+                bottom: '-12%',
+                background: `linear-gradient(to top, transparent, ${trailColor}, #FFFFFF)`,
+                boxShadow: `0 0 20px ${trailColor}`
+              }}
+              animate={{ y: ['0vh', '-112vh'], opacity: [0, 0.9, 0] }}
+              transition={{ duration: 1.4 + (i % 5) * 0.18, repeat: Infinity, delay: (i % 9) * 0.08, ease: "easeOut" }}
+            />
+          ))}
+          <motion.div
+            className="absolute w-64 h-64 rounded-full blur-2xl mix-blend-screen"
+            style={{ background: `radial-gradient(circle, #FFFFFF, ${trailColor}, transparent 75%)` }}
+            animate={{ scale: [0.6, 1.35, 0.6], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+      )}
+
+      {energyType === 'heartbeat-pulse' && (
+        <div className="relative w-full h-full flex items-center justify-center">
+          {[1, 2, 3, 4].map((ring) => (
+            <motion.div
+              key={ring}
+              className="absolute w-80 h-80 rounded-full border-4 mix-blend-screen"
+              style={{ borderColor: trailColor, boxShadow: `0 0 45px ${trailColor}` }}
+              animate={{ scale: [0.2, 1.4 + ring * 0.5], opacity: [1, 0] }}
+              transition={{ duration: 1.45, repeat: Infinity, delay: ring * 0.18, ease: "easeOut" }}
+            />
+          ))}
+          {beams.slice(0, 20).map((b) => (
+            <motion.div
+              key={b.id}
+              className="absolute h-1 w-52 rounded-full origin-right mix-blend-screen"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${trailColor}, #FFFFFF)`,
+                transform: `rotate(${b.angle + 180}deg) translate(520px, 0)`
+              }}
+              animate={{ scaleX: [0.2, 1.5, 0.2], opacity: [0.15, 1, 0.15] }}
+              transition={{ duration: 0.72, repeat: Infinity, delay: b.delay * 0.5, ease: "easeInOut" }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-

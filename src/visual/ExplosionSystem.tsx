@@ -297,6 +297,126 @@ export default function ExplosionSystem() {
             ))}
           </div>
         )}
+
+        {explosionType === 'radial-strobe' && (
+          <div className="relative flex items-center justify-center w-full h-full">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.95, 0.2, 0.85, 0] }}
+              transition={{ duration: 1.1, ease: "easeOut" }}
+              className="absolute inset-0 bg-white mix-blend-screen"
+            />
+            {Array.from({ length: 32 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ scaleY: 0, opacity: 1 }}
+                animate={{ scaleY: [0, 4.5, 0.3], opacity: [1, 0.85, 0] }}
+                transition={{ duration: 1.7, delay: i * 0.012, ease: "easeOut" }}
+                className="absolute w-1.5 h-[900px] origin-center mix-blend-screen"
+                style={{
+                  transform: `rotate(${i * 11.25}deg)`,
+                  background: `linear-gradient(to top, transparent, ${explosionColor}, #FFFFFF, transparent)`,
+                  boxShadow: `0 0 28px ${explosionColor}`
+                }}
+              />
+            ))}
+            <motion.div
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{ scale: [0, 5.5, 9], opacity: [1, 0.5, 0] }}
+              transition={{ duration: 2.2, ease: "easeOut" }}
+              className="absolute w-[520px] h-[520px] rounded-full border-[18px] mix-blend-screen"
+              style={{ borderColor: explosionColor }}
+            />
+          </div>
+        )}
+
+        {explosionType === 'glass-shatter' && (
+          <div className="relative flex items-center justify-center w-full h-full">
+            <motion.div
+              initial={{ scale: 0.2, opacity: 1 }}
+              animate={{ scale: [0.2, 2.8, 4], opacity: [1, 0.75, 0] }}
+              transition={{ duration: 1.8, ease: "easeOut" }}
+              className="absolute w-[460px] h-[460px] rounded-full blur-xl mix-blend-screen"
+              style={{ background: `radial-gradient(circle, #FFFFFF, ${explosionColor}, transparent 70%)` }}
+            />
+            {Array.from({ length: 36 }).map((_, i) => {
+              const angle = (i * 10 * Math.PI) / 180;
+              const distance = 340 + (i % 6) * 90;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ x: 0, y: 0, rotate: 0, opacity: 0.95, scale: 0.4 }}
+                  animate={{
+                    x: Math.cos(angle) * distance,
+                    y: Math.sin(angle) * distance,
+                    rotate: i % 2 ? 220 : -260,
+                    opacity: [0.95, 0.8, 0],
+                    scale: [0.4, 1.4, 0.9]
+                  }}
+                  transition={{ duration: 2.1, delay: (i % 8) * 0.025, ease: "easeOut" }}
+                  className="absolute w-20 h-12 border border-white/70 bg-white/15 mix-blend-screen backdrop-blur-sm"
+                  style={{
+                    clipPath: 'polygon(12% 0%, 100% 18%, 72% 100%, 0% 65%)',
+                    boxShadow: `0 0 22px ${explosionColor}`
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {explosionType === 'data-burst' && (
+          <div className="relative flex items-center justify-center w-full h-full font-mono">
+            {Array.from({ length: 22 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.6, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale: [0.6, 1.2, 0.8],
+                  x: Math.cos((i * 16.36 * Math.PI) / 180) * (360 + (i % 5) * 85),
+                  y: Math.sin((i * 16.36 * Math.PI) / 180) * (220 + (i % 4) * 70)
+                }}
+                transition={{ duration: 1.9, delay: (i % 6) * 0.035, ease: "easeOut" }}
+                className="absolute text-2xl md:text-5xl font-black mix-blend-screen"
+                style={{ color: i % 3 ? explosionColor : '#FFFFFF', textShadow: `0 0 24px ${explosionColor}` }}
+              >
+                {i % 4 === 0 ? 'GAB' : i % 4 === 1 ? '400+' : i % 4 === 2 ? 'KLG' : 'SYNC'}
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ scale: 0, rotate: 0, opacity: 1 }}
+              animate={{ scale: [0, 3.2, 6.5], rotate: 180, opacity: [1, 0.7, 0] }}
+              transition={{ duration: 2, ease: "easeOut" }}
+              className="absolute w-[520px] h-[520px] border-4 border-dashed rounded-full mix-blend-screen"
+              style={{ borderColor: explosionColor, boxShadow: `0 0 70px ${explosionColor}` }}
+            />
+          </div>
+        )}
+
+        {explosionType === 'aurora-flare' && (
+          <div className="relative flex items-center justify-center w-full h-full">
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0, rotate: 0 }}
+              animate={{ scale: [0.4, 3.2, 6.8], opacity: [0, 0.9, 0], rotate: 80 }}
+              transition={{ duration: 2.35, ease: "easeOut" }}
+              className="absolute w-[700px] h-[700px] rounded-full mix-blend-screen blur-xl"
+              style={{
+                background: `conic-gradient(from 90deg, transparent, ${explosionColor}, #FACC15, #EC4899, transparent)`
+              }}
+            />
+            {[0, 1, 2].map((wave) => (
+              <motion.div
+                key={wave}
+                initial={{ y: 180, opacity: 0, scaleX: 0.4 }}
+                animate={{ y: [-120, -260 - wave * 120], opacity: [0, 0.85, 0], scaleX: [0.4, 1.6, 2.2] }}
+                transition={{ duration: 1.8 + wave * 0.2, delay: wave * 0.18, ease: "easeOut" }}
+                className="absolute w-[110vw] h-24 rounded-full blur-2xl mix-blend-screen"
+                style={{ background: `linear-gradient(90deg, transparent, ${explosionColor}, #FFFFFF, transparent)` }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </AnimatePresence>
   );

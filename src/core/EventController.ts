@@ -50,9 +50,63 @@ export class EventController {
   }
 
   public boot() {
+    if (this.currentTimer) this.currentTimer.clear();
     const store = useEventStore.getState();
+    store.setGlobalTime(0);
+    store.setScrubbing(false);
     store.resetParticipants();
     store.setPhase(EventPhase.IDLE);
+  }
+
+  private getPhaseStartTime(phase: EventPhase) {
+    const { timelineConfig } = useEventStore.getState();
+    const starts: Partial<Record<EventPhase, number>> = {
+      [EventPhase.COUNTDOWN]: 0,
+      [EventPhase.GAB_REVEAL]: timelineConfig.countdown,
+      [EventPhase.ENERGY_CONVERGENCE]: timelineConfig.countdown + timelineConfig.reveal,
+      [EventPhase.COUNTER_SEQUENCE]: timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy,
+      [EventPhase.FINAL_CHARGE]: timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter,
+      [EventPhase.EXPLOSION]: timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge,
+      [EventPhase.SUCCESS]: timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge + timelineConfig.explosion,
+    };
+    return starts[phase] ?? 0;
+  }
+
+  private confirmAllParticipants() {
+    const store = useEventStore.getState();
+    for (let i = 1; i <= store.requiredParticipants; i++) {
+      store.updateParticipant(i, { status: 'CONFIRMED', progress: 100 });
+    }
+  }
+
+  public jumpToPhase(phase: EventPhase) {
+    if (this.currentTimer) this.currentTimer.clear();
+    const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setScrubbing(false);
+    store.setAutoAdvanceEnabled(false);
+
+    if (
+      phase === EventPhase.IDLE ||
+      phase === EventPhase.WAITING_FOR_PARTICIPANTS ||
+      phase === EventPhase.PARTICIPANT_CONFIRMING ||
+      phase === EventPhase.ALL_PARTICIPANTS_READY
+    ) {
+      store.setGlobalTime(0);
+    } else {
+      this.confirmAllParticipants();
+      store.setGlobalTime(this.getPhaseStartTime(phase) + 0.05);
+    }
+
+    if (phase === EventPhase.WAITING_FOR_PARTICIPANTS) {
+      store.resetParticipants();
+    }
+    if (phase === EventPhase.ALL_PARTICIPANTS_READY) {
+      this.confirmAllParticipants();
+    }
+
+    store.setPhase(phase);
   }
 
   public startWaiting() {
@@ -93,6 +147,7 @@ export class EventController {
   private allParticipantsReady() {
     const store = useEventStore.getState();
     store.setPhase(EventPhase.ALL_PARTICIPANTS_READY);
+    if (!store.autoAdvanceEnabled) return;
     
     const delayMs = (store.allReadyDelay ?? 1.5) * 1000;
     // Auto start countdown after the configured delay
@@ -132,10 +187,14 @@ export class EventController {
   public activateAll() {
     const store = useEventStore.getState();
     if(store.phase === EventPhase.SUCCESS) return;
+
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setShowNodes(true);
+    store.setScrubbing(false);
+    store.setAutoAdvanceEnabled(false);
     
-    for (let i = 1; i <= store.requiredParticipants; i++) {
-      store.updateParticipant(i, { status: 'CONFIRMED', progress: 100 });
-    }
+    this.confirmAllParticipants();
     this.allParticipantsReady();
   }
 
@@ -144,6 +203,7 @@ export class EventController {
     const store = useEventStore.getState();
     store.setPhase(EventPhase.RESETTING);
     store.setPaused(false);
+    store.setAutoAdvanceEnabled(false);
     store.resetParticipants();
     this.setTimer(() => {
       store.setPhase(EventPhase.IDLE);
@@ -161,6 +221,12 @@ export class EventController {
     this.boot();
     this.startWaiting();
     const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setShowNodes(true);
+    store.setScrubbing(false);
+    store.setGlobalTime(0);
+    store.setAutoAdvanceEnabled(true);
     let current = 1;
     
     // Simulate people placing hands one by one
@@ -172,6 +238,46 @@ export class EventController {
         clearInterval(interval);
       }
     }, 400);
+  }
+
+  public runTouchAutomation() {
+    this.boot();
+    this.startWaiting();
+    const store = useEventStore.getState();
+    store.setAutoAdvanceEnabled(true);
+    const mode = store.touchAutomationMode;
+    const speedMs = Math.max(80, (store.touchAutomationSpeed ?? 0.35) * 1000);
+
+    if (mode === 'manual') return;
+
+    if (mode === 'instant') {
+      this.activateAll();
+      return;
+    }
+
+    if (mode === 'burst') {
+      let current = 1;
+      const burstSize = Math.max(2, Math.ceil(store.requiredParticipants / 4));
+      const interval = window.setInterval(() => {
+        for (let i = 0; i < burstSize && current <= store.requiredParticipants; i++) {
+          this.confirmParticipant(current);
+          current++;
+        }
+        if (current > store.requiredParticipants) {
+          window.clearInterval(interval);
+        }
+      }, speedMs);
+      return;
+    }
+
+    let current = 1;
+    const interval = window.setInterval(() => {
+      this.confirmParticipant(current);
+      current++;
+      if (current > store.requiredParticipants) {
+        window.clearInterval(interval);
+      }
+    }, speedMs);
   }
 
   public toggleBlackout() {

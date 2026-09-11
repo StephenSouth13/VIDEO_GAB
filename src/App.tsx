@@ -4,8 +4,9 @@ import OperatorPanel from './operator/OperatorPanel';
 import { useEffect } from 'react';
 import { eventController } from './core/EventController';
 import { KeyboardSensorAdapter } from './sensors/SensorAdapter';
+import TimelineManager from './core/TimelineManager';
 
-function App() {
+function OperatorRoute() {
   useEffect(() => {
     eventController.boot();
     const keyboardSensor = new KeyboardSensorAdapter();
@@ -15,10 +16,19 @@ function App() {
   }, []);
 
   return (
+    <>
+      <OperatorPanel />
+      <TimelineManager />
+    </>
+  );
+}
+
+function App() {
+  return (
     <Router>
       <Routes>
         <Route path="/led" element={<LedStage />} />
-        <Route path="/operator" element={<OperatorPanel />} />
+        <Route path="/operator" element={<OperatorRoute />} />
         <Route path="*" element={<Navigate to="/operator" />} />
       </Routes>
     </Router>

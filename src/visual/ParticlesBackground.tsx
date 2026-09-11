@@ -55,6 +55,19 @@ export default function ParticlesBackground() {
           particles[i * 3] += (Math.random() - 0.5) * 0.1;
           particles[i * 3 + 1] += (Math.random() - 0.5) * 0.1;
           particles[i * 3 + 2] += (Math.random() - 0.5) * 0.1;
+        } else if (backgroundType === 'aurora') {
+          particles[i * 3] += Math.sin(time * 0.8 + phases[i]) * 0.018;
+          particles[i * 3 + 1] += Math.cos(time * 0.35 + phases[i]) * 0.012;
+        } else if (backgroundType === 'light-tunnel') {
+          particles[i * 3 + 2] += speeds[i] * 14;
+          particles[i * 3] += Math.sin(time + phases[i]) * 0.025;
+          if (particles[i * 3 + 2] > 12) particles[i * 3 + 2] = -20;
+        } else if (backgroundType === 'scanlines') {
+          particles[i * 3] += speeds[i] * 8;
+          if (particles[i * 3] > 20) particles[i * 3] = -20;
+        } else if (backgroundType === 'prism') {
+          particles[i * 3] += Math.sin(time * 1.4 + phases[i]) * 0.035;
+          particles[i * 3 + 1] += Math.cos(time * 1.1 + phases[i]) * 0.025;
         }
         
         dummy.position.set(particles[i * 3], particles[i * 3 + 1], particles[i * 3 + 2]);
@@ -73,15 +86,19 @@ export default function ParticlesBackground() {
     'matrix': '#00FF00',
     'nebula': '#D946EF', // Fuchsia
     'quantum': '#38BDF8', // Sky
+    'aurora': '#7DD3FC',
+    'light-tunnel': '#F8FAFC',
+    'scanlines': '#22D3EE',
+    'prism': '#F0ABFC',
   };
 
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 5000]}>
-      <sphereGeometry args={[backgroundType === 'quantum' ? 0.02 : 0.05, 8, 8]} />
+      <sphereGeometry args={[backgroundType === 'quantum' || backgroundType === 'scanlines' ? 0.02 : 0.05, 8, 8]} />
       <meshBasicMaterial 
         color={colorMap[backgroundType] || '#5BC0BE'} 
         transparent 
-        opacity={backgroundType === 'nebula' ? 0.3 : 0.6} 
+        opacity={backgroundType === 'nebula' || backgroundType === 'aurora' ? 0.35 : 0.6} 
       />
     </instancedMesh>
   );

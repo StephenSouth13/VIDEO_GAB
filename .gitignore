@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Large local demo videos: keep on this machine, do not push to GitHub.
+public/video-demo/0328(1).mp4
+public/video-demo/*.local.mp4
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

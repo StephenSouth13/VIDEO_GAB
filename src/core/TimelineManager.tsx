@@ -33,7 +33,6 @@ export default function TimelineManager() {
       lastTime = currentTime;
 
       const state = useEventStore.getState();
-      
       const isActivePhase = [
         EventPhase.COUNTDOWN,
         EventPhase.GAB_REVEAL,

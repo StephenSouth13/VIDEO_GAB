@@ -18,6 +18,7 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
 
   const x = isEndPos ? (layout?.endX ?? 0) : (layout?.x ?? 0);
   const y = isEndPos ? (layout?.endY ?? 0) : (layout?.y ?? 0);
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
   return (
     <motion.div
@@ -27,13 +28,13 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
         if (!isEditMode) return;
         if (isEndPos) {
           updateLayout(layoutKey, {
-            endX: x + info.offset.x,
-            endY: y + info.offset.y
+            endX: clamp(x + info.offset.x, -1500, 1500),
+            endY: clamp(y + info.offset.y, -520, 520)
           });
         } else {
           updateLayout(layoutKey, {
-            x: x + info.offset.x,
-            y: y + info.offset.y
+            x: clamp(x + info.offset.x, -1500, 1500),
+            y: clamp(y + info.offset.y, -520, 520)
           });
         }
       }}
@@ -41,13 +42,13 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
       style={{
         left: '50%',
         top: '50%',
-        x: `calc(-50% + ${x}px)`,
-        y: `calc(-50% + ${y}px)`,
-        scale: layout?.scale ?? 1
+        x: `calc(-50% + ${clamp(x, -1500, 1500)}px)`,
+        y: `calc(-50% + ${clamp(y, -520, 520)}px)`,
+        scale: layout?.scale ?? 1,
+        pointerEvents: isEditMode ? 'auto' : undefined
       }}
     >
        {children}
     </motion.div>
   );
 }
-
