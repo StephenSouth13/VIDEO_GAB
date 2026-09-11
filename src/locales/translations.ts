@@ -1,0 +1,280 @@
+export const translations = {
+  vi: {
+    brandSubtitle: "STUDIO",
+    resume: "▶ TIẾP TỤC",
+    pause: "⏸ TẠM DỪNG",
+    blackout: "TẮT MÀN HÌNH (BLACKOUT)",
+    restoreLed: "BẬT LẠI MÀN HÌNH",
+    langSwitch: "English",
+    
+    // Status
+    eventStatus: "TRẠNG THÁI SỰ KIỆN",
+    currentPhase: "Giai đoạn hiện tại",
+    ready: "Đã sẵn sàng",
+    activateAll: "KÍCH HOẠT TẤT CẢ",
+    autoDemo: "CHẠY DEMO TỰ ĐỘNG",
+    resetEvent: "LÀM MỚI SỰ KIỆN (RESET)",
+    
+    // Nodes
+    nodes: "CẢM BIẾN / ĐIỂM CHẠM TAY",
+    hide: "ẨN",
+    show: "HIỆN",
+    nodeCount: "Số lượng người",
+    nodeShape: "Kiểu dáng cảm biến (10 Mẫu)",
+    shapeRectangle: "Trụ Thẻ Đứng (Rectangle Pillar)",
+    shapeCircle: "Vòng Tròn Pha Lê (Crystal Circle)",
+    shapeHand: "Bàn Tay Sinh Trắc (Biometric Hand)",
+    shapeCard: "Thẻ Bài Tương Tác (Smart Card)",
+    shapeDiamond: "Kim Cương Sáng (Glowing Diamond)",
+    shapeHexagon: "Tổ Ong Cyber (Cyber Hexagon)",
+    shapeShield: "Huy Hiệu Khiên (Prestige Shield)",
+    shapeStar: "Ngôi Sao Vinh Danh (Honor Star)",
+    shapeCylinder: "Trụ Năng Lượng 3D (Energy Cylinder)",
+    shapeRing: "Vòng Sóng Xung (Pulse Ring)",
+    readyDelayLabel: "Thời gian chờ sau khi chạm đủ (s)",
+    readyDelayHint: "Độ trễ trước khi bắt đầu đếm ngược",
+    
+    // Timeline
+    timelineDuration: "THỜI LƯỢNG KỊCH BẢN (GIÂY)",
+    presetQuick: "Chọn nhanh thời lượng:",
+    preset30s: "30 Giây",
+    preset60s: "60 Giây (1 Phút)",
+    phaseCountdown: "Đếm ngược (Countdown)",
+    phaseReveal: "Xuất hiện Logo (Reveal)",
+    phaseEnergy: "Tụ năng lượng (Energy)",
+    phaseCounter: "Đếm số toàn cầu (Counter)",
+    phaseFinalCharge: "Nạp năng lượng cuối (Charge)",
+    phaseExplosion: "Bùng nổ (Explosion)",
+    
+    // Preview
+    livePreview: "XEM TRỰC TIẾP (KÉO THẢ TRỰC TIẾP ĐƯỢC)",
+    popOut: "Mở Tab Riêng",
+    btnTestEnergy: "Tia Tụ Logo",
+    btnTestExplosion: "Nổ Vũ Trụ",
+    btnTestFinal: "Màn Kết",
+    start: "Bắt đầu",
+    ending: "Màn kết",
+    scrubberHint: "Kéo thanh thời gian để tua tới bất kỳ giây nào và di chuyển chuột sắp xếp đối tượng",
+    
+    // Scenario Manager
+    scenarioManager: "BỘ QUẢN LÝ KỊCH BẢN LƯU SẴN",
+    scenarioNamePlaceholder: "Nhập tên kịch bản mới...",
+    btnSave: "LƯU",
+    loadScenario: "-- Tải kịch bản đã lưu --",
+    btnLoad: "TẢI",
+    btnDelete: "XÓA",
+    
+    // Ending Templates
+    endingTemplates: "✦ MẪU MÀN HÌNH LÚC KẾT (TEMPLATES)",
+    viewEnding: "XEM MÀN KẾT",
+    tplDualCards: "2 Thẻ Đối Xứng (Classic)",
+    tplDualCardsDesc: "Vietkings góc trái + GAB góc phải",
+    tplCenterHero: "Logo Kim Cương Trọng Tâm",
+    tplCenterHeroDesc: "Logo lớn trung tâm + Chúc mừng",
+    tplTopSponsors: "Thanh Đối Tác Trên Cùng",
+    tplTopSponsorsDesc: "Dàn ngang logo phía trên trang trọng",
+    tplCyberHologram: "Cyber 3D Hologram",
+    tplCyberHologramDesc: "Khung Neon công nghệ viền sáng 4 góc",
+    tplGoldenPrestige: "Hoàng Kim Sang Trọng",
+    tplGoldenPrestigeDesc: "Viền vàng ánh kim hoàng gia cao cấp",
+    tplMinimalClean: "Tối Giản Hiện Đại",
+    tplMinimalCleanDesc: "Font chữ tinh tế, không nghiêng thẻ",
+
+    // VFX
+    vfxEnvironment: "VFX & KHÔNG GIAN NỀN",
+    bgTheme: "Không gian nền (Background Theme)",
+    bgParticles: "Bụi sao bay lơ lửng (Particles)",
+    bgStarfield: "Vũ trụ không gian sâu (Starfield)",
+    bgDigitalNetwork: "Mạng lưới kỹ thuật số (Digital Network)",
+    bgMatrix: "Mưa Mã Code (Matrix Rain)",
+    bgNebula: "Tinh vân huyền ảo (Nebula)",
+    bgQuantum: "Trường lượng tử (Quantum Field)",
+    
+    explosionVfx: "Kiểu Nổ (Explosion VFX)",
+    testExplosion: "▶ Thử Nổ",
+    expCosmic: "🌌 Nổ Vũ Trụ Mở Ra (Cosmic Expansion)",
+    expVortex: "🌪️ Bão Xoáy Ngân Hà (Vortex Spin)",
+    expSupernova: "💥 Siêu Tân Tinh Chói Lòa (Supernova)",
+    expBlackHole: "🕳️ Lỗ Đen & Tia Gamma (Black Hole)",
+    expCyberRing: "⚡ Vòng Ma Trận Cyber (Cyber Ring)",
+    expGoldenBurst: "✨ Hoàng Kim Rực Rỡ (Golden Burst)",
+    expConfetti: "🎉 Pháo Hoa Kim Tuyến (Confetti)",
+    expShockwave: "💫 Sóng Xung Kích (Shockwave)",
+    
+    energyGathering: "Tia Sáng Tụ Về Logo (Energy Gather)",
+    testEnergy: "▶ Thử Bắn Tia",
+    engExpert: "✨ Tia Chuyên Gia Tụ Hội (Expert Streams)",
+    engLaser: "⚡ Ma Trận Tia Laser (Laser Matrix)",
+    engCosmic: "🌌 Xoáy Tụ Vũ Trụ (Cosmic Vortex)",
+    engGolden: "🌟 Dòng Chảy Hoàng Kim (Golden Streams)",
+    engSpiral: "🌀 Xoắn Ốc Sạc Năng Lượng (Spiral Charge)",
+    engSpiritBomb: "🔮 Quả Cầu Năng Lượng (Spirit Bomb)",
+    
+    bgColor: "Màu nền sân khấu",
+    energyColor: "Màu tia năng lượng",
+    videoBg: "Nhúng Video Nền (MP4 / WebM)",
+    videoUrlPlaceholder: "Dán link video nền hoặc tải file...",
+    
+    // Logo Asset Manager
+    assetManager: "QUẢN LÝ & XÓA / SỬA LOGO MÀN KẾT",
+    card1Title: "Logo 1: Thẻ Vietkings (Góc Trái)",
+    card2Title: "Logo 2: Thẻ GAB (Góc Phải)",
+    centerLogoTitle: "Logo Trung Tâm (Logo GAB)",
+    btnHide: "🚫 ẨN",
+    btnShow: "👁️ HIỆN",
+    btnDeleteLogo: "🗑️ XÓA",
+    btnShowEnding: "👁️ HIỆN Ở MÀN KẾT",
+    btnHideEnding: "🚫 ẨN Ở MÀN KẾT",
+    scaleSlider: "Tỉ lệ kích thước (Scale)",
+    rotateSlider: "Góc nghiêng (°)",
+    
+    // Inspector
+    finalInspector: "CĂN CHỈNH NỘI DUNG MÀN KẾT",
+    line1Label: "Dòng chữ 1 (Tiêu đề chính)",
+    line2Label: "Dòng chữ 2 (Nội dung thông điệp)",
+    textSize: "Tỉ lệ kích thước chữ (Scale)",
+    
+    // Drag Hint
+    dragPausedHint: "💡 Mẹo: Khi tạm dừng (Pause) hoặc tua thời gian, bạn có thể dùng chuột kéo thả trực tiếp các đối tượng trên khung Preview để điều chỉnh vị trí mong muốn!"
+  },
+  en: {
+    brandSubtitle: "STUDIO",
+    resume: "▶ RESUME",
+    pause: "⏸ PAUSE",
+    blackout: "BLACKOUT",
+    restoreLed: "RESTORE LED",
+    langSwitch: "Tiếng Việt",
+    
+    // Status
+    eventStatus: "EVENT STATUS",
+    currentPhase: "Current Phase",
+    ready: "Ready",
+    activateAll: "ACTIVATE ALL",
+    autoDemo: "AUTO DEMO",
+    resetEvent: "RESET EVENT",
+    
+    // Nodes
+    nodes: "SENSORS / TOUCH NODES",
+    hide: "HIDE",
+    show: "SHOW",
+    nodeCount: "Participants",
+    nodeShape: "Touch Node Shape (10 Styles)",
+    shapeRectangle: "Rectangle Pillar (Classic)",
+    shapeCircle: "Crystal Circle",
+    shapeHand: "Biometric Hand Print",
+    shapeCard: "Interactive Smart Card",
+    shapeDiamond: "Glowing Diamond",
+    shapeHexagon: "Cyber Hexagon Mesh",
+    shapeShield: "Prestige Shield Badge",
+    shapeStar: "Honor Luminary Star",
+    shapeCylinder: "3D Energy Cylinder",
+    shapeRing: "Wave Pulse Ring",
+    readyDelayLabel: "All-Ready Delay (s)",
+    readyDelayHint: "Delay before countdown starts after all touched",
+    
+    // Timeline
+    timelineDuration: "TIMELINE DURATION (SECONDS)",
+    presetQuick: "Quick Presets:",
+    preset30s: "30 Seconds",
+    preset60s: "60 Seconds (1 Min)",
+    phaseCountdown: "Countdown",
+    phaseReveal: "Logo Reveal",
+    phaseEnergy: "Energy Gather",
+    phaseCounter: "Global Counter",
+    phaseFinalCharge: "Final Charge",
+    phaseExplosion: "Explosion",
+    
+    // Preview
+    livePreview: "LIVE PREVIEW - DRAG & DROP ENABLED",
+    popOut: "Pop Out",
+    btnTestEnergy: "Energy Rays",
+    btnTestExplosion: "Cosmic Explosion",
+    btnTestFinal: "Final Screen",
+    start: "Start",
+    ending: "Final",
+    scrubberHint: "Drag timeline scrubber to any second and drag items directly on preview to position them",
+    
+    // Scenario Manager
+    scenarioManager: "SCENARIO VERSION MANAGER",
+    scenarioNamePlaceholder: "Enter new scenario name...",
+    btnSave: "SAVE",
+    loadScenario: "-- Load Saved Scenario --",
+    btnLoad: "LOAD",
+    btnDelete: "DELETE",
+    
+    // Ending Templates
+    endingTemplates: "✦ ENDING PRESET TEMPLATES",
+    viewEnding: "VIEW ENDING",
+    tplDualCards: "Dual Symmetrical Cards (Classic)",
+    tplDualCardsDesc: "Vietkings top-left + GAB bottom-right",
+    tplCenterHero: "Center Hero Crest",
+    tplCenterHeroDesc: "Prominent center hero logo + congratulations",
+    tplTopSponsors: "Top Partner Header",
+    tplTopSponsorsDesc: "Side-by-side header sponsor banner",
+    tplCyberHologram: "Cyber 3D Hologram",
+    tplCyberHologramDesc: "Futuristic neon framing with tech brackets",
+    tplGoldenPrestige: "Golden Prestige Royal",
+    tplGoldenPrestigeDesc: "Opulent royal gold halo & laurel styling",
+    tplMinimalClean: "Minimalist Modern",
+    tplMinimalCleanDesc: "Clean flat typography with subtle shadows",
+
+    // VFX
+    vfxEnvironment: "VFX & ENVIRONMENT",
+    bgTheme: "Background Theme",
+    bgParticles: "Floating Stardust (Particles)",
+    bgStarfield: "Deep Cosmos (Starfield)",
+    bgDigitalNetwork: "Digital Network Matrix",
+    bgMatrix: "Matrix Code Rain",
+    bgNebula: "Cosmic Nebula Dust",
+    bgQuantum: "Quantum Energy Field",
+    
+    explosionVfx: "Explosion VFX",
+    testExplosion: "▶ Test Explosion",
+    expCosmic: "🌌 Cosmic Big Bang (Cosmic Expansion)",
+    expVortex: "🌪️ Galaxy Spiral Vortex (Vortex Spin)",
+    expSupernova: "💥 Blinding Supernova Flash",
+    expBlackHole: "🕳️ Black Hole & Gamma Burst",
+    expCyberRing: "⚡ Cyber HUD Matrix Ring",
+    expGoldenBurst: "✨ Radiant Golden Burst",
+    expConfetti: "🎉 Festive 3D Confetti",
+    expShockwave: "💫 Supersonic Shockwave",
+    
+    energyGathering: "Energy Rays Gathering to Logo",
+    testEnergy: "▶ Test Rays",
+    engExpert: "✨ Expert Energy Convergence Streams",
+    engLaser: "⚡ Multi-directional Laser Matrix",
+    engCosmic: "🌌 Cosmic Vortex Suction",
+    engGolden: "🌟 Golden Celestial Streams",
+    engSpiral: "🌀 Dual Helix Spiral Charge",
+    engSpiritBomb: "🔮 Giant Energy Nexus Core",
+    
+    bgColor: "Stage Background Color",
+    energyColor: "Energy Ray Color",
+    videoBg: "Background Video Overlay (MP4 / WebM)",
+    videoUrlPlaceholder: "Paste video URL or upload file...",
+    
+    // Logo Asset Manager
+    assetManager: "FINAL SCREEN LOGO MANAGER",
+    card1Title: "Logo 1: Vietkings Card (Left)",
+    card2Title: "Logo 2: GAB Card (Right)",
+    centerLogoTitle: "Center Logo (GAB Core)",
+    btnHide: "🚫 HIDE",
+    btnShow: "👁️ SHOW",
+    btnDeleteLogo: "🗑️ DELETE",
+    btnShowEnding: "👁️ SHOW ON FINAL",
+    btnHideEnding: "🚫 HIDE ON FINAL",
+    scaleSlider: "Scale Size",
+    rotateSlider: "Tilt Angle (°)",
+    
+    // Inspector
+    finalInspector: "FINAL MESSAGE TEXT INSPECTOR",
+    line1Label: "Headline Line 1",
+    line2Label: "Subtitle Line 2",
+    textSize: "Text Font Scale",
+    
+    // Drag Hint
+    dragPausedHint: "💡 Pro Tip: When paused or scrubbing timeline, you can drag elements directly in the preview window to reposition them!"
+  }
+};
+
+export type Language = 'vi' | 'en';

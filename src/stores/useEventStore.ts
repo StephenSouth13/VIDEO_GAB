@@ -33,11 +33,14 @@ interface EventState {
   participants: Record<number, ParticipantState>;
   
   // Controls
+  language: 'vi' | 'en';
   isBlackout: boolean;
   isPaused: boolean;
   customBackgroundHTML: string;
+  customBackgroundVideo: string | null;
   particleCount: number;
-  nodeShape: 'circle' | 'rectangle';
+  nodeShape: 'rectangle' | 'circle' | 'hand' | 'card' | 'diamond' | 'hexagon' | 'shield' | 'star' | 'cylinder' | 'ring';
+  allReadyDelay: number; // delay in seconds before countdown starts after all nodes confirmed
   backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum';
   explosionType: 'cosmic-expansion' | 'vortex-spin' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring' | 'golden-burst' | 'shockwave';
   energyType: 'expert-convergence' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'default';
@@ -77,6 +80,7 @@ interface EventState {
   };
   
   layout: {
+    countdown: { x: number; y: number; scale: number };
     logo: { x: number; y: number; scale: number };
     counter: { x: number; y: number; scale: number };
     finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
@@ -85,14 +89,17 @@ interface EventState {
   };
   
   // Actions
+  setLanguage: (lang: 'vi' | 'en') => void;
   setPhase: (phase: EventPhase) => void;
   setRequiredParticipants: (count: number) => void;
   updateParticipant: (id: number, update: Partial<ParticipantState>) => void;
   resetParticipants: () => void;
   setBlackout: (val: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
+  setCustomBackgroundVideo: (url: string | null) => void;
   setParticleCount: (count: number) => void;
-  setNodeShape: (shape: 'circle' | 'rectangle') => void;
+  setNodeShape: (shape: EventState['nodeShape']) => void;
+  setAllReadyDelay: (seconds: number) => void;
   setPaused: (val: boolean) => void;
   setBackgroundType: (type: EventState['backgroundType']) => void;
   setExplosionType: (type: EventState['explosionType']) => void;
@@ -119,14 +126,17 @@ interface EventState {
 export const useEventStore = create<EventState>()(
   persist(
     (set, get) => ({
+      language: 'vi',
       phase: EventPhase.BOOT,
   requiredParticipants: EVENT_CONFIG.participants.required,
   participants: {},
   isBlackout: false,
   isPaused: false,
   customBackgroundHTML: '',
+  customBackgroundVideo: null,
   particleCount: 2000,
   nodeShape: 'rectangle',
+  allReadyDelay: 1.5,
   backgroundType: 'particles',
   explosionType: 'cosmic-expansion',
   energyType: 'expert-convergence',
@@ -161,6 +171,7 @@ export const useEventStore = create<EventState>()(
   },
   
   layout: {
+    countdown: { x: 0, y: 0, scale: 1 },
     logo: { x: 0, y: 0, scale: 1 },
     counter: { x: 0, y: 0, scale: 1 },
     finalMessage: { 
@@ -174,6 +185,7 @@ export const useEventStore = create<EventState>()(
     cardGAB: { x: 300, y: 100, scale: 1, endX: 400, endY: 150 }
   },
   
+  setLanguage: (lang) => set({ language: lang }),
   setPhase: (phase) => set({ phase }),
   
   setRequiredParticipants: (count) => {
@@ -206,8 +218,10 @@ export const useEventStore = create<EventState>()(
   
   setBlackout: (val) => set({ isBlackout: val }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
+  setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
   setParticleCount: (count) => set({ particleCount: count }),
   setNodeShape: (shape) => set({ nodeShape: shape }),
+  setAllReadyDelay: (seconds) => set({ allReadyDelay: seconds }),
   setPaused: (val) => set({ isPaused: val }),
   setBackgroundType: (type) => set({ backgroundType: type }),
   setExplosionType: (type) => set({ explosionType: type }),
@@ -232,15 +246,18 @@ export const useEventStore = create<EventState>()(
   saveProfile: (name) => set((state) => {
     // Only save configurable properties
     const profileToSave = {
+      language: state.language,
       requiredParticipants: state.requiredParticipants,
       particleCount: state.particleCount,
       nodeShape: state.nodeShape,
+      allReadyDelay: state.allReadyDelay,
       backgroundType: state.backgroundType,
       explosionType: state.explosionType,
       energyType: state.energyType,
       trailColor: state.trailColor,
       backgroundColor: state.backgroundColor,
       explosionColor: state.explosionColor,
+      customBackgroundVideo: state.customBackgroundVideo,
       timelineConfig: state.timelineConfig,
       layout: state.layout,
       customLogoCenter: state.customLogoCenter,
@@ -301,15 +318,18 @@ export const useEventStore = create<EventState>()(
 }), {
   name: 'gab-event-storage',
   partialize: (state) => ({
+    language: state.language,
     requiredParticipants: state.requiredParticipants,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
+    allReadyDelay: state.allReadyDelay,
     backgroundType: state.backgroundType,
     explosionType: state.explosionType,
     energyType: state.energyType,
     trailColor: state.trailColor,
     backgroundColor: state.backgroundColor,
     explosionColor: state.explosionColor,
+    customBackgroundVideo: state.customBackgroundVideo,
     timelineConfig: state.timelineConfig,
     layout: state.layout,
     customLogoCenter: state.customLogoCenter,
@@ -327,23 +347,37 @@ export const useEventStore = create<EventState>()(
   })
 }));
 
+// Efficient BroadcastChannel sync with senderId to eliminate ping-pong loops and lag
+const myInstanceId = Math.random().toString(36).substring(2, 9);
 const channel = new BroadcastChannel('gab-event-sync');
-let isSyncing = false;
-
+let isReceivingExternalUpdate = false;
 let syncTimeout: any;
 
 useEventStore.subscribe((state) => {
-  if (!isSyncing) {
-    clearTimeout(syncTimeout);
-    syncTimeout = setTimeout(() => {
-      channel.postMessage(JSON.stringify(state));
-    }, 16); // ~60fps throttle
-  }
+  if (isReceivingExternalUpdate) return;
+  
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(() => {
+    try {
+      channel.postMessage({
+        senderId: myInstanceId,
+        state
+      });
+    } catch {
+      // Ignore serialization errors
+    }
+  }, 25); // ~40fps max broadcast rate
 });
 
 channel.onmessage = (e) => {
-  isSyncing = true;
-  useEventStore.setState(JSON.parse(e.data));
-  isSyncing = false;
+  if (!e.data || e.data.senderId === myInstanceId) return;
+  
+  if (e.data.state) {
+    isReceivingExternalUpdate = true;
+    useEventStore.setState(e.data.state);
+    setTimeout(() => {
+      isReceivingExternalUpdate = false;
+    }, 10);
+  }
 };
 

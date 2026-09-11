@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEventStore } from '../stores/useEventStore';
 
-type LayoutKeys = 'logo' | 'counter' | 'finalMessage' | 'cardVietkings' | 'cardGAB';
+type LayoutKeys = 'countdown' | 'logo' | 'counter' | 'finalMessage' | 'cardVietkings' | 'cardGAB';
 
 interface Props {
   layoutKey: LayoutKeys;

@@ -18,7 +18,7 @@ import CardSpawner from './CardSpawner';
 import TimelineManager from '../core/TimelineManager';
 
 export default function LedStage() {
-  const { phase, isBlackout, customBackgroundHTML, backgroundColor } = useEventStore();
+  const { phase, isBlackout, customBackgroundHTML, customBackgroundVideo, backgroundColor } = useEventStore();
   
   useEffect(() => {
     // Prevent default scrolling on LED stage
@@ -35,6 +35,18 @@ export default function LedStage() {
   return (
     <div className="w-full h-screen overflow-hidden relative" style={{ backgroundColor }}>
       
+      {/* Background Video Layer */}
+      {customBackgroundVideo && (
+        <video 
+          src={customBackgroundVideo} 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        />
+      )}
+
       {/* Custom Embedded Background Layer */}
       {customBackgroundHTML && (
         <div 
@@ -44,7 +56,7 @@ export default function LedStage() {
       )}
 
       {/* 3D Scene Layer */}
-      <div className={`absolute inset-0 ${customBackgroundHTML ? 'z-10' : 'z-0'}`}>
+      <div className={`absolute inset-0 ${(customBackgroundHTML || customBackgroundVideo) ? 'z-10' : 'z-0'}`}>
         <Canvas 
           camera={{ position: [0, 0, 10], fov: 50 }} 
           dpr={[1, 1.5]}

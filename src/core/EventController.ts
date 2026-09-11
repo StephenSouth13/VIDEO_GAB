@@ -94,10 +94,11 @@ export class EventController {
     const store = useEventStore.getState();
     store.setPhase(EventPhase.ALL_PARTICIPANTS_READY);
     
-    // Auto start countdown after a short delay for synchronization visual
+    const delayMs = (store.allReadyDelay ?? 1.5) * 1000;
+    // Auto start countdown after the configured delay
     this.setTimer(() => {
       this.startCountdown();
-    }, 1500);
+    }, delayMs);
   }
 
   private setTimer(cb: () => void, delay: number) {

@@ -24,8 +24,12 @@ export default function TimelineManager() {
     let lastTime = performance.now();
     let rafId: number;
 
+    // If inside an embedded iframe in editor, don't run a second duplicate timer
+    const isEmbeddedIframe = window !== window.top && window.location.search.includes('edit=true');
+    if (isEmbeddedIframe) return;
+
     const loop = (currentTime: number) => {
-      const delta = (currentTime - lastTime) / 1000; // in seconds
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.1); // in seconds, clamp spike
       lastTime = currentTime;
 
       const state = useEventStore.getState();

@@ -23,11 +23,15 @@ export default function ParticlesBackground() {
     return { particles: p, speeds: s, phases: ph };
   }, []);
 
-  useFrame((state) => {
+  const timeRef = useRef(0);
+
+  useFrame((_state, delta) => {
     if (isPaused) return; // FIX: Pause animations
     
+    timeRef.current += delta;
+    const time = timeRef.current;
+    
     if (mesh.current) {
-      const time = state.clock.getElapsedTime();
       
       for (let i = 0; i < particleCount; i++) {
         if (backgroundType === 'particles') {
