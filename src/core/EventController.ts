@@ -92,10 +92,23 @@ export class EventController {
     if (this.currentTimer) this.currentTimer.clear();
     this.clearDemoInterval();
     const store = useEventStore.getState();
+    const isRestartingSamePhase = store.phase === phase && ![
+      EventPhase.IDLE,
+      EventPhase.WAITING_FOR_PARTICIPANTS,
+      EventPhase.PARTICIPANT_CONFIRMING,
+      EventPhase.ALL_PARTICIPANTS_READY
+    ].includes(phase as any);
     store.setBlackout(false);
     store.setPaused(false);
     store.setScrubbing(false);
     store.setAutoAdvanceEnabled(false);
+    store.setShowNodes([
+      EventPhase.BOOT,
+      EventPhase.IDLE,
+      EventPhase.WAITING_FOR_PARTICIPANTS,
+      EventPhase.PARTICIPANT_CONFIRMING,
+      EventPhase.ALL_PARTICIPANTS_READY
+    ].includes(phase as any));
 
     if (
       phase === EventPhase.IDLE ||
@@ -114,6 +127,14 @@ export class EventController {
     }
     if (phase === EventPhase.ALL_PARTICIPANTS_READY) {
       this.confirmAllParticipants();
+    }
+
+    if (isRestartingSamePhase) {
+      store.setPhase(EventPhase.IDLE);
+      window.setTimeout(() => {
+        useEventStore.getState().setPhase(phase);
+      }, 20);
+      return;
     }
 
     store.setPhase(phase);

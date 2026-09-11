@@ -164,6 +164,11 @@ export default function OperatorPanel() {
     }
   };
 
+  const setBackgroundVideoSource = (url: string | null) => {
+    setCustomBackgroundVideo(url);
+    setBackgroundVideoPaused(false);
+  };
+
   const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -173,23 +178,36 @@ export default function OperatorPanel() {
   };
   
   const handleTestExplosion = () => {
-    const expTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge;
-    setGlobalTime(expTime);
-    useEventStore.setState({ phase: EventPhase.EXPLOSION });
+    applyBundledLogos();
+    setBackgroundVideoPaused(false);
+    eventController.jumpToPhase(EventPhase.EXPLOSION);
   };
 
   const handleTestEnergy = () => {
-    const energyTime = timelineConfig.countdown + timelineConfig.reveal;
-    setGlobalTime(energyTime);
-    useEventStore.setState({ phase: EventPhase.ENERGY_CONVERGENCE });
+    applyBundledLogos();
+    setBackgroundVideoPaused(false);
+    eventController.jumpToPhase(EventPhase.ENERGY_CONVERGENCE);
   };
 
   const handleTestFinalScreen = () => {
+    applyBundledLogos();
+    setBackgroundVideoPaused(false);
     eventController.jumpToPhase(EventPhase.SUCCESS);
+  };
+
+  const handleSegmentJump = (targetPhase: EventPhase) => {
+    if (targetPhase === EventPhase.SUCCESS) {
+      applyBundledLogos();
+    }
+    setBackgroundVideoPaused(false);
+    eventController.jumpToPhase(targetPhase);
   };
 
   const applyAutoDirectorPreset = (preset: typeof autoDirectorPreset) => {
     setAutoDirectorPreset(preset);
+    setBackgroundVideoSource(null);
+    setBackgroundVideoPaused(false);
+    setShowNodes(true);
 
     if (preset === 'premium-led') {
       setBackgroundType('aurora');
@@ -341,7 +359,7 @@ export default function OperatorPanel() {
     setExplosionColor('#00F0FF');
     setNodeShape('hand');
     setNodeGlowStyle('energy');
-    setCustomBackgroundVideo(null);
+    setBackgroundVideoSource(null);
     setBackgroundVideoPaused(false);
     updateTimeline('countdown', 5);
     updateTimeline('reveal', 3);
@@ -356,7 +374,7 @@ export default function OperatorPanel() {
 
   const runScenario1Ceremony = () => {
     applyScenario1Ceremony();
-    eventController.startShowNow();
+    window.setTimeout(() => eventController.startShowNow(), 20);
   };
 
   const applyScenarioVideoShow = () => {
@@ -364,14 +382,14 @@ export default function OperatorPanel() {
     setBackgroundType('aurora');
     setEnergyType('ribbon-weave');
     setExplosionType('aurora-flare');
-    setCustomBackgroundVideo('/video-demo/0328(1).mp4');
+    setBackgroundVideoSource('/video-demo/0328(1).mp4');
     setBackgroundVideoOpacity(0.32);
     setBackgroundVideoFit('cover');
   };
 
   const runScenarioVideoShow = () => {
     applyScenarioVideoShow();
-    eventController.startShowNow();
+    window.setTimeout(() => eventController.startShowNow(), 20);
   };
 
   const applyScenarioPlaceCard = () => {
@@ -380,14 +398,14 @@ export default function OperatorPanel() {
     setBackgroundType('prism');
     setEnergyType('orbital-rings');
     setExplosionType('golden-burst');
-    setCustomBackgroundVideo('/video-demo/Visual_PlaceCard.mp4');
+    setBackgroundVideoSource('/video-demo/Visual_PlaceCard.mp4');
     setBackgroundVideoOpacity(0.28);
     setBackgroundVideoFit('cover');
   };
 
   const runScenarioPlaceCard = () => {
     applyScenarioPlaceCard();
-    eventController.startShowNow();
+    window.setTimeout(() => eventController.startShowNow(), 20);
   };
 
   const setPresetTimeline = (seconds: number) => {
@@ -841,7 +859,7 @@ export default function OperatorPanel() {
                   ].map(item => (
                     <button
                       key={item.label}
-                      onClick={() => eventController.jumpToPhase(item.phase)}
+                      onClick={() => handleSegmentJump(item.phase)}
                       className={`py-1.5 rounded text-[10px] font-bold border ${phase === item.phase ? 'bg-gab-cyan text-black border-gab-cyan' : 'bg-black border-gray-700 text-gray-300 hover:border-gab-cyan'}`}
                     >
                       {item.label}
@@ -977,21 +995,21 @@ export default function OperatorPanel() {
                  <div className="flex justify-between items-center mb-1">
                     <label className="text-gray-300 font-bold text-[11px]">{t.videoBg}</label>
                     {customBackgroundVideo && (
-                      <button onClick={() => setCustomBackgroundVideo(null)} className="text-[10px] text-red-400 hover:underline">Reset</button>
+                      <button onClick={() => setBackgroundVideoSource(null)} className="text-[10px] text-red-400 hover:underline">Reset</button>
                     )}
                  </div>
                  <input 
                    type="text" 
                    value={customBackgroundVideo || ''} 
-                   onChange={(e) => setCustomBackgroundVideo(e.target.value || null)} 
+                   onChange={(e) => setBackgroundVideoSource(e.target.value || null)} 
                    placeholder={t.videoUrlPlaceholder} 
                    className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[11px] mb-2 font-mono" 
                  />
                  <div className="grid grid-cols-2 gap-1.5 mb-2">
-                   <button onClick={() => setCustomBackgroundVideo('/video-demo/0328(1).mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
+                   <button onClick={() => setBackgroundVideoSource('/video-demo/0328(1).mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
                      Demo 0328
                    </button>
-                   <button onClick={() => setCustomBackgroundVideo('/video-demo/Visual_PlaceCard.mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
+                   <button onClick={() => setBackgroundVideoSource('/video-demo/Visual_PlaceCard.mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
                      PlaceCard
                    </button>
                  </div>
