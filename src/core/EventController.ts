@@ -39,6 +39,7 @@ class PausableTimer {
 export class EventController {
   private static instance: EventController;
   private currentTimer: PausableTimer | null = null;
+  private currentDemoInterval: number | null = null;
 
   private constructor() {}
 
@@ -51,6 +52,7 @@ export class EventController {
 
   public boot() {
     if (this.currentTimer) this.currentTimer.clear();
+    this.clearDemoInterval();
     const store = useEventStore.getState();
     store.setGlobalTime(0);
     store.setScrubbing(false);
@@ -79,8 +81,16 @@ export class EventController {
     }
   }
 
+  private clearDemoInterval() {
+    if (this.currentDemoInterval !== null) {
+      window.clearInterval(this.currentDemoInterval);
+      this.currentDemoInterval = null;
+    }
+  }
+
   public jumpToPhase(phase: EventPhase) {
     if (this.currentTimer) this.currentTimer.clear();
+    this.clearDemoInterval();
     const store = useEventStore.getState();
     store.setBlackout(false);
     store.setPaused(false);
@@ -200,6 +210,7 @@ export class EventController {
 
   public resetEvent() {
     if (this.currentTimer) this.currentTimer.clear();
+    this.clearDemoInterval();
     const store = useEventStore.getState();
     store.setPhase(EventPhase.RESETTING);
     store.setPaused(false);
@@ -230,12 +241,12 @@ export class EventController {
     let current = 1;
     
     // Simulate people placing hands one by one
-    const interval = setInterval(() => {
+    this.currentDemoInterval = window.setInterval(() => {
       if (current <= store.requiredParticipants) {
         this.confirmParticipant(current);
         current++;
       } else {
-        clearInterval(interval);
+        this.clearDemoInterval();
       }
     }, 400);
   }
@@ -258,24 +269,24 @@ export class EventController {
     if (mode === 'burst') {
       let current = 1;
       const burstSize = Math.max(2, Math.ceil(store.requiredParticipants / 4));
-      const interval = window.setInterval(() => {
+      this.currentDemoInterval = window.setInterval(() => {
         for (let i = 0; i < burstSize && current <= store.requiredParticipants; i++) {
           this.confirmParticipant(current);
           current++;
         }
         if (current > store.requiredParticipants) {
-          window.clearInterval(interval);
+          this.clearDemoInterval();
         }
       }, speedMs);
       return;
     }
 
     let current = 1;
-    const interval = window.setInterval(() => {
+    this.currentDemoInterval = window.setInterval(() => {
       this.confirmParticipant(current);
       current++;
       if (current > store.requiredParticipants) {
-        window.clearInterval(interval);
+        this.clearDemoInterval();
       }
     }, speedMs);
   }

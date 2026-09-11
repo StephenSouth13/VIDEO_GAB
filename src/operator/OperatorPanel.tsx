@@ -84,6 +84,7 @@ export default function OperatorPanel() {
   
   const t = translations[language || 'vi'];
   const [profileName, setProfileName] = useState('');
+  const [scenarioSmokeStatus, setScenarioSmokeStatus] = useState('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewDim, setPreviewDim] = useState({ width: 640, height: 360, scale: 640 / 1920 });
 
@@ -349,6 +350,11 @@ export default function OperatorPanel() {
     setBackgroundVideoFit('cover');
   };
 
+  const runScenarioVideoShow = () => {
+    applyScenarioVideoShow();
+    eventController.runDemo();
+  };
+
   const applyScenarioPlaceCard = () => {
     applyScenario1Ceremony();
     store.setFinalTemplate('dual-cards');
@@ -358,6 +364,11 @@ export default function OperatorPanel() {
     setCustomBackgroundVideo('/video-demo/Visual_PlaceCard.mp4');
     setBackgroundVideoOpacity(0.28);
     setBackgroundVideoFit('cover');
+  };
+
+  const runScenarioPlaceCard = () => {
+    applyScenarioPlaceCard();
+    eventController.runDemo();
   };
 
   const setPresetTimeline = (seconds: number) => {
@@ -382,9 +393,56 @@ export default function OperatorPanel() {
   const confirmedCount = participantsArray.filter(p => p.status === 'CONFIRMED').length;
   const scenarioItems = [
     { key: 'ceremony' as const, apply: applyScenario1Ceremony, run: runScenario1Ceremony, desc: t.scenario1Desc },
-    { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: undefined, desc: t.scenario2Desc },
-    { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: undefined, desc: t.scenario3Desc }
+    { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: runScenarioVideoShow, desc: t.scenario2Desc },
+    { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: runScenarioPlaceCard, desc: t.scenario3Desc }
   ];
+
+  const runScenarioSmokeTest = async () => {
+    setScenarioSmokeStatus(t.scenarioSmokeRunning);
+    const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+    const checks = [
+      {
+        run: runScenario1Ceremony,
+        verify: () => {
+          const state = useEventStore.getState();
+          return state.backgroundType === 'digital-network' && state.customBackgroundVideo === null;
+        }
+      },
+      {
+        run: runScenarioVideoShow,
+        verify: () => {
+          const state = useEventStore.getState();
+          return state.backgroundType === 'aurora' && state.customBackgroundVideo === '/video-demo/0328(1).mp4';
+        }
+      },
+      {
+        run: runScenarioPlaceCard,
+        verify: () => {
+          const state = useEventStore.getState();
+          return state.backgroundType === 'prism' && state.customBackgroundVideo === '/video-demo/Visual_PlaceCard.mp4';
+        }
+      }
+    ];
+
+    for (const check of checks) {
+      check.run();
+      await wait(120);
+      const state = useEventStore.getState();
+      const isRunning = [
+        EventPhase.WAITING_FOR_PARTICIPANTS,
+        EventPhase.PARTICIPANT_CONFIRMING,
+        EventPhase.ALL_PARTICIPANTS_READY,
+        EventPhase.COUNTDOWN,
+      ].includes(state.phase as any);
+      if (!isRunning || !check.verify()) {
+        setScenarioSmokeStatus(t.scenarioSmokeFail);
+        return;
+      }
+    }
+
+    eventController.resetEvent();
+    setScenarioSmokeStatus(t.scenarioSmokePass);
+  };
 
   return (
     <div className="min-h-screen bg-[#0E1217] text-white flex flex-col font-sans h-screen select-none">
@@ -454,6 +512,14 @@ export default function OperatorPanel() {
                 <span className="text-[9px] text-gray-500">{t.scenarioLoadRun}</span>
               </div>
               <p className="text-[9px] text-yellow-100/70 leading-tight mb-2">{t.scenarioLibraryHint}</p>
+              <button onClick={runScenarioSmokeTest} className="w-full mb-2 py-1.5 rounded bg-cyan-950/70 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
+                {t.scenarioSmokeTest}
+              </button>
+              {scenarioSmokeStatus && (
+                <p className={`text-[9px] mb-2 ${scenarioSmokeStatus === t.scenarioSmokePass ? 'text-emerald-300' : scenarioSmokeStatus === t.scenarioSmokeFail ? 'text-red-300' : 'text-gray-400'}`}>
+                  {scenarioSmokeStatus}
+                </p>
+              )}
               <div className="space-y-1.5">
                 {scenarioItems.map((item, index) => (
                   <div key={item.key} className="grid grid-cols-[1fr_auto_auto] gap-1.5 items-center">
@@ -462,7 +528,7 @@ export default function OperatorPanel() {
                       <p className="text-[9px] text-gray-500 truncate">{item.desc}</p>
                     </div>
                     <button onClick={item.apply} className="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-[10px] font-bold">{t.btnSetupScenario}</button>
-                    <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">{t.btnRunScenario}</button>
+                    <button onClick={item.run} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">{t.btnRunScenario}</button>
                   </div>
                 ))}
               </div>
@@ -737,7 +803,7 @@ export default function OperatorPanel() {
                       <p className="text-[9px] text-gray-500 leading-tight">{item.desc}</p>
                       <div className="flex gap-1">
                         <button onClick={item.apply} className="text-[10px] bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded font-bold">{t.btnSetupScenario}</button>
-                        <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="text-[10px] bg-yellow-400 hover:bg-yellow-300 text-black px-2 py-1 rounded font-bold">{t.btnRunScenario}</button>
+                        <button onClick={item.run} className="text-[10px] bg-yellow-400 hover:bg-yellow-300 text-black px-2 py-1 rounded font-bold">{t.btnRunScenario}</button>
                       </div>
                     </div>
                   </div>

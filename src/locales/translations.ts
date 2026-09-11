@@ -100,6 +100,10 @@ export const translations = {
     fullLogoTest: "THỬ TOÀN BỘ LOGO",
     resetLayoutPositions: "RESET BỐ CỤC / VỊ TRÍ",
     hardResetLocalConfig: "XÓA CẤU HÌNH CỤC BỘ",
+    scenarioSmokeTest: "TỰ TEST S1/S2/S3",
+    scenarioSmokeRunning: "Đang test kịch bản...",
+    scenarioSmokePass: "Test OK: S1/S2/S3 nạp và chạy được",
+    scenarioSmokeFail: "Test lỗi: kiểm tra lại kịch bản",
     
     // Ending Templates
     endingTemplates: "✦ MẪU MÀN HÌNH LÚC KẾT (TEMPLATES)",
@@ -275,6 +279,10 @@ export const translations = {
     fullLogoTest: "FULL LOGO TEST",
     resetLayoutPositions: "RESET LAYOUT / POSITIONS",
     hardResetLocalConfig: "HARD RESET LOCAL CONFIG",
+    scenarioSmokeTest: "SELF TEST S1/S2/S3",
+    scenarioSmokeRunning: "Testing scenarios...",
+    scenarioSmokePass: "Test OK: S1/S2/S3 load and run",
+    scenarioSmokeFail: "Test failed: check scenario",
     
     // Ending Templates
     endingTemplates: "✦ ENDING PRESET TEMPLATES",
