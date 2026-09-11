@@ -702,7 +702,7 @@ export default function OperatorPanel() {
                   maxHeight: '100%'
                 }}
               >
-                 {/* 1920x1080 Iframe scaled smoothly to guarantee 1:1 match with LED */}
+                 {/* Direct LED preview: same renderer as /led, without iframe sync lag */}
                  <div 
                    className="absolute left-0 top-0 origin-top-left"
                    style={{
@@ -715,24 +715,6 @@ export default function OperatorPanel() {
                    <LedStage editPreview />
                  </div>
                  
-                 <div className="absolute top-2 left-2 bg-gab-cyan/90 text-[10px] text-black font-bold px-2 py-1 rounded backdrop-blur z-30 shadow">
-                   {t.livePreview}
-                 </div>
-
-                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition z-30">
-                   <button onClick={handleTestEnergy} className="bg-yellow-500/90 hover:bg-yellow-400 text-black font-bold text-[10px] px-2 py-1 rounded shadow">
-                     {t.btnTestEnergy}
-                   </button>
-                   <button onClick={handleTestExplosion} className="bg-red-600/90 hover:bg-red-500 text-white font-bold text-[10px] px-2 py-1 rounded shadow">
-                     {t.btnTestExplosion}
-                   </button>
-                   <button onClick={handleTestFinalScreen} className="bg-cyan-600/90 hover:bg-cyan-500 text-white font-bold text-[10px] px-2 py-1 rounded shadow">
-                     {t.btnTestFinal}
-                   </button>
-                   <button onClick={() => window.open('/led', '_blank')} className="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded shadow">
-                     {t.popOut}
-                   </button>
-                 </div>
               </div>
            </div>
 
