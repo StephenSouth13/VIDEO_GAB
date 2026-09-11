@@ -23,7 +23,7 @@ export default function EnergyTrailSystem() {
     const distance = 950 + (i % 4) * 80;
     const startX = Math.cos(rad) * distance;
     const startY = Math.sin(rad) * distance;
-    return { id: i, angle, startX, startY, delay: (i % 7) * 0.12, duration: 0.8 + (i % 3) * 0.25 };
+    return { id: i, angle, distance, startX, startY, delay: (i % 7) * 0.12, duration: 0.8 + (i % 3) * 0.25 };
   });
   
   return (

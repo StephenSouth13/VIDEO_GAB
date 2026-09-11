@@ -1,5 +1,4 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
-import { EVENT_CONFIG } from '../config/eventConfig';
 
 class PausableTimer {
   private timerId: number | null = null;

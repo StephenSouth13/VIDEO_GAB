@@ -4,7 +4,42 @@ import { useState } from 'react';
 
 export default function OperatorPanel() {
   const store = useEventStore();
-  const { phase, requiredParticipants, participants, isBlackout, setRequiredParticipants, updateParticipant, isPaused, backgroundType, setBackgroundType, explosionType, setExplosionType, energyType, setEnergyType, backgroundColor, setBackgroundColor, explosionColor, setExplosionColor, layout, updateLayout, timelineConfig, updateTimeline, trailColor, setTrailColor, globalTime, totalDuration, setGlobalTime, setScrubbing, setCustomLogo, customLogoCenter, customLogoFly1, customLogoFly2, showNodes, setShowNodes, savedProfiles, saveProfile, loadProfile, deleteProfile } = store;
+  const { 
+    phase, 
+    requiredParticipants, 
+    participants, 
+    isBlackout, 
+    setRequiredParticipants, 
+    updateParticipant, 
+    isPaused, 
+    backgroundType, 
+    setBackgroundType, 
+    explosionType, 
+    setExplosionType, 
+    energyType, 
+    setEnergyType, 
+    backgroundColor, 
+    setBackgroundColor, 
+    explosionColor, 
+    setExplosionColor, 
+    layout, 
+    updateLayout, 
+    timelineConfig, 
+    updateTimeline, 
+    trailColor, 
+    setTrailColor, 
+    globalTime, 
+    totalDuration, 
+    setGlobalTime, 
+    setScrubbing, 
+    setCustomLogo, 
+    showNodes, 
+    setShowNodes, 
+    savedProfiles, 
+    saveProfile, 
+    loadProfile, 
+    deleteProfile 
+  } = store;
   
   const [profileName, setProfileName] = useState('');
 
@@ -179,15 +214,20 @@ export default function OperatorPanel() {
                 <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="Tên kịch bản..." className="flex-1 bg-[#0E1217] border border-gray-700 text-xs px-2 py-1 rounded text-white"/>
                 <button onClick={handleSaveProfile} className="bg-gab-cyan-light text-black text-xs font-bold px-3 py-1 rounded hover:opacity-80">SAVE</button>
              </div>
-             {Object.keys(savedProfiles).length > 0 && (
-                <div className="flex gap-2 mt-2 items-center">
-                   <select onChange={(e) => { if(e.target.value) loadProfile(e.target.value); }} className="flex-1 bg-[#0E1217] border border-gray-700 text-xs px-2 py-1.5 rounded text-white">
-                      <option value="">-- Tải kịch bản đã lưu --</option>
-                      {Object.keys(savedProfiles).map(name => <option key={name} value={name}>{name}</option>)}
-                   </select>
+              {Object.keys(savedProfiles).length > 0 && (
+                <div className="space-y-1.5 mt-2">
+                   {Object.keys(savedProfiles).map(name => (
+                     <div key={name} className="flex justify-between items-center bg-[#0E1217] border border-gray-800 px-2 py-1 rounded text-xs">
+                        <span className="truncate max-w-[180px] text-gray-300 font-mono">{name}</span>
+                        <div className="flex gap-1">
+                          <button onClick={() => loadProfile(name)} className="px-2 py-0.5 bg-gab-cyan/20 text-gab-cyan text-[10px] rounded hover:bg-gab-cyan hover:text-black font-bold">LOAD</button>
+                          <button onClick={() => deleteProfile(name)} className="px-1.5 py-0.5 text-red-400 hover:text-red-200 text-[10px] rounded" title="Xóa">✕</button>
+                        </div>
+                     </div>
+                   ))}
                 </div>
-             )}
-          </div>
+              )}
+           </div>
 
           {/* 2. MẪU MÀN HÌNH KẾT THÚC (ENDING TEMPLATES) */}
           <div className="p-4 border-b border-gray-800 bg-gradient-to-b from-[#181d26] to-[#151921]">
