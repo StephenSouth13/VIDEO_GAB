@@ -79,7 +79,13 @@ export default function OperatorPanel() {
     audioEnabled,
     audioVolume,
     setAudioEnabled,
-    setAudioVolume
+    setAudioVolume,
+    showAudioUrl,
+    showAudioVolume,
+    showAudioLoop,
+    setShowAudioUrl,
+    setShowAudioVolume,
+    setShowAudioLoop
   } = store;
   
   const t = translations[language || 'vi'];
@@ -152,11 +158,16 @@ export default function OperatorPanel() {
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCustomBackgroundVideo(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setCustomBackgroundVideo(URL.createObjectURL(file));
+      setBackgroundVideoPaused(false);
+    }
+  };
+
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setShowAudioUrl(URL.createObjectURL(file));
+      void audioManager.unlock();
     }
   };
   
@@ -549,6 +560,38 @@ export default function OperatorPanel() {
                 <button onClick={unlockAndTestAudio} className="px-2 py-1.5 rounded bg-cyan-950/80 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
                   {t.audioTest}
                 </button>
+              </div>
+              <div className="mt-2 pt-2 border-t border-cyan-900/50">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] text-gray-300 font-bold">{t.showAudioTrack}</label>
+                  {showAudioUrl && (
+                    <button onClick={() => setShowAudioUrl(null)} className="text-[10px] text-red-300 hover:underline">{t.clearMedia}</button>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  value={showAudioUrl || ''}
+                  onChange={(e) => setShowAudioUrl(e.target.value || null)}
+                  placeholder={t.showAudioUrlPlaceholder}
+                  className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[10px] mb-2 font-mono"
+                />
+                <div className="grid grid-cols-[1fr_auto] gap-2 items-center mb-2">
+                  <label className="block">
+                    <span className="text-[9px] text-gray-500">{t.audioVolume} {Math.round(showAudioVolume * 100)}%</span>
+                    <input type="range" min="0" max="1" step="0.01" value={showAudioVolume} onChange={(e) => setShowAudioVolume(Number(e.target.value))} className="w-full accent-gab-cyan" />
+                  </label>
+                  <label className="flex items-center gap-1 text-[10px] text-gray-300">
+                    <input type="checkbox" checked={showAudioLoop} onChange={(e) => setShowAudioLoop(e.target.checked)} className="accent-gab-cyan" />
+                    {t.showAudioLoop}
+                  </label>
+                </div>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleAudioUpload}
+                  className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-white hover:file:bg-gray-700"
+                />
+                <p className="text-[9px] text-gray-500 mt-1 leading-tight">{t.mediaSafeHint}</p>
               </div>
             </div>
           </div>

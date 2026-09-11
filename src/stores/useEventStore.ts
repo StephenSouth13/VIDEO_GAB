@@ -38,6 +38,9 @@ interface EventState {
   isPaused: boolean;
   audioEnabled: boolean;
   audioVolume: number;
+  showAudioUrl: string | null;
+  showAudioVolume: number;
+  showAudioLoop: boolean;
   customBackgroundHTML: string;
   customBackgroundVideo: string | null;
   backgroundVideoOpacity: number;
@@ -118,6 +121,9 @@ interface EventState {
   setBlackout: (val: boolean) => void;
   setAudioEnabled: (enabled: boolean) => void;
   setAudioVolume: (volume: number) => void;
+  setShowAudioUrl: (url: string | null) => void;
+  setShowAudioVolume: (volume: number) => void;
+  setShowAudioLoop: (loop: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
   setCustomBackgroundVideo: (url: string | null) => void;
   setBackgroundVideoOpacity: (opacity: number) => void;
@@ -187,6 +193,9 @@ export const useEventStore = create<EventState>()(
   isPaused: false,
   audioEnabled: true,
   audioVolume: 0.75,
+  showAudioUrl: null,
+  showAudioVolume: 0.65,
+  showAudioLoop: false,
   customBackgroundHTML: '',
   customBackgroundVideo: null,
   backgroundVideoOpacity: 1,
@@ -280,6 +289,9 @@ export const useEventStore = create<EventState>()(
   setBlackout: (val) => set({ isBlackout: val }),
   setAudioEnabled: (enabled) => set({ audioEnabled: enabled }),
   setAudioVolume: (volume) => set({ audioVolume: Math.max(0, Math.min(1, volume)) }),
+  setShowAudioUrl: (url) => set({ showAudioUrl: url }),
+  setShowAudioVolume: (volume) => set({ showAudioVolume: Math.max(0, Math.min(1, volume)) }),
+  setShowAudioLoop: (loop) => set({ showAudioLoop: loop }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
   setBackgroundVideoOpacity: (opacity) => set({ backgroundVideoOpacity: opacity }),
@@ -355,7 +367,7 @@ export const useEventStore = create<EventState>()(
       trailColor: state.trailColor,
       backgroundColor: state.backgroundColor,
       explosionColor: state.explosionColor,
-      customBackgroundVideo: state.customBackgroundVideo,
+      customBackgroundVideo: state.customBackgroundVideo?.startsWith('blob:') ? null : state.customBackgroundVideo,
       backgroundVideoOpacity: state.backgroundVideoOpacity,
       backgroundVideoFit: state.backgroundVideoFit,
       backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,
@@ -374,6 +386,9 @@ export const useEventStore = create<EventState>()(
       showNodes: state.showNodes,
       audioEnabled: state.audioEnabled,
       audioVolume: state.audioVolume,
+      showAudioUrl: state.showAudioUrl?.startsWith('blob:') ? null : state.showAudioUrl,
+      showAudioVolume: state.showAudioVolume,
+      showAudioLoop: state.showAudioLoop,
     };
     return {
       savedProfiles: {
@@ -428,7 +443,7 @@ export const useEventStore = create<EventState>()(
   resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
-  version: 3,
+  version: 4,
   migrate: (persistedState: any, version) => {
     if (version < 2) {
       return {
@@ -450,6 +465,9 @@ export const useEventStore = create<EventState>()(
         },
         audioEnabled: persistedState?.audioEnabled ?? true,
         audioVolume: persistedState?.audioVolume ?? 0.75,
+        showAudioUrl: persistedState?.showAudioUrl ?? null,
+        showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
+        showAudioLoop: persistedState?.showAudioLoop ?? false,
       };
     }
     if (version < 3) {
@@ -457,6 +475,17 @@ export const useEventStore = create<EventState>()(
         ...persistedState,
         audioEnabled: persistedState?.audioEnabled ?? true,
         audioVolume: persistedState?.audioVolume ?? 0.75,
+        showAudioUrl: persistedState?.showAudioUrl ?? null,
+        showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
+        showAudioLoop: persistedState?.showAudioLoop ?? false,
+      };
+    }
+    if (version < 4) {
+      return {
+        ...persistedState,
+        showAudioUrl: persistedState?.showAudioUrl ?? null,
+        showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
+        showAudioLoop: persistedState?.showAudioLoop ?? false,
       };
     }
     return persistedState;
@@ -469,6 +498,9 @@ export const useEventStore = create<EventState>()(
     isPaused: state.isPaused,
     audioEnabled: state.audioEnabled,
     audioVolume: state.audioVolume,
+    showAudioUrl: state.showAudioUrl?.startsWith('blob:') ? null : state.showAudioUrl,
+    showAudioVolume: state.showAudioVolume,
+    showAudioLoop: state.showAudioLoop,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
     nodeGlowStyle: state.nodeGlowStyle,
@@ -488,7 +520,7 @@ export const useEventStore = create<EventState>()(
     trailColor: state.trailColor,
     backgroundColor: state.backgroundColor,
     explosionColor: state.explosionColor,
-    customBackgroundVideo: state.customBackgroundVideo,
+    customBackgroundVideo: state.customBackgroundVideo?.startsWith('blob:') ? null : state.customBackgroundVideo,
     backgroundVideoOpacity: state.backgroundVideoOpacity,
     backgroundVideoFit: state.backgroundVideoFit,
     backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,

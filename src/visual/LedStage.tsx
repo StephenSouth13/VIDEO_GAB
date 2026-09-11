@@ -2,7 +2,7 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { EVENT_CONFIG } from '../config/eventConfig';
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 // Components
 import LogoReveal from './LogoReveal';
@@ -36,6 +36,7 @@ export default function LedStage() {
     stageOverscan
   } = useEventStore();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [failedVideoUrl, setFailedVideoUrl] = useState<string | null>(null);
   
   useEffect(() => {
     // Prevent default scrolling on LED stage
@@ -85,7 +86,7 @@ export default function LedStage() {
       >
       
       {/* Background Video Layer */}
-      {customBackgroundVideo && (
+      {customBackgroundVideo && failedVideoUrl !== customBackgroundVideo && (
         <video 
           ref={videoRef}
           src={customBackgroundVideo} 
@@ -98,6 +99,7 @@ export default function LedStage() {
             opacity: backgroundVideoOpacity,
             objectFit: backgroundVideoFit === 'fill' ? 'fill' : backgroundVideoFit
           }}
+          onError={() => setFailedVideoUrl(customBackgroundVideo)}
         />
       )}
 
