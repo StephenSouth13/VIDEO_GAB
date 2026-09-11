@@ -39,16 +39,22 @@ interface EventState {
   particleCount: number;
   nodeShape: 'circle' | 'rectangle';
   backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum';
-  explosionType: 'shockwave' | 'golden-burst' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring';
-  energyType: 'default' | 'laser' | 'spirit-bomb' | 'hexagon';
+  explosionType: 'cosmic-expansion' | 'vortex-spin' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring' | 'golden-burst' | 'shockwave';
+  energyType: 'expert-convergence' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'default';
   trailColor: string;
   backgroundColor: string;
   explosionColor: string;
   
-  // Custom Assets
+  // Custom Assets & Ending Layout
   customLogoCenter: string | null;
   customLogoFly1: string | null;
   customLogoFly2: string | null;
+  showCardVietkings: boolean;
+  showCardGAB: boolean;
+  showCenterLogoFinal: boolean;
+  finalTemplate: 'dual-cards' | 'center-hero' | 'top-sponsors' | 'cyber-hologram' | 'golden-prestige' | 'minimal-clean';
+  finalCardVietkingsConfig: { scale: number; rotate: number };
+  finalCardGABConfig: { scale: number; rotate: number };
 
   // Timeline & Scrubber State
   globalTime: number; // in seconds
@@ -95,6 +101,11 @@ interface EventState {
   setBackgroundColor: (color: string) => void;
   setExplosionColor: (color: string) => void;
   setCustomLogo: (key: 'customLogoCenter' | 'customLogoFly1' | 'customLogoFly2', base64: string | null) => void;
+  setShowCardVietkings: (val: boolean) => void;
+  setShowCardGAB: (val: boolean) => void;
+  setShowCenterLogoFinal: (val: boolean) => void;
+  setFinalTemplate: (template: EventState['finalTemplate']) => void;
+  updateCardConfig: (card: 'vietkings' | 'gab', config: { scale?: number; rotate?: number }) => void;
   setGlobalTime: (time: number) => void;
   setScrubbing: (val: boolean) => void;
   setShowNodes: (val: boolean) => void;
@@ -117,15 +128,21 @@ export const useEventStore = create<EventState>()(
   particleCount: 2000,
   nodeShape: 'rectangle',
   backgroundType: 'particles',
-  explosionType: 'shockwave',
-  energyType: 'default',
+  explosionType: 'cosmic-expansion',
+  energyType: 'expert-convergence',
   trailColor: '#FACC15', // Yellow
   backgroundColor: '#050810',
-  explosionColor: '#FFFFFF',
+  explosionColor: '#00F0FF',
   
   customLogoCenter: null,
   customLogoFly1: null,
   customLogoFly2: null,
+  showCardVietkings: true,
+  showCardGAB: true,
+  showCenterLogoFinal: false,
+  finalTemplate: 'dual-cards',
+  finalCardVietkingsConfig: { scale: 1, rotate: -15 },
+  finalCardGABConfig: { scale: 1, rotate: 10 },
   
   globalTime: 0,
   isScrubbing: false,
@@ -199,6 +216,15 @@ export const useEventStore = create<EventState>()(
   setBackgroundColor: (color) => set({ backgroundColor: color }),
   setExplosionColor: (color) => set({ explosionColor: color }),
   setCustomLogo: (key, base64) => set({ [key]: base64 }),
+  setShowCardVietkings: (val) => set({ showCardVietkings: val }),
+  setShowCardGAB: (val) => set({ showCardGAB: val }),
+  setShowCenterLogoFinal: (val) => set({ showCenterLogoFinal: val }),
+  setFinalTemplate: (template) => set({ finalTemplate: template }),
+  updateCardConfig: (card, config) => set((state) => ({
+    ...(card === 'vietkings' 
+      ? { finalCardVietkingsConfig: { ...state.finalCardVietkingsConfig, ...config } }
+      : { finalCardGABConfig: { ...state.finalCardGABConfig, ...config } })
+  })),
   setGlobalTime: (time) => set({ globalTime: time }),
   setScrubbing: (val) => set({ isScrubbing: val }),
   setShowNodes: (val) => set({ showNodes: val }),
@@ -220,6 +246,12 @@ export const useEventStore = create<EventState>()(
       customLogoCenter: state.customLogoCenter,
       customLogoFly1: state.customLogoFly1,
       customLogoFly2: state.customLogoFly2,
+      showCardVietkings: state.showCardVietkings,
+      showCardGAB: state.showCardGAB,
+      showCenterLogoFinal: state.showCenterLogoFinal,
+      finalTemplate: state.finalTemplate,
+      finalCardVietkingsConfig: state.finalCardVietkingsConfig,
+      finalCardGABConfig: state.finalCardGABConfig,
       showNodes: state.showNodes,
     };
     return {
@@ -283,6 +315,12 @@ export const useEventStore = create<EventState>()(
     customLogoCenter: state.customLogoCenter,
     customLogoFly1: state.customLogoFly1,
     customLogoFly2: state.customLogoFly2,
+    showCardVietkings: state.showCardVietkings,
+    showCardGAB: state.showCardGAB,
+    showCenterLogoFinal: state.showCenterLogoFinal,
+    finalTemplate: state.finalTemplate,
+    finalCardVietkingsConfig: state.finalCardVietkingsConfig,
+    finalCardGABConfig: state.finalCardGABConfig,
     participants: state.participants,
     showNodes: state.showNodes,
     savedProfiles: state.savedProfiles

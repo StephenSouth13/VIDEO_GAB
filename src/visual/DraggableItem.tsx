@@ -1,27 +1,29 @@
 import { motion } from 'framer-motion';
 import { useEventStore } from '../stores/useEventStore';
 
+type LayoutKeys = 'logo' | 'counter' | 'finalMessage' | 'cardVietkings' | 'cardGAB';
+
 interface Props {
-  layoutKey: keyof ReturnType<typeof useEventStore>['layout'];
+  layoutKey: LayoutKeys;
   children: React.ReactNode;
   className?: string;
   isEndPos?: boolean;
 }
 
 export default function DraggableItem({ layoutKey, children, className, isEndPos }: Props) {
-  const layout = useEventStore(state => state.layout[layoutKey] as any);
+  const layout = useEventStore(state => state.layout[layoutKey]) as any;
   const updateLayout = useEventStore(state => state.updateLayout);
   
   const isEditMode = new URLSearchParams(window.location.search).get('edit') === 'true';
 
-  const x = isEndPos ? layout.endX : layout.x;
-  const y = isEndPos ? layout.endY : layout.y;
+  const x = isEndPos ? (layout?.endX ?? 0) : (layout?.x ?? 0);
+  const y = isEndPos ? (layout?.endY ?? 0) : (layout?.y ?? 0);
 
   return (
     <motion.div
       drag={isEditMode}
       dragMomentum={false}
-      onDragEnd={(e, info) => {
+      onDragEnd={(_e, info) => {
         if (!isEditMode) return;
         if (isEndPos) {
           updateLayout(layoutKey, {
@@ -41,10 +43,11 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
         top: '50%',
         x: `calc(-50% + ${x}px)`,
         y: `calc(-50% + ${y}px)`,
-        scale: layout.scale
+        scale: layout?.scale ?? 1
       }}
     >
        {children}
     </motion.div>
   );
 }
+
