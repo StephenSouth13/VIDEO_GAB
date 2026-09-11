@@ -118,8 +118,14 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
       )}
 
       {/* 3D Scene Layer */}
-      <div className={`absolute inset-0 ${(customBackgroundHTML || customBackgroundVideo) ? 'z-10' : 'z-0'}`}>
+      <div
+        className={`absolute inset-0 ${(customBackgroundHTML || customBackgroundVideo) ? 'z-10' : 'z-0'}`}
+        style={{ width: '100%', height: '100%' }}
+      >
         <Canvas 
+          key={`${safeStageWidth}x${safeStageHeight}-${isEditPreview ? 'preview' : 'led'}`}
+          className="absolute inset-0 block h-full w-full"
+          style={{ width: '100%', height: '100%' }}
           camera={{ position: [0, 0, 10], fov: 50 }} 
           dpr={[1, 1.5]}
           gl={{ antialias: false, alpha: true }} // alpha true for custom background
