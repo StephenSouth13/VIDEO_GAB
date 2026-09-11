@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { eventController } from './core/EventController';
 import { KeyboardSensorAdapter } from './sensors/SensorAdapter';
 import TimelineManager from './core/TimelineManager';
+import AudioConductor from './audio/AudioConductor';
 
 function OperatorRoute() {
   useEffect(() => {
@@ -19,6 +20,7 @@ function OperatorRoute() {
     <>
       <OperatorPanel />
       <TimelineManager />
+      <AudioConductor />
     </>
   );
 }

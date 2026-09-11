@@ -36,6 +36,8 @@ interface EventState {
   language: 'vi' | 'en';
   isBlackout: boolean;
   isPaused: boolean;
+  audioEnabled: boolean;
+  audioVolume: number;
   customBackgroundHTML: string;
   customBackgroundVideo: string | null;
   backgroundVideoOpacity: number;
@@ -114,6 +116,8 @@ interface EventState {
   updateParticipant: (id: number, update: Partial<ParticipantState>) => void;
   resetParticipants: () => void;
   setBlackout: (val: boolean) => void;
+  setAudioEnabled: (enabled: boolean) => void;
+  setAudioVolume: (volume: number) => void;
   setCustomBackgroundHTML: (html: string) => void;
   setCustomBackgroundVideo: (url: string | null) => void;
   setBackgroundVideoOpacity: (opacity: number) => void;
@@ -181,6 +185,8 @@ export const useEventStore = create<EventState>()(
   participants: {},
   isBlackout: false,
   isPaused: false,
+  audioEnabled: true,
+  audioVolume: 0.75,
   customBackgroundHTML: '',
   customBackgroundVideo: null,
   backgroundVideoOpacity: 1,
@@ -272,6 +278,8 @@ export const useEventStore = create<EventState>()(
   }),
   
   setBlackout: (val) => set({ isBlackout: val }),
+  setAudioEnabled: (enabled) => set({ audioEnabled: enabled }),
+  setAudioVolume: (volume) => set({ audioVolume: Math.max(0, Math.min(1, volume)) }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
   setBackgroundVideoOpacity: (opacity) => set({ backgroundVideoOpacity: opacity }),
@@ -364,6 +372,8 @@ export const useEventStore = create<EventState>()(
       finalCardVietkingsConfig: state.finalCardVietkingsConfig,
       finalCardGABConfig: state.finalCardGABConfig,
       showNodes: state.showNodes,
+      audioEnabled: state.audioEnabled,
+      audioVolume: state.audioVolume,
     };
     return {
       savedProfiles: {
@@ -418,7 +428,7 @@ export const useEventStore = create<EventState>()(
   resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
-  version: 2,
+  version: 3,
   migrate: (persistedState: any, version) => {
     if (version < 2) {
       return {
@@ -438,6 +448,15 @@ export const useEventStore = create<EventState>()(
           videoEnergy: 'S2 Video Energy 0328',
           placeCard: 'S3 PlaceCard Visual'
         },
+        audioEnabled: persistedState?.audioEnabled ?? true,
+        audioVolume: persistedState?.audioVolume ?? 0.75,
+      };
+    }
+    if (version < 3) {
+      return {
+        ...persistedState,
+        audioEnabled: persistedState?.audioEnabled ?? true,
+        audioVolume: persistedState?.audioVolume ?? 0.75,
       };
     }
     return persistedState;
@@ -448,6 +467,8 @@ export const useEventStore = create<EventState>()(
     requiredParticipants: state.requiredParticipants,
     isBlackout: state.isBlackout,
     isPaused: state.isPaused,
+    audioEnabled: state.audioEnabled,
+    audioVolume: state.audioVolume,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
     nodeGlowStyle: state.nodeGlowStyle,

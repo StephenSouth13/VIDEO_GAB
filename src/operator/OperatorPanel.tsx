@@ -2,6 +2,7 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
 import { useState, useRef, useEffect } from 'react';
 import { translations } from '../locales/translations';
+import { audioManager } from '../audio/AudioManager';
 
 export default function OperatorPanel() {
   const store = useEventStore();
@@ -74,7 +75,11 @@ export default function OperatorPanel() {
     loadProfile, 
     deleteProfile,
     scenarioNames,
-    setScenarioName
+    setScenarioName,
+    audioEnabled,
+    audioVolume,
+    setAudioEnabled,
+    setAudioVolume
   } = store;
   
   const t = translations[language || 'vi'];
@@ -280,6 +285,13 @@ export default function OperatorPanel() {
     window.location.reload();
   };
 
+  const unlockAndTestAudio = async () => {
+    await audioManager.unlock();
+    audioManager.setMute(!audioEnabled);
+    audioManager.setVolume(audioVolume);
+    audioManager.play('ready');
+  };
+
   const applyScenario1Ceremony = () => {
     applyBundledLogos();
     store.resetLayout();
@@ -368,6 +380,11 @@ export default function OperatorPanel() {
 
   const participantsArray = Object.values(participants);
   const confirmedCount = participantsArray.filter(p => p.status === 'CONFIRMED').length;
+  const scenarioItems = [
+    { key: 'ceremony' as const, apply: applyScenario1Ceremony, run: runScenario1Ceremony, desc: 'Code-native docs.md flow' },
+    { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: undefined, desc: '100% local video 0328 layer' },
+    { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: undefined, desc: '100% Visual_PlaceCard layer' }
+  ];
 
   return (
     <div className="min-h-screen bg-[#0E1217] text-white flex flex-col font-sans h-screen select-none">
@@ -429,6 +446,43 @@ export default function OperatorPanel() {
               <button onClick={() => store.resetLayout()} className="py-2 bg-cyan-950/70 border border-cyan-700 text-gab-cyan text-xs font-bold rounded hover:bg-cyan-900 shadow col-span-2">RESET LAYOUT / POSITIONS</button>
               <button onClick={hardResetLocalConfig} className="py-2 border border-orange-500 text-orange-300 text-xs font-bold rounded hover:bg-orange-500 hover:text-black col-span-2 transition">HARD RESET LOCAL CONFIG</button>
               <button onClick={handleReset} className="py-2 border border-red-500 text-red-500 text-xs font-bold rounded hover:bg-red-500 hover:text-white col-span-2 transition">{t.resetEvent}</button>
+            </div>
+
+            <div className="mt-3 bg-black/40 border border-yellow-700/50 rounded-lg p-2.5">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-[11px] font-bold text-yellow-300 uppercase">3 Scenarios Ready</h3>
+                <span className="text-[9px] text-gray-500">SETUP / RUN</span>
+              </div>
+              <div className="space-y-1.5">
+                {scenarioItems.map((item, index) => (
+                  <div key={item.key} className="grid grid-cols-[1fr_auto_auto] gap-1.5 items-center">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-bold text-white truncate">{index + 1}. {scenarioNames[item.key]}</p>
+                      <p className="text-[9px] text-gray-500 truncate">{item.desc}</p>
+                    </div>
+                    <button onClick={item.apply} className="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-[10px] font-bold">SETUP</button>
+                    <button onClick={item.run || (() => { item.apply(); eventController.runDemo(); })} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">RUN</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-3 bg-[#0E1217] border border-cyan-900/70 rounded-lg p-2.5">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Audio Cue System</h3>
+                <button onClick={() => setAudioEnabled(!audioEnabled)} className={`px-2 py-0.5 rounded text-[10px] font-bold ${audioEnabled ? 'bg-gab-cyan text-black' : 'bg-gray-700 text-gray-300'}`}>
+                  {audioEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+              <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
+                <label className="block">
+                  <span className="text-[9px] text-gray-500">Volume {Math.round(audioVolume * 100)}%</span>
+                  <input type="range" min="0" max="1" step="0.01" value={audioVolume} onChange={(e) => setAudioVolume(Number(e.target.value))} className="w-full accent-gab-cyan" />
+                </label>
+                <button onClick={unlockAndTestAudio} className="px-2 py-1.5 rounded bg-cyan-950/80 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
+                  TEST
+                </button>
+              </div>
             </div>
           </div>
 
@@ -670,11 +724,7 @@ export default function OperatorPanel() {
                   <h3 className="text-[11px] font-bold text-yellow-300 uppercase">3 Editable Scenarios</h3>
                   <button onClick={runScenario1Ceremony} className="text-[10px] bg-yellow-400 text-black px-2 py-0.5 rounded font-bold">RUN CODE</button>
                 </div>
-                {[
-                  { key: 'ceremony' as const, apply: applyScenario1Ceremony, run: runScenario1Ceremony, desc: 'Code-native docs.md flow' },
-                  { key: 'videoEnergy' as const, apply: applyScenarioVideoShow, run: undefined, desc: '100% local video 0328 layer' },
-                  { key: 'placeCard' as const, apply: applyScenarioPlaceCard, run: undefined, desc: '100% Visual_PlaceCard layer' }
-                ].map((item) => (
+                {scenarioItems.map((item) => (
                   <div key={item.key} className="bg-[#0E1217] border border-gray-800 rounded p-2 mb-2 last:mb-0">
                     <input
                       value={scenarioNames[item.key]}
