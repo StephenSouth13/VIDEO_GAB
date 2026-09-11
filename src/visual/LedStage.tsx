@@ -15,9 +15,10 @@ import MeteorSystem from './MeteorSystem';
 import EnergyTrailSystem from './EnergyTrailSystem';
 import ExplosionSystem from './ExplosionSystem';
 import CardSpawner from './CardSpawner';
+import TimelineManager from '../core/TimelineManager';
 
 export default function LedStage() {
-  const { phase, isBlackout, customBackgroundHTML } = useEventStore();
+  const { phase, isBlackout, customBackgroundHTML, backgroundColor } = useEventStore();
   
   useEffect(() => {
     // Prevent default scrolling on LED stage
@@ -32,7 +33,7 @@ export default function LedStage() {
   }
 
   return (
-    <div className="w-full h-screen bg-black overflow-hidden relative">
+    <div className="w-full h-screen overflow-hidden relative" style={{ backgroundColor }}>
       
       {/* Custom Embedded Background Layer */}
       {customBackgroundHTML && (
@@ -50,7 +51,7 @@ export default function LedStage() {
           gl={{ antialias: false, alpha: true }} // alpha true for custom background
         >
           {/* Only render background color if no custom HTML is provided */}
-          {!customBackgroundHTML && <color attach="background" args={['#050810']} />}
+          {!customBackgroundHTML && <color attach="background" args={[backgroundColor]} />}
           <ambientLight intensity={0.5} />
           
           <Suspense fallback={null}>
@@ -95,6 +96,7 @@ export default function LedStage() {
          {/* CARD SPAWNER */}
          <CardSpawner />
          
+         <TimelineManager />
       </div>
     </div>
   );

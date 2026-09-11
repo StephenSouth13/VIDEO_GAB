@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { EVENT_CONFIG } from '../config/eventConfig';
 
 export const EventPhase = {
@@ -37,14 +38,28 @@ interface EventState {
   customBackgroundHTML: string;
   particleCount: number;
   nodeShape: 'circle' | 'rectangle';
-  backgroundType: 'particles' | 'starfield' | 'digital-network';
-  explosionType: 'shockwave' | 'golden-burst' | 'supernova';
+  backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum';
+  explosionType: 'shockwave' | 'golden-burst' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring';
+  energyType: 'default' | 'laser' | 'spirit-bomb' | 'hexagon';
   trailColor: string;
+  backgroundColor: string;
+  explosionColor: string;
+  
+  // Custom Assets
+  customLogoCenter: string | null;
+  customLogoFly1: string | null;
+  customLogoFly2: string | null;
 
   // Timeline & Scrubber State
   globalTime: number; // in seconds
   isScrubbing: boolean;
   totalDuration: number;
+  
+  // Display Options
+  showNodes: boolean;
+
+  // Profile Manager
+  savedProfiles: Record<string, any>;
   
   timelineConfig: {
     countdown: number;
@@ -75,15 +90,25 @@ interface EventState {
   setPaused: (val: boolean) => void;
   setBackgroundType: (type: EventState['backgroundType']) => void;
   setExplosionType: (type: EventState['explosionType']) => void;
+  setEnergyType: (type: EventState['energyType']) => void;
   setTrailColor: (color: string) => void;
+  setBackgroundColor: (color: string) => void;
+  setExplosionColor: (color: string) => void;
+  setCustomLogo: (key: 'customLogoCenter' | 'customLogoFly1' | 'customLogoFly2', base64: string | null) => void;
   setGlobalTime: (time: number) => void;
   setScrubbing: (val: boolean) => void;
+  setShowNodes: (val: boolean) => void;
+  saveProfile: (name: string) => void;
+  loadProfile: (name: string) => void;
+  deleteProfile: (name: string) => void;
   updateTimeline: (phase: keyof EventState['timelineConfig'], seconds: number) => void;
   updateLayout: (component: keyof EventState['layout'], props: any) => void;
 }
 
-export const useEventStore = create<EventState>((set, get) => ({
-  phase: EventPhase.BOOT,
+export const useEventStore = create<EventState>()(
+  persist(
+    (set, get) => ({
+      phase: EventPhase.BOOT,
   requiredParticipants: EVENT_CONFIG.participants.required,
   participants: {},
   isBlackout: false,
@@ -93,11 +118,21 @@ export const useEventStore = create<EventState>((set, get) => ({
   nodeShape: 'rectangle',
   backgroundType: 'particles',
   explosionType: 'shockwave',
+  energyType: 'default',
   trailColor: '#FACC15', // Yellow
+  backgroundColor: '#050810',
+  explosionColor: '#FFFFFF',
+  
+  customLogoCenter: null,
+  customLogoFly1: null,
+  customLogoFly2: null,
   
   globalTime: 0,
   isScrubbing: false,
   totalDuration: 6 + 3 + 6 + 8 + 2 + 2, // 27 seconds sum of default timelineConfig
+  
+  showNodes: true,
+  savedProfiles: {},
   
   timelineConfig: {
     countdown: 6,
@@ -159,9 +194,61 @@ export const useEventStore = create<EventState>((set, get) => ({
   setPaused: (val) => set({ isPaused: val }),
   setBackgroundType: (type) => set({ backgroundType: type }),
   setExplosionType: (type) => set({ explosionType: type }),
+  setEnergyType: (type) => set({ energyType: type }),
   setTrailColor: (color) => set({ trailColor: color }),
+  setBackgroundColor: (color) => set({ backgroundColor: color }),
+  setExplosionColor: (color) => set({ explosionColor: color }),
+  setCustomLogo: (key, base64) => set({ [key]: base64 }),
   setGlobalTime: (time) => set({ globalTime: time }),
   setScrubbing: (val) => set({ isScrubbing: val }),
+  setShowNodes: (val) => set({ showNodes: val }),
+  
+  saveProfile: (name) => set((state) => {
+    // Only save configurable properties
+    const profileToSave = {
+      requiredParticipants: state.requiredParticipants,
+      particleCount: state.particleCount,
+      nodeShape: state.nodeShape,
+      backgroundType: state.backgroundType,
+      explosionType: state.explosionType,
+      energyType: state.energyType,
+      trailColor: state.trailColor,
+      backgroundColor: state.backgroundColor,
+      explosionColor: state.explosionColor,
+      timelineConfig: state.timelineConfig,
+      layout: state.layout,
+      customLogoCenter: state.customLogoCenter,
+      customLogoFly1: state.customLogoFly1,
+      customLogoFly2: state.customLogoFly2,
+      showNodes: state.showNodes,
+    };
+    return {
+      savedProfiles: {
+        ...state.savedProfiles,
+        [name]: profileToSave
+      }
+    };
+  }),
+
+  loadProfile: (name) => set((state) => {
+    const profile = state.savedProfiles[name];
+    if (profile) {
+      // Recalculate duration
+      const total = Object.values(profile.timelineConfig).reduce((a: any, b: any) => a + b, 0) as number;
+      return {
+        ...profile,
+        totalDuration: total
+      };
+    }
+    return state;
+  }),
+
+  deleteProfile: (name) => set((state) => {
+    const newProfiles = { ...state.savedProfiles };
+    delete newProfiles[name];
+    return { savedProfiles: newProfiles };
+  }),
+
   updateTimeline: (phase, seconds) => set((state) => {
     const newConfig = { ...state.timelineConfig, [phase]: seconds };
     const total = Object.values(newConfig).reduce((a, b) => a + b, 0);
@@ -179,6 +266,27 @@ export const useEventStore = create<EventState>((set, get) => ({
       }
     }
   }))
+}), {
+  name: 'gab-event-storage',
+  partialize: (state) => ({
+    requiredParticipants: state.requiredParticipants,
+    particleCount: state.particleCount,
+    nodeShape: state.nodeShape,
+    backgroundType: state.backgroundType,
+    explosionType: state.explosionType,
+    energyType: state.energyType,
+    trailColor: state.trailColor,
+    backgroundColor: state.backgroundColor,
+    explosionColor: state.explosionColor,
+    timelineConfig: state.timelineConfig,
+    layout: state.layout,
+    customLogoCenter: state.customLogoCenter,
+    customLogoFly1: state.customLogoFly1,
+    customLogoFly2: state.customLogoFly2,
+    participants: state.participants,
+    showNodes: state.showNodes,
+    savedProfiles: state.savedProfiles
+  })
 }));
 
 const channel = new BroadcastChannel('gab-event-sync');

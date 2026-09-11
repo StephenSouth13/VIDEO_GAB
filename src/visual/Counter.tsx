@@ -1,36 +1,38 @@
-import { useEffect, useState } from 'react';
-import gsap from 'gsap';
 import { EVENT_CONFIG } from '../config/eventConfig';
 import { useEventStore, EventPhase } from '../stores/useEventStore';
+import DraggableItem from './DraggableItem';
+import { motion } from 'framer-motion';
 
 export default function Counter() {
-  const { phase, layout } = useEventStore();
-  const [value, setValue] = useState(0);
+  const { phase, globalTime, timelineConfig } = useEventStore();
+  
   const visible = phase === EventPhase.COUNTER_SEQUENCE || phase === EventPhase.FINAL_CHARGE || phase === EventPhase.EXPLOSION || phase === EventPhase.SUCCESS;
 
-  useEffect(() => {
-    const obj = { val: 0 };
-    gsap.to(obj, {
-      val: EVENT_CONFIG.counter.finalValue,
-      duration: 6,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        setValue(Math.floor(obj.val));
-      }
-    });
-  }, []);
+  const counterStartTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy;
+  const counterDuration = timelineConfig.counter;
+
+  let progress = (globalTime - counterStartTime) / counterDuration;
+  progress = Math.max(0, Math.min(1, progress));
+  
+  // Easing function power2.inOut
+  const easeInOutQuad = (t: number) => t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+  const easedProgress = easeInOutQuad(progress);
+  
+  const value = Math.floor(easedProgress * EVENT_CONFIG.counter.finalValue);
 
   return (
-    <div 
-      className={`transition-all duration-1000 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'} flex flex-col items-center absolute`}
-      style={{
-        transform: `translate(${layout.counter.x}px, ${layout.counter.y}px) scale(${layout.counter.scale * (visible ? 1 : 0.5)})`
-      }}
-    >
-      <h2 className="text-4xl text-gab-cyan-light mb-4 tracking-[0.5em] uppercase">Global Activation</h2>
-      <div className="text-[200px] font-bold text-white drop-shadow-[0_0_60px_rgba(91,192,190,1)] leading-none">
-        {value}{EVENT_CONFIG.counter.suffix}
-      </div>
-    </div>
+    <DraggableItem layoutKey="counter" className="flex flex-col items-center z-10 pointer-events-none">
+       <motion.div
+         initial={{ opacity: 0, scale: 0.5 }}
+         animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.5 }}
+         transition={{ duration: 1 }}
+         className="flex flex-col items-center pointer-events-auto"
+       >
+         <h2 className="text-4xl text-gab-cyan-light mb-4 tracking-[0.5em] uppercase">Global Activation</h2>
+         <div className="text-[200px] font-bold text-white drop-shadow-[0_0_60px_rgba(91,192,190,1)] leading-none font-mono">
+           {value}{EVENT_CONFIG.counter.suffix}
+         </div>
+       </motion.div>
+    </DraggableItem>
   );
 }

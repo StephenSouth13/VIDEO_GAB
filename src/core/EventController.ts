@@ -113,46 +113,12 @@ export class EventController {
 
   public startCountdown() {
     const store = useEventStore.getState();
+    store.setGlobalTime(0);
     store.setPhase(EventPhase.COUNTDOWN);
-    
-    this.setTimer(() => {
-      this.triggerReveal();
-    }, store.timelineConfig.countdown * 1000);
   }
 
   public cancelCountdown() {
-    if (this.currentTimer) this.currentTimer.clear();
     useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
-  }
-
-  private triggerReveal() {
-    const store = useEventStore.getState();
-    store.setPhase(EventPhase.GAB_REVEAL);
-    this.setTimer(() => this.triggerEnergyConvergence(), store.timelineConfig.reveal * 1000);
-  }
-
-  private triggerEnergyConvergence() {
-    const store = useEventStore.getState();
-    store.setPhase(EventPhase.ENERGY_CONVERGENCE);
-    this.setTimer(() => this.triggerCounterSequence(), store.timelineConfig.energy * 1000);
-  }
-  
-  private triggerCounterSequence() {
-    const store = useEventStore.getState();
-    store.setPhase(EventPhase.COUNTER_SEQUENCE);
-    this.setTimer(() => this.triggerFinalCharge(), store.timelineConfig.counter * 1000);
-  }
-
-  private triggerFinalCharge() {
-    const store = useEventStore.getState();
-    store.setPhase(EventPhase.FINAL_CHARGE);
-    this.setTimer(() => this.triggerExplosion(), store.timelineConfig.finalCharge * 1000);
-  }
-
-  private triggerExplosion() {
-    const store = useEventStore.getState();
-    store.setPhase(EventPhase.EXPLOSION);
-    this.setTimer(() => this.showFinalScreen(), store.timelineConfig.explosion * 1000);
   }
 
   public showFinalScreen() {
@@ -160,13 +126,7 @@ export class EventController {
   }
   
   public skipToNextPhase() {
-    if (this.currentTimer) this.currentTimer.clear();
-    const currentPhase = useEventStore.getState().phase;
-    const phases = Object.values(EventPhase);
-    const idx = phases.indexOf(currentPhase);
-    if (idx < phases.length - 1) {
-      useEventStore.getState().setPhase(phases[idx + 1]);
-    }
+    // Deprecated in favor of scrubbing
   }
 
   public activateAll() {
@@ -221,14 +181,7 @@ export class EventController {
   
   public togglePause() {
     const store = useEventStore.getState();
-    const isNowPaused = !store.isPaused;
-    store.setPaused(isNowPaused);
-    
-    if (isNowPaused) {
-      if (this.currentTimer) this.currentTimer.pause();
-    } else {
-      if (this.currentTimer) this.currentTimer.resume();
-    }
+    store.setPaused(!store.isPaused);
   }
 }
 

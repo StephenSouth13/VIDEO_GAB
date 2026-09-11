@@ -1,45 +1,66 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
+import { motion } from 'framer-motion';
+import DraggableItem from './DraggableItem';
 import { useEffect, useState } from 'react';
 
 export default function CardSpawner() {
-  const { phase, layout } = useEventStore();
+  const { phase, globalTime, timelineConfig, customLogoFly1, customLogoFly2 } = useEventStore();
   const [spawned, setSpawned] = useState(false);
 
   // Trigger spawn when energy convergence starts
   useEffect(() => {
-    if (phase === EventPhase.ENERGY_CONVERGENCE) {
+    if (phase === EventPhase.ENERGY_CONVERGENCE || phase === EventPhase.COUNTER_SEQUENCE || phase === EventPhase.FINAL_CHARGE || phase === EventPhase.EXPLOSION || phase === EventPhase.SUCCESS) {
       setSpawned(true);
     } else if (phase === EventPhase.IDLE || phase === EventPhase.RESETTING) {
       setSpawned(false);
     }
   }, [phase]);
 
+  // Calculate start time of explosion to trigger fly out
+  const explosionStartTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge;
+  
+  // Progress of flying out (from 0 to 1 during the explosion phase)
+  const flyProgress = Math.max(0, Math.min(1, (globalTime - explosionStartTime) / timelineConfig.explosion));
+
   if (!spawned) return null;
 
   return (
-    <div 
-      className="absolute inset-0 pointer-events-none z-20 overflow-hidden"
-      style={{
-        transform: `translateY(${layout.logo.y}px)`
-      }}
-    >
-      {/* VietKings Logo flying left */}
-      <img 
-        src="/logo/vietkings.webp" 
-        className="absolute left-1/2 top-1/2 w-24 h-auto object-contain animate-fly-left"
-        style={{ transform: 'translate(-50%, -50%)', opacity: 0, animation: 'flyLeft 3s ease-out forwards' }}
-        alt=""
-        onError={(e) => e.currentTarget.style.display='none'}
-      />
-      
-      {/* GAB Card flying right */}
-      <img 
-        src="/logo/GAB.png" 
-        className="absolute left-1/2 top-1/2 w-32 h-auto object-contain animate-fly-right"
-        style={{ transform: 'translate(-50%, -50%)', opacity: 0, animation: 'flyRight 3s ease-out forwards' }}
-        alt=""
-        onError={(e) => e.currentTarget.style.display='none'}
-      />
-    </div>
+    <>
+      <DraggableItem layoutKey="cardVietkings" isEndPos className="z-30">
+        <motion.img 
+          src={customLogoFly1 || "/logo/vietkings.webp"} 
+          className="w-24 h-auto object-contain"
+          alt=""
+          onError={(e: any) => e.currentTarget.style.display='none'}
+          initial={{ opacity: 0, scale: 0, x: 400, y: 150 }} // Start from center (offsetting the DraggableItem's position)
+          animate={{ 
+            opacity: phase === EventPhase.ENERGY_CONVERGENCE ? 0 : 1, 
+            scale: flyProgress * 1.5 > 1 ? 1 : flyProgress * 1.5,
+            x: 400 * (1 - flyProgress), // Fly from center to endPos
+            y: 150 * (1 - flyProgress),
+            rotate: -15 * flyProgress
+          }}
+          transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+        />
+      </DraggableItem>
+
+      <DraggableItem layoutKey="cardGAB" isEndPos className="z-30">
+        <motion.img 
+          src={customLogoFly2 || "/logo/GAB.png"} 
+          className="w-32 h-auto object-contain"
+          alt=""
+          onError={(e: any) => e.currentTarget.style.display='none'}
+          initial={{ opacity: 0, scale: 0, x: -400, y: -150 }}
+          animate={{ 
+            opacity: phase === EventPhase.ENERGY_CONVERGENCE ? 0 : 1, 
+            scale: flyProgress * 1.5 > 1 ? 1 : flyProgress * 1.5,
+            x: -400 * (1 - flyProgress),
+            y: -150 * (1 - flyProgress),
+            rotate: 10 * flyProgress
+          }}
+          transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
+        />
+      </DraggableItem>
+    </>
   );
 }

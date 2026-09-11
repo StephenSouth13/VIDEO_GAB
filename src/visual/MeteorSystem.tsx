@@ -4,13 +4,13 @@ import * as THREE from 'three';
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 
 export default function MeteorSystem() {
-  const { phase } = useEventStore();
+  const { phase, isPaused } = useEventStore();
   const groupRef = useRef<THREE.Group>(null);
   
   const isActive = phase === EventPhase.ENERGY_CONVERGENCE || phase === EventPhase.COUNTER_SEQUENCE;
 
   useFrame(() => {
-    if (groupRef.current && isActive) {
+    if (groupRef.current && isActive && !isPaused) {
       groupRef.current.rotation.z += 0.01;
     }
   });

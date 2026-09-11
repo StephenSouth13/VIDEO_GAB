@@ -1,10 +1,10 @@
 import { useEventStore } from '../stores/useEventStore';
 
 export default function ParticipantNodes() {
-  const { participants, nodeShape } = useEventStore();
+  const { participants, nodeShape, showNodes } = useEventStore();
   const nodes = Object.values(participants);
   
-  if (nodes.length === 0) return null;
+  if (nodes.length === 0 || !showNodes) return null;
 
   return (
     <div className="absolute bottom-[8%] left-0 right-0 flex justify-evenly items-end px-2 md:px-12 z-20 w-full overflow-hidden">

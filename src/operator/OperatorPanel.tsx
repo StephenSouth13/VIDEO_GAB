@@ -1,215 +1,287 @@
-import { useEventStore } from '../stores/useEventStore';
+import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
+import { useState } from 'react';
 
 export default function OperatorPanel() {
-  const { phase, requiredParticipants, participants, isBlackout, customBackgroundHTML, setCustomBackgroundHTML, setRequiredParticipants, particleCount, setParticleCount, updateParticipant, nodeShape, setNodeShape, isPaused, backgroundType, setBackgroundType, explosionType, setExplosionType, layout, updateLayout, timelineConfig, updateTimeline, trailColor, setTrailColor } = useEventStore();
+  const store = useEventStore();
+  const { phase, requiredParticipants, participants, isBlackout, setRequiredParticipants, updateParticipant, isPaused, backgroundType, setBackgroundType, explosionType, setExplosionType, energyType, setEnergyType, backgroundColor, setBackgroundColor, explosionColor, setExplosionColor, layout, updateLayout, timelineConfig, updateTimeline, trailColor, setTrailColor, globalTime, totalDuration, setGlobalTime, setScrubbing, setCustomLogo, customLogoCenter, customLogoFly1, customLogoFly2, showNodes, setShowNodes, savedProfiles, saveProfile, loadProfile, deleteProfile } = store;
   
-  const handleActivateAll = () => {
-    eventController.activateAll();
+  const [profileName, setProfileName] = useState('');
+
+  const handleActivateAll = () => eventController.activateAll();
+  const handleReset = () => eventController.resetEvent();
+  const handleConfirm = (id: number) => eventController.confirmParticipant(id);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, key: 'customLogoCenter' | 'customLogoFly1' | 'customLogoFly2') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomLogo(key, reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
   
-  const handleReset = () => {
-    eventController.resetEvent();
+  const handleTestExplosion = () => {
+    const expTime = timelineConfig.countdown + timelineConfig.reveal + timelineConfig.energy + timelineConfig.counter + timelineConfig.finalCharge;
+    setGlobalTime(expTime);
+    useEventStore.setState({ phase: EventPhase.EXPLOSION });
   };
   
-  const handleConfirm = (id: number) => {
-    eventController.confirmParticipant(id);
+  const handleSaveProfile = () => {
+    if (profileName.trim()) {
+      saveProfile(profileName.trim());
+      setProfileName('');
+    }
   };
-  
+
   const participantsArray = Object.values(participants);
   const confirmedCount = participantsArray.filter(p => p.status === 'CONFIRMED').length;
 
   return (
-    <div className="min-h-screen bg-gab-navy text-white p-6">
-      <header className="mb-8 border-b border-gab-cyan pb-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gab-cyan-light">GAB Operator Control Panel</h1>
-        <div className="flex gap-4">
-           <button 
-            onClick={() => eventController.togglePause()} 
-            className={`px-6 py-2 font-bold rounded text-white ${isPaused ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-gab-cyan hover:bg-gab-cyan-light'}`}
-          >
+    <div className="min-h-screen bg-[#0E1217] text-white flex flex-col font-sans h-screen">
+      {/* HEADER */}
+      <header className="h-14 border-b border-gray-800 bg-[#151921] flex justify-between items-center px-4 md:px-6 shrink-0 z-20">
+        <h1 className="text-sm md:text-xl font-bold text-white tracking-wide uppercase">STEPHENSOUTH-VN-<span className="text-gab-cyan">STUDIO</span></h1>
+        <div className="flex gap-2 md:gap-3">
+           <button onClick={() => eventController.togglePause()} className={`px-3 py-1.5 text-xs md:text-sm font-bold rounded ${isPaused ? 'bg-yellow-500 text-black' : 'bg-gray-700 hover:bg-gray-600'}`}>
             {isPaused ? '▶ RESUME' : '⏸ PAUSE'}
           </button>
-           <button 
-            onClick={() => eventController.toggleBlackout()} 
-            className={`px-4 py-2 font-bold rounded ${isBlackout ? 'bg-red-600' : 'bg-gray-700'}`}
-          >
-            {isBlackout ? 'RESTORE LED' : 'BLACKOUT (B)'}
+           <button onClick={() => eventController.toggleBlackout()} className={`px-3 py-1.5 text-xs md:text-sm font-bold rounded ${isBlackout ? 'bg-red-600' : 'bg-gray-700 hover:bg-gray-600'}`}>
+            {isBlackout ? 'RESTORE LED' : 'BLACKOUT'}
           </button>
         </div>
       </header>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      {/* 3-COLUMN WORKSPACE - Responsive Stack */}
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         
-        {/* Left Sidebar - Status & Controls */}
-        <div className="lg:w-1/3 flex flex-col gap-6">
-          <div className="bg-gab-blue p-6 rounded-lg shadow-lg relative">
-            {/* MINI PREVIEW WINDOW */}
-            <div className="absolute top-4 right-4 w-32 md:w-48 aspect-video bg-black rounded border-2 border-gab-cyan overflow-hidden shadow-[0_0_15px_rgba(91,192,190,0.5)] group">
-               <div className="absolute top-0 left-0 bg-gab-cyan text-[10px] font-bold px-1 py-0.5 rounded-br z-50">LIVE PREVIEW</div>
-               <iframe src="/led" className="w-[1280px] h-[720px] scale-[0.1] md:scale-[0.15] origin-top-left pointer-events-none" />
+        {/* LEFT COLUMN - NODES & STATUS */}
+        <div className="w-full lg:w-[300px] border-r border-gray-800 bg-[#151921] flex flex-col shrink-0 overflow-y-auto max-h-[30vh] lg:max-h-full">
+          <div className="p-4 border-b border-gray-800">
+            <h2 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Event Status</h2>
+            <div className="bg-[#0E1217] rounded p-3 mb-3 border border-gray-800 flex justify-between">
+              <div>
+                <p className="text-xs text-gray-400">Current Phase</p>
+                <p className="text-sm font-mono text-gab-cyan-light break-all">{phase}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-400">Ready</p>
+                <p className="text-xl font-bold">{confirmedCount} <span className="text-gray-500 text-sm">/ {requiredParticipants}</span></p>
+              </div>
             </div>
-
-            <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Event Status</h2>
-            <div className="space-y-4">
-              <div>
-                <p className="text-gray-400 text-sm">Current Phase</p>
-                <p className="text-xl font-mono text-gab-electric">{phase}</p>
-              </div>
-              
-              <div>
-                <p className="text-gray-400 text-sm">Participants Ready</p>
-                <p className="text-2xl font-bold">
-                  {confirmedCount} <span className="text-gray-500">/ {requiredParticipants}</span>
-                </p>
-              </div>
-              
-              <div className="pt-4 flex flex-col gap-2 border-t border-gab-cyan">
-                <button onClick={handleActivateAll} className="w-full py-2 bg-gab-cyan-light text-gab-navy font-bold rounded hover:bg-white transition">ACTIVATE ALL (A)</button>
-                <button onClick={() => eventController.skipToNextPhase()} className="w-full py-2 bg-gab-cyan text-white font-bold rounded hover:bg-gab-cyan-light transition">SKIP PHASE (Space)</button>
-                <button onClick={() => eventController.runDemo()} className="w-full py-2 bg-yellow-500 text-black font-bold rounded hover:bg-yellow-400 transition">▶ RUN AUTO DEMO</button>
-                <button onClick={handleReset} className="w-full py-2 border border-red-500 text-red-500 font-bold rounded hover:bg-red-500 hover:text-white transition">RESET EVENT (Z)</button>
-              </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={handleActivateAll} className="py-2 bg-gab-cyan-light text-black text-xs font-bold rounded hover:opacity-80">ACTIVATE ALL</button>
+              <button onClick={() => eventController.runDemo()} className="py-2 bg-yellow-500 text-black text-xs font-bold rounded hover:opacity-80">AUTO DEMO</button>
+              <button onClick={handleReset} className="py-2 border border-red-500 text-red-500 text-xs font-bold rounded hover:bg-red-500 hover:text-white col-span-2">RESET EVENT</button>
             </div>
           </div>
-          
-          <div className="bg-gab-blue p-6 rounded-lg shadow-lg">
-             <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Timeline Editor</h2>
-             <div className="space-y-3">
-                <div className="flex justify-between text-xs text-gray-400 mb-1"><span>Phase</span><span>Seconds</span></div>
+
+          <div className="p-4 border-b border-gray-800">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sensors / Nodes</h2>
+              <div className="flex items-center gap-2">
+                 <button onClick={() => setShowNodes(!showNodes)} className={`text-[10px] px-2 py-0.5 rounded ${showNodes ? 'bg-gab-cyan text-black' : 'bg-gray-700 text-gray-400'}`}>
+                    {showNodes ? 'HIDE' : 'SHOW'}
+                 </button>
+                 <input type="number" min="8" max="15" value={requiredParticipants} onChange={(e) => setRequiredParticipants(Number(e.target.value))} className="w-10 bg-[#0E1217] border border-gray-700 text-xs px-1 py-1 rounded text-center"/>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 max-h-[150px] overflow-y-auto">
+              {participantsArray.map(p => (
+                <div key={p.id} className={`p-1.5 rounded text-center border text-xs flex justify-between items-center ${p.status === 'CONFIRMED' ? 'bg-gab-cyan/20 border-gab-cyan' : 'bg-[#0E1217] border-gray-800'}`}>
+                  <span className="font-mono text-gray-400 w-4">{p.id}</span>
+                  <input type="text" value={p.name} onChange={(e) => updateParticipant(p.id, { name: e.target.value })} className="w-14 bg-transparent border-b border-transparent focus:border-gray-500 text-center text-white" placeholder="Name"/>
+                  <button onClick={() => handleConfirm(p.id)} disabled={p.status === 'CONFIRMED'} className="w-4 h-4 rounded-full bg-gray-700 flex items-center justify-center hover:bg-gab-cyan disabled:opacity-50 disabled:hover:bg-gray-700"></button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-4">
+             <h2 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Timeline Duration (s)</h2>
+             <div className="space-y-2">
                 {[
-                  { key: 'countdown', label: 'Countdown (5s...)' },
+                  { key: 'countdown', label: 'Countdown' },
                   { key: 'reveal', label: 'Logo Reveal' },
-                  { key: 'energy', label: 'Energy Convergence' },
-                  { key: 'counter', label: 'Global Counter' },
+                  { key: 'energy', label: 'Energy Gather' },
+                  { key: 'counter', label: 'Global Count' },
                   { key: 'finalCharge', label: 'Final Charge' },
                   { key: 'explosion', label: 'Explosion' }
                 ].map(item => (
-                  <div key={item.key} className="flex items-center gap-2">
-                    <span className="text-sm w-32">{item.label}</span>
-                    <input 
-                      type="number" min="0" step="0.1" 
-                      value={timelineConfig[item.key as keyof typeof timelineConfig]} 
-                      onChange={(e) => updateTimeline(item.key as keyof typeof timelineConfig, Number(e.target.value))}
-                      className="w-20 bg-gab-navy border border-gab-cyan rounded px-2 py-1 text-sm text-center" 
-                    />
-                    <span className="text-xs text-gray-500">s</span>
+                  <div key={item.key} className="flex items-center justify-between">
+                    <span className="text-xs text-gray-400">{item.label}</span>
+                    <input type="number" min="0" step="0.1" value={timelineConfig[item.key as keyof typeof timelineConfig]} onChange={(e) => updateTimeline(item.key as keyof typeof timelineConfig, Number(e.target.value))} className="w-16 bg-[#0E1217] border border-gray-700 rounded px-2 py-1 text-xs text-right" />
                   </div>
                 ))}
              </div>
           </div>
         </div>
 
-        {/* Right Main Content */}
-        <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* CENTER COLUMN - PREVIEW & TIMELINE */}
+        <div className="flex-1 flex flex-col bg-[#080A0E] relative overflow-hidden min-h-[40vh] lg:min-h-full">
+           <div className="flex-1 p-2 md:p-8 flex items-center justify-center relative w-full h-full">
+              <div className="w-full h-full max-h-full aspect-video bg-black rounded-lg border border-gray-800 shadow-2xl relative overflow-hidden group flex justify-center items-center">
+                 {/* Iframe scale 100% to fit parent */}
+                 <iframe src="/led?edit=true" className="w-full h-full absolute inset-0 pointer-events-auto" />
+                 
+                 <div className="absolute top-2 left-2 bg-gab-cyan/80 text-[10px] text-black font-bold px-2 py-1 rounded backdrop-blur">LIVE PREVIEW - DRAG ENABLED</div>
+                 <button onClick={() => window.open('/led', '_blank')} className="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">Pop Out</button>
+              </div>
+           </div>
+
+           {/* MASTER SCRUBBER */}
+           <div className="h-20 md:h-24 bg-[#151921] border-t border-gray-800 p-4 shrink-0 flex flex-col justify-center">
+              <div className="flex justify-between text-xs text-gray-400 mb-2">
+                 <span>0.0s</span>
+                 <span className="font-mono text-gab-cyan-light">{globalTime.toFixed(1)}s / {totalDuration.toFixed(1)}s</span>
+              </div>
+              <input 
+                 type="range" min="0" max={totalDuration} step="0.1" 
+                 value={globalTime} 
+                 onMouseDown={() => setScrubbing(true)} onMouseUp={() => setScrubbing(false)}
+                 onTouchStart={() => setScrubbing(true)} onTouchEnd={() => setScrubbing(false)}
+                 onChange={(e) => setGlobalTime(Number(e.target.value))} 
+                 className="w-full accent-gab-cyan"
+              />
+           </div>
+        </div>
+
+        {/* RIGHT COLUMN - PROPERTIES & ASSETS */}
+        <div className="w-full lg:w-[350px] border-l border-gray-800 bg-[#151921] flex flex-col shrink-0 overflow-y-auto max-h-[40vh] lg:max-h-full">
           
-          {/* Dynamic Controls & FX */}
-          <div className="bg-gab-blue p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Environment & FX</h2>
-            <div className="space-y-4">
-               <div className="flex gap-4">
-                 <div className="w-1/2">
-                   <label className="block text-sm text-gray-400 mb-1">Số trạm KLG</label>
-                   <input type="number" min="8" max="15" value={requiredParticipants} onChange={(e) => setRequiredParticipants(Number(e.target.value))} className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-1.5 text-white" />
-                 </div>
-                 <div className="w-1/2">
-                   <label className="block text-sm text-gray-400 mb-1">Kiểu dáng trạm</label>
-                   <select value={nodeShape} onChange={(e) => setNodeShape(e.target.value as 'circle' | 'rectangle')} className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-1.5 text-white">
-                     <option value="circle">Hình tròn</option>
-                     <option value="rectangle">Thẻ chữ nhật</option>
+          <div className="p-4 border-b border-gray-800 bg-gray-900">
+             <h2 className="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider flex justify-between">
+               Scenario Version Manager
+               <span className="text-[9px] text-gab-cyan border border-gab-cyan px-1 rounded">PRO</span>
+             </h2>
+             <div className="flex gap-2 mb-2">
+                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} placeholder="Tên kịch bản..." className="flex-1 bg-[#0E1217] border border-gray-700 text-xs px-2 py-1 rounded text-white"/>
+                <button onClick={handleSaveProfile} className="bg-gab-cyan-light text-black text-xs font-bold px-3 py-1 rounded hover:opacity-80">SAVE</button>
+             </div>
+             {Object.keys(savedProfiles).length > 0 && (
+                <div className="flex gap-2 mt-2 items-center">
+                   <select onChange={(e) => { if(e.target.value) loadProfile(e.target.value); }} className="flex-1 bg-[#0E1217] border border-gray-700 text-xs px-2 py-1.5 rounded text-white">
+                      <option value="">-- Tải kịch bản đã lưu --</option>
+                      {Object.keys(savedProfiles).map(name => <option key={name} value={name}>{name}</option>)}
+                   </select>
+                   {/* We could add delete button here if needed */}
+                </div>
+             )}
+          </div>
+
+          <div className="p-4 border-b border-gray-800">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider">VFX / Environment</h2>
+              <button onClick={handleTestExplosion} className="text-[10px] bg-red-900/50 text-red-400 hover:text-red-300 border border-red-800 px-2 py-0.5 rounded">TEST EXPLOSION</button>
+            </div>
+            
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="text-gray-400 mb-1 block">Background Theme</label>
+                <select value={backgroundType} onChange={(e) => setBackgroundType(e.target.value as any)} className="w-full bg-[#0E1217] border border-gray-700 rounded px-2 py-1.5 text-white">
+                  <option value="particles">Particles (Sao bay)</option>
+                  <option value="starfield">Starfield (Vũ trụ)</option>
+                  <option value="digital-network">Digital Network</option>
+                  <option value="matrix">Matrix Rain (Mưa Code)</option>
+                  <option value="nebula">Nebula (Tinh vân)</option>
+                  <option value="quantum">Quantum Field</option>
+                </select>
+              </div>
+              <div className="flex gap-2">
+                 <div className="flex-1">
+                   <label className="text-gray-400 mb-1 block">Explosion</label>
+                   <select value={explosionType} onChange={(e) => setExplosionType(e.target.value as any)} className="w-full bg-[#0E1217] border border-gray-700 rounded px-2 py-1.5 text-white">
+                     <option value="shockwave">Shockwave</option>
+                     <option value="golden-burst">Golden Burst</option>
+                     <option value="supernova">Supernova</option>
+                     <option value="black-hole">Black Hole</option>
+                     <option value="confetti">Confetti</option>
+                     <option value="cyber-ring">Cyber Ring</option>
                    </select>
                  </div>
-               </div>
-
-               <div>
-                 <label className="block text-sm text-gray-400 mb-1">Màu tia năng lượng (Energy Trail)</label>
-                 <div className="flex gap-2 items-center">
-                    <input type="color" value={trailColor} onChange={(e) => setTrailColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer bg-transparent" />
-                    <span className="font-mono text-sm">{trailColor}</span>
+                 <div className="w-1/3">
+                   <label className="text-gray-400 mb-1 block">Color</label>
+                   <input type="color" value={explosionColor} onChange={(e) => setExplosionColor(e.target.value)} className="w-full h-[26px] rounded bg-transparent cursor-pointer" />
                  </div>
-               </div>
-
-               <div>
-                 <label className="block text-sm text-gray-400 mb-1">Hiệu ứng Background</label>
-                 <select value={backgroundType} onChange={(e) => setBackgroundType(e.target.value as any)} className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white">
-                   <option value="particles">Sao bay cơ bản (Particles)</option>
-                   <option value="starfield">Vũ trụ chuyển động (Starfield)</option>
-                   <option value="digital-network">Lưới Cyber (Digital Network)</option>
-                 </select>
-               </div>
-               
-               <div>
-                 <label className="block text-sm text-gray-400 mb-1">Hiệu ứng Nổ (Explosion)</label>
-                 <select value={explosionType} onChange={(e) => setExplosionType(e.target.value as any)} className="w-full bg-gab-navy border border-gab-cyan rounded px-3 py-2 text-white">
-                   <option value="shockwave">Sóng xung kích trắng</option>
-                   <option value="golden-burst">Vàng nổ tung (Golden)</option>
-                   <option value="supernova">Supernova (Cyan)</option>
-                 </select>
-               </div>
-            </div>
-          </div>
-
-          {/* Studio Layout Editor */}
-          <div className="bg-gab-blue p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Studio Layout Editor</h2>
-            <div className="space-y-6 overflow-y-auto max-h-[350px] pr-2">
-              
-              <div className="border border-gray-700 p-3 rounded">
-                <h3 className="font-bold text-sm mb-2 text-white">Logo GAB</h3>
-                <label className="block text-xs text-gray-400">X Offset: {layout.logo.x}px</label>
-                <input type="range" min="-500" max="500" value={layout.logo.x} onChange={(e) => updateLayout('logo', { x: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Y Offset: {layout.logo.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.logo.y} onChange={(e) => updateLayout('logo', { y: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Scale: {layout.logo.scale}</label>
-                <input type="range" min="0.1" max="3" step="0.1" value={layout.logo.scale} onChange={(e) => updateLayout('logo', { scale: Number(e.target.value) })} className="w-full"/>
               </div>
-
-              <div className="border border-gray-700 p-3 rounded">
-                <h3 className="font-bold text-sm mb-2 text-white">Counter (400+)</h3>
-                <label className="block text-xs text-gray-400">X Offset: {layout.counter.x}px</label>
-                <input type="range" min="-500" max="500" value={layout.counter.x} onChange={(e) => updateLayout('counter', { x: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Y Offset: {layout.counter.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.counter.y} onChange={(e) => updateLayout('counter', { y: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Scale: {layout.counter.scale}</label>
-                <input type="range" min="0.1" max="3" step="0.1" value={layout.counter.scale} onChange={(e) => updateLayout('counter', { scale: Number(e.target.value) })} className="w-full"/>
+              <div>
+                <label className="text-gray-400 mb-1 block">Energy Gathering</label>
+                <select value={energyType} onChange={(e) => setEnergyType(e.target.value as any)} className="w-full bg-[#0E1217] border border-gray-700 rounded px-2 py-1.5 text-white">
+                  <option value="default">Default Trail</option>
+                  <option value="laser">Laser Beams</option>
+                  <option value="spirit-bomb">Spirit Bomb</option>
+                  <option value="hexagon">Hexagon Grid</option>
+                </select>
               </div>
-
-              <div className="border border-gray-700 p-3 rounded">
-                <h3 className="font-bold text-sm mb-2 text-white">Final Screen</h3>
-                <input type="text" value={layout.finalMessage.line1} onChange={(e) => updateLayout('finalMessage', { line1: e.target.value })} className="w-full bg-gab-navy border border-gray-600 rounded px-2 py-1 mb-2 text-sm text-white"/>
-                <input type="text" value={layout.finalMessage.line2} onChange={(e) => updateLayout('finalMessage', { line2: e.target.value })} className="w-full bg-gab-navy border border-gray-600 rounded px-2 py-1 mb-2 text-sm text-white"/>
-                <label className="block text-xs text-gray-400">X Offset: {layout.finalMessage.x}px</label>
-                <input type="range" min="-500" max="500" value={layout.finalMessage.x} onChange={(e) => updateLayout('finalMessage', { x: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Y Offset: {layout.finalMessage.y}px</label>
-                <input type="range" min="-500" max="500" value={layout.finalMessage.y} onChange={(e) => updateLayout('finalMessage', { y: Number(e.target.value) })} className="w-full mb-1"/>
-                <label className="block text-xs text-gray-400">Scale: {layout.finalMessage.scale}</label>
-                <input type="range" min="0.1" max="3" step="0.1" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
+              <div className="flex gap-2 pt-2">
+                 <div className="w-1/2">
+                    <label className="text-gray-400 mb-1 block">BG Color</label>
+                    <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="w-full h-8 rounded bg-transparent cursor-pointer" />
+                 </div>
+                 <div className="w-1/2">
+                    <label className="text-gray-400 mb-1 block">Energy Color</label>
+                    <input type="color" value={trailColor} onChange={(e) => setTrailColor(e.target.value)} className="w-full h-8 rounded bg-transparent cursor-pointer" />
+                 </div>
               </div>
             </div>
           </div>
 
-          {/* Participants Panel */}
-          <div className="md:col-span-2 bg-gab-blue p-6 rounded-lg shadow-lg">
-             <h2 className="text-xl font-semibold mb-4 text-gab-cyan-light">Sensors / Participants</h2>
-             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                {participantsArray.map(p => (
-                  <div key={p.id} className={`p-2 rounded text-center border transition ${p.status === 'CONFIRMED' ? 'bg-gab-cyan-light bg-opacity-20 border-gab-cyan-light' : 'bg-gab-navy border-gray-700'}`}>
-                    <input type="text" value={p.name} onChange={(e) => updateParticipant(p.id, { name: e.target.value })} className="w-full bg-transparent border-b border-gray-600 text-center font-bold text-xs mb-1 focus:outline-none focus:border-white text-white"/>
-                    <button onClick={() => handleConfirm(p.id)} disabled={p.status === 'CONFIRMED'} className="text-[10px] px-2 py-1 bg-gab-cyan rounded hover:bg-gab-cyan-light text-white disabled:opacity-50 w-full truncate">
-                      {p.status === 'CONFIRMED' ? 'OK' : 'ACTIVATE'}
-                    </button>
+          <div className="p-4 border-b border-gray-800">
+            <h2 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Asset Manager (Uploads)</h2>
+            <div className="space-y-3 text-xs">
+               <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 mb-1 block">Center Logo (Logo GAB)</label>
+                  <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'customLogoCenter')} className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-white hover:file:bg-gray-600"/>
+                  {customLogoCenter && <button onClick={() => setCustomLogo('customLogoCenter', null)} className="mt-1 text-red-500">Reset</button>}
+               </div>
+               <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 mb-1 block">Card 1 (Vietkings Logo)</label>
+                  <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'customLogoFly1')} className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-white hover:file:bg-gray-600"/>
+                  {customLogoFly1 && <button onClick={() => setCustomLogo('customLogoFly1', null)} className="mt-1 text-red-500">Reset</button>}
+               </div>
+               <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 mb-1 block">Card 2 (GAB Card)</label>
+                  <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'customLogoFly2')} className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-gray-700 file:text-white hover:file:bg-gray-600"/>
+                  {customLogoFly2 && <button onClick={() => setCustomLogo('customLogoFly2', null)} className="mt-1 text-red-500">Reset</button>}
+               </div>
+            </div>
+          </div>
+
+          <div className="p-4">
+             <h2 className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Layout Inspector</h2>
+             <p className="text-[10px] text-gray-500 mb-3">You can also drag elements directly in the preview.</p>
+             <div className="space-y-4 text-xs pb-10">
+                {/* Simplified layout sliders for brevity */}
+                <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 block mb-1">Final Screen - Line 1</label>
+                  <input type="text" value={layout.finalMessage.line1} onChange={(e) => updateLayout('finalMessage', { line1: e.target.value })} className="w-full bg-transparent border-b border-gray-700 focus:border-gab-cyan text-white pb-1 mb-2"/>
+                  <label className="text-gray-400 block mb-1">Final Screen - Line 2</label>
+                  <input type="text" value={layout.finalMessage.line2} onChange={(e) => updateLayout('finalMessage', { line2: e.target.value })} className="w-full bg-transparent border-b border-gray-700 focus:border-gab-cyan text-white pb-1"/>
+                  <div className="flex gap-2 mt-2">
+                     <div className="w-1/2">
+                       <label className="text-gray-500 text-[10px]">Scale</label>
+                       <input type="range" min="0.1" max="3" step="0.1" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
+                     </div>
                   </div>
-                ))}
+                </div>
+                
+                <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 block mb-1">Center Logo Scale</label>
+                  <input type="range" min="0.1" max="3" step="0.1" value={layout.logo.scale} onChange={(e) => updateLayout('logo', { scale: Number(e.target.value) })} className="w-full"/>
+                </div>
+
+                <div className="bg-[#0E1217] p-2 rounded border border-gray-800">
+                  <label className="text-gray-400 block mb-1">Counter Scale</label>
+                  <input type="range" min="0.1" max="3" step="0.1" value={layout.counter.scale} onChange={(e) => updateLayout('counter', { scale: Number(e.target.value) })} className="w-full"/>
+                </div>
              </div>
           </div>
-          
+
         </div>
       </div>
-      
-      <footer className="mt-8 text-center text-gray-500 text-sm">
-         URL cho LED: <a href="/led" target="_blank" className="text-gab-cyan-light underline">http://localhost:5173/led</a>
-         <p className="mt-2">Lưu ý: Bấm F11 để Fullscreen cửa sổ LED</p>
-      </footer>
     </div>
   );
 }
