@@ -1,20 +1,16 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
-import { Canvas } from '@react-three/fiber';
-import { EffectComposer, Bloom } from '@react-three/postprocessing';
-import { EVENT_CONFIG } from '../config/eventConfig';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Components
 import LogoReveal from './LogoReveal';
 import Countdown from './Countdown';
 import FinalScreen from './FinalScreen';
 import Counter from './Counter';
-import ParticlesBackground from './ParticlesBackground';
 import ParticipantNodes from './ParticipantNodes';
-import MeteorSystem from './MeteorSystem';
 import EnergyTrailSystem from './EnergyTrailSystem';
 import ExplosionSystem from './ExplosionSystem';
 import CardSpawner from './CardSpawner';
+import StageParticleOverlay from './StageParticleOverlay';
 
 const isUrlEditPreview = new URLSearchParams(window.location.search).get('edit') === 'true';
 
@@ -117,35 +113,7 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
         ></div>
       )}
 
-      {/* 3D Scene Layer */}
-      <div
-        className={`absolute inset-0 ${(customBackgroundHTML || customBackgroundVideo) ? 'z-10' : 'z-0'}`}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <Canvas 
-          key={`${safeStageWidth}x${safeStageHeight}-${isEditPreview ? 'preview' : 'led'}`}
-          className="absolute inset-0 block h-full w-full"
-          style={{ width: '100%', height: '100%' }}
-          camera={{ position: [0, 0, 10], fov: 50 }} 
-          dpr={[1, 1.5]}
-          gl={{ antialias: false, alpha: true }} // alpha true for custom background
-        >
-          {/* Only render background color if no custom HTML is provided */}
-          {!customBackgroundHTML && <color attach="background" args={[backgroundColor]} />}
-          <ambientLight intensity={0.5} />
-          
-          <Suspense fallback={null}>
-            <ParticlesBackground />
-            <MeteorSystem />
-          </Suspense>
-
-          {EVENT_CONFIG.visual.enableBloom && (
-            <EffectComposer>
-              <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} />
-            </EffectComposer>
-          )}
-        </Canvas>
-      </div>
+      <StageParticleOverlay />
 
       {['aurora', 'light-tunnel', 'scanlines', 'prism'].includes(backgroundType) && (
         <div className={`led-atmosphere led-atmosphere-${backgroundType} absolute inset-0 z-[8] pointer-events-none mix-blend-screen`} />

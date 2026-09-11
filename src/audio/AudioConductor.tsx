@@ -55,9 +55,6 @@ export default function AudioConductor() {
     if (!showAudioUrl) return;
     const audio = new Audio(showAudioUrl);
     audio.preload = 'auto';
-    audio.crossOrigin = 'anonymous';
-    audio.loop = showAudioLoop;
-    audio.volume = showAudioVolume;
     audio.addEventListener('error', () => {
       audio.pause();
     });
@@ -66,7 +63,7 @@ export default function AudioConductor() {
     return () => {
       audio.pause();
     };
-  }, [showAudioUrl, showAudioLoop, showAudioVolume]);
+  }, [showAudioUrl]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -100,7 +97,9 @@ export default function AudioConductor() {
       }
     }
 
-    void track.play().catch(() => undefined);
+    void audioManager.unlock()
+      .then(() => track.play())
+      .catch(() => undefined);
   }, [audioEnabled, globalTime, isBlackout, isPaused, phase, showAudioLoop]);
 
   useEffect(() => {

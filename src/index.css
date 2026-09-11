@@ -89,3 +89,65 @@ body, html {
   animation: ledPrismShift 5s ease-in-out infinite alternate;
   filter: blur(6px) saturate(1.4);
 }
+
+@keyframes stageParticleFloat {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(18px, -28px, 0) scale(1.35); }
+  100% { transform: translate3d(-10px, -58px, 0) scale(1); }
+}
+
+@keyframes stageParticleFall {
+  0% { transform: translate3d(0, -18vh, 0); }
+  100% { transform: translate3d(0, 118vh, 0); }
+}
+
+@keyframes stageParticleTunnel {
+  0% { transform: translate3d(-3vw, 0, 0) scale(0.6); opacity: 0; }
+  30% { opacity: var(--particle-opacity, 0.5); }
+  100% { transform: translate3d(4vw, 0, 0) scale(2.8); opacity: 0; }
+}
+
+.stage-particle-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.stage-particle-overlay span {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  transform: translate3d(0, 0, 0);
+  animation-name: stageParticleFloat;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+.stage-particles-paused span {
+  animation-play-state: paused;
+}
+
+.stage-particle-digital-network span,
+.stage-particle-matrix span {
+  animation-name: stageParticleFall;
+}
+
+.stage-particle-light-tunnel span,
+.stage-particle-quantum span {
+  animation-name: stageParticleTunnel;
+}
+
+.stage-particle-starfield span {
+  opacity: 0.75;
+}
+
+.stage-particle-nebula,
+.stage-particle-aurora {
+  opacity: 0.7;
+}
