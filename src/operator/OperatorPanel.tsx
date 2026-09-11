@@ -276,7 +276,7 @@ export default function OperatorPanel() {
   const runSavedProfile = (name: string) => {
     loadProfile(name);
     window.setTimeout(() => {
-      eventController.runDemo();
+      eventController.startShowNow();
     }, 60);
   };
 
@@ -296,7 +296,7 @@ export default function OperatorPanel() {
     setStageFit('fill');
     setStageOverscan(0);
     setBackgroundVideoPaused(false);
-    eventController.runDemo();
+    eventController.startShowNow();
   };
 
   const hardResetLocalConfig = () => {
@@ -355,7 +355,7 @@ export default function OperatorPanel() {
 
   const runScenario1Ceremony = () => {
     applyScenario1Ceremony();
-    eventController.runDemo();
+    eventController.startShowNow();
   };
 
   const applyScenarioVideoShow = () => {
@@ -370,7 +370,7 @@ export default function OperatorPanel() {
 
   const runScenarioVideoShow = () => {
     applyScenarioVideoShow();
-    eventController.runDemo();
+    eventController.startShowNow();
   };
 
   const applyScenarioPlaceCard = () => {
@@ -386,7 +386,7 @@ export default function OperatorPanel() {
 
   const runScenarioPlaceCard = () => {
     applyScenarioPlaceCard();
-    eventController.runDemo();
+    eventController.startShowNow();
   };
 
   const setPresetTimeline = (seconds: number) => {
@@ -447,10 +447,9 @@ export default function OperatorPanel() {
       await wait(120);
       const state = useEventStore.getState();
       const isRunning = [
-        EventPhase.WAITING_FOR_PARTICIPANTS,
-        EventPhase.PARTICIPANT_CONFIRMING,
-        EventPhase.ALL_PARTICIPANTS_READY,
         EventPhase.COUNTDOWN,
+        EventPhase.GAB_REVEAL,
+        EventPhase.ENERGY_CONVERGENCE,
       ].includes(state.phase as any);
       if (!isRunning || !check.verify()) {
         setScenarioSmokeStatus(t.scenarioSmokeFail);
@@ -522,34 +521,6 @@ export default function OperatorPanel() {
               <button onClick={() => store.resetLayout()} className="py-2 bg-cyan-950/70 border border-cyan-700 text-gab-cyan text-xs font-bold rounded hover:bg-cyan-900 shadow col-span-2">{t.resetLayoutPositions}</button>
               <button onClick={hardResetLocalConfig} className="py-2 border border-orange-500 text-orange-300 text-xs font-bold rounded hover:bg-orange-500 hover:text-black col-span-2 transition">{t.hardResetLocalConfig}</button>
               <button onClick={handleReset} className="py-2 border border-red-500 text-red-500 text-xs font-bold rounded hover:bg-red-500 hover:text-white col-span-2 transition">{t.resetEvent}</button>
-            </div>
-
-            <div className="mt-3 bg-black/40 border border-yellow-700/50 rounded-lg p-2.5">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[11px] font-bold text-yellow-300 uppercase">{t.scenarioLibraryReady}</h3>
-                <span className="text-[9px] text-gray-500">{t.scenarioLoadRun}</span>
-              </div>
-              <p className="text-[9px] text-yellow-100/70 leading-tight mb-2">{t.scenarioLibraryHint}</p>
-              <button onClick={runScenarioSmokeTest} className="w-full mb-2 py-1.5 rounded bg-cyan-950/70 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
-                {t.scenarioSmokeTest}
-              </button>
-              {scenarioSmokeStatus && (
-                <p className={`text-[9px] mb-2 ${scenarioSmokeStatus === t.scenarioSmokePass ? 'text-emerald-300' : scenarioSmokeStatus === t.scenarioSmokeFail ? 'text-red-300' : 'text-gray-400'}`}>
-                  {scenarioSmokeStatus}
-                </p>
-              )}
-              <div className="space-y-1.5">
-                {scenarioItems.map((item, index) => (
-                  <div key={item.key} className="grid grid-cols-[1fr_auto_auto] gap-1.5 items-center">
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-bold text-white truncate">{index + 1}. {scenarioNames[item.key]}</p>
-                      <p className="text-[9px] text-gray-500 truncate">{item.desc}</p>
-                    </div>
-                    <button onClick={item.apply} className="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-[10px] font-bold">{t.btnSetupScenario}</button>
-                    <button onClick={item.run} className="px-2 py-1 rounded bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold">{t.btnRunScenario}</button>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div className="mt-3 bg-[#0E1217] border border-cyan-900/70 rounded-lg p-2.5">
@@ -843,6 +814,14 @@ export default function OperatorPanel() {
                   <button onClick={runScenario1Ceremony} className="text-[10px] bg-yellow-400 text-black px-2 py-0.5 rounded font-bold">{t.btnRunCodeScenario}</button>
                 </div>
                 <p className="text-[9px] text-yellow-100/70 leading-tight mb-2">{t.scenarioLibraryHint}</p>
+                <button onClick={runScenarioSmokeTest} className="w-full mb-2 py-1.5 rounded bg-cyan-950/70 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
+                  {t.scenarioSmokeTest}
+                </button>
+                {scenarioSmokeStatus && (
+                  <p className={`text-[9px] mb-2 ${scenarioSmokeStatus === t.scenarioSmokePass ? 'text-emerald-300' : scenarioSmokeStatus === t.scenarioSmokeFail ? 'text-red-300' : 'text-gray-400'}`}>
+                    {scenarioSmokeStatus}
+                  </p>
+                )}
                 {scenarioItems.map((item) => (
                   <div key={item.key} className="bg-[#0E1217] border border-gray-800 rounded p-2 mb-2 last:mb-0">
                     <input

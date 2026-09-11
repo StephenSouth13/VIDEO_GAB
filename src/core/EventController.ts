@@ -182,6 +182,20 @@ export class EventController {
     store.setPhase(EventPhase.COUNTDOWN);
   }
 
+  public startShowNow() {
+    if (this.currentTimer) this.currentTimer.clear();
+    this.clearDemoInterval();
+    const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setScrubbing(false);
+    store.setAutoAdvanceEnabled(false);
+    store.setShowNodes(true);
+    this.confirmAllParticipants();
+    store.setGlobalTime(0);
+    store.setPhase(EventPhase.COUNTDOWN);
+  }
+
   public cancelCountdown() {
     useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
   }
