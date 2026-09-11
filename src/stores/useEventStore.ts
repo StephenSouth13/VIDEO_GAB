@@ -39,6 +39,16 @@ interface EventState {
   nodeShape: 'circle' | 'rectangle';
   backgroundType: 'particles' | 'starfield' | 'digital-network';
   explosionType: 'shockwave' | 'golden-burst' | 'supernova';
+  trailColor: string;
+  
+  timelineConfig: {
+    countdown: number;
+    reveal: number;
+    energy: number;
+    counter: number;
+    finalCharge: number;
+    explosion: number;
+  };
   
   layout: {
     logo: { y: number; scale: number };
@@ -58,6 +68,8 @@ interface EventState {
   setPaused: (val: boolean) => void;
   setBackgroundType: (type: EventState['backgroundType']) => void;
   setExplosionType: (type: EventState['explosionType']) => void;
+  setTrailColor: (color: string) => void;
+  updateTimeline: (phase: keyof EventState['timelineConfig'], seconds: number) => void;
   updateLayout: (component: keyof EventState['layout'], props: any) => void;
 }
 
@@ -72,6 +84,16 @@ export const useEventStore = create<EventState>((set, get) => ({
   nodeShape: 'rectangle',
   backgroundType: 'particles',
   explosionType: 'shockwave',
+  trailColor: '#FACC15', // Yellow
+  
+  timelineConfig: {
+    countdown: 6,
+    reveal: 3,
+    energy: 6,
+    counter: 8,
+    finalCharge: 2,
+    explosion: 2,
+  },
   
   layout: {
     logo: { y: 0, scale: 1 },
@@ -121,6 +143,13 @@ export const useEventStore = create<EventState>((set, get) => ({
   setPaused: (val) => set({ isPaused: val }),
   setBackgroundType: (type) => set({ backgroundType: type }),
   setExplosionType: (type) => set({ explosionType: type }),
+  setTrailColor: (color) => set({ trailColor: color }),
+  updateTimeline: (phase, seconds) => set((state) => ({
+    timelineConfig: {
+      ...state.timelineConfig,
+      [phase]: seconds
+    }
+  })),
   updateLayout: (component, props) => set((state) => ({
     layout: {
       ...state.layout,

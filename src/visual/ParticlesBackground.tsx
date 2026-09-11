@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { useEventStore } from '../stores/useEventStore';
 
 export default function ParticlesBackground() {
-  const { particleCount } = useEventStore();
+  const { particleCount, backgroundType } = useEventStore();
   const mesh = useRef<THREE.InstancedMesh>(null);
   
   // Dummy initialization for now
@@ -25,10 +25,18 @@ export default function ParticlesBackground() {
   useFrame(() => {
     if (mesh.current) {
       for (let i = 0; i < particleCount; i++) {
-        // Slow float up
-        particles[i * 3 + 1] += speeds[i];
-        if (particles[i * 3 + 1] > 10) {
-          particles[i * 3 + 1] = -10;
+        if (backgroundType === 'particles') {
+          // Slow float up
+          particles[i * 3 + 1] += speeds[i];
+          if (particles[i * 3 + 1] > 10) particles[i * 3 + 1] = -10;
+        } else if (backgroundType === 'starfield') {
+          // Fast move toward camera (Z axis)
+          particles[i * 3 + 2] += speeds[i] * 10;
+          if (particles[i * 3 + 2] > 10) particles[i * 3 + 2] = -20;
+        } else if (backgroundType === 'digital-network') {
+          // Fast fall down (Matrix style)
+          particles[i * 3 + 1] -= speeds[i] * 5;
+          if (particles[i * 3 + 1] < -10) particles[i * 3 + 1] = 10;
         }
         
         dummy.position.set(particles[i * 3], particles[i * 3 + 1], particles[i * 3 + 2]);
@@ -43,7 +51,11 @@ export default function ParticlesBackground() {
   return (
     <instancedMesh ref={mesh} args={[undefined, undefined, 5000]}>
       <sphereGeometry args={[0.05, 8, 8]} />
-      <meshBasicMaterial color="#5BC0BE" transparent opacity={0.6} />
+      <meshBasicMaterial 
+        color={backgroundType === 'digital-network' ? '#00FF00' : '#5BC0BE'} 
+        transparent 
+        opacity={backgroundType === 'starfield' ? 0.8 : 0.6} 
+      />
     </instancedMesh>
   );
 }

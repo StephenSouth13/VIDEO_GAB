@@ -14,6 +14,7 @@ import ParticipantNodes from './ParticipantNodes';
 import MeteorSystem from './MeteorSystem';
 import EnergyTrailSystem from './EnergyTrailSystem';
 import ExplosionSystem from './ExplosionSystem';
+import CardSpawner from './CardSpawner';
 
 export default function LedStage() {
   const { phase, isBlackout, customBackgroundHTML } = useEventStore();
@@ -89,7 +90,10 @@ export default function LedStage() {
          <ExplosionSystem />
          
          {/* FINAL SCREEN */}
-         {phase === EventPhase.SUCCESS && <FinalScreen />}
+         <FinalScreen />
+         
+         {/* CARD SPAWNER */}
+         <CardSpawner />
          
       </div>
     </div>

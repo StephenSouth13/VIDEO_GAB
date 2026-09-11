@@ -117,7 +117,7 @@ export class EventController {
     
     this.setTimer(() => {
       this.triggerReveal();
-    }, EVENT_CONFIG.countdown.seconds * 1000 + 1000); // Wait for countdown to finish + 1 sec
+    }, store.timelineConfig.countdown * 1000);
   }
 
   public cancelCountdown() {
@@ -126,28 +126,33 @@ export class EventController {
   }
 
   private triggerReveal() {
-    useEventStore.getState().setPhase(EventPhase.GAB_REVEAL);
-    this.setTimer(() => this.triggerEnergyConvergence(), 3000);
+    const store = useEventStore.getState();
+    store.setPhase(EventPhase.GAB_REVEAL);
+    this.setTimer(() => this.triggerEnergyConvergence(), store.timelineConfig.reveal * 1000);
   }
 
   private triggerEnergyConvergence() {
-    useEventStore.getState().setPhase(EventPhase.ENERGY_CONVERGENCE);
-    this.setTimer(() => this.triggerCounterSequence(), 6000); // 6s of streams
+    const store = useEventStore.getState();
+    store.setPhase(EventPhase.ENERGY_CONVERGENCE);
+    this.setTimer(() => this.triggerCounterSequence(), store.timelineConfig.energy * 1000);
   }
   
   private triggerCounterSequence() {
-    useEventStore.getState().setPhase(EventPhase.COUNTER_SEQUENCE);
-    this.setTimer(() => this.triggerFinalCharge(), 8000); // 8s of counter
+    const store = useEventStore.getState();
+    store.setPhase(EventPhase.COUNTER_SEQUENCE);
+    this.setTimer(() => this.triggerFinalCharge(), store.timelineConfig.counter * 1000);
   }
 
   private triggerFinalCharge() {
-    useEventStore.getState().setPhase(EventPhase.FINAL_CHARGE);
-    this.setTimer(() => this.triggerExplosion(), 2000); // 2s final hold
+    const store = useEventStore.getState();
+    store.setPhase(EventPhase.FINAL_CHARGE);
+    this.setTimer(() => this.triggerExplosion(), store.timelineConfig.finalCharge * 1000);
   }
 
   private triggerExplosion() {
-    useEventStore.getState().setPhase(EventPhase.EXPLOSION);
-    this.setTimer(() => this.showFinalScreen(), 2000); // 2s explosion
+    const store = useEventStore.getState();
+    store.setPhase(EventPhase.EXPLOSION);
+    this.setTimer(() => this.showFinalScreen(), store.timelineConfig.explosion * 1000);
   }
 
   public showFinalScreen() {
