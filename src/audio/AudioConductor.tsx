@@ -25,6 +25,7 @@ export default function AudioConductor() {
     showAudioUrl,
     showAudioVolume,
     showAudioLoop,
+    showAudioDucksCues,
   } = useEventStore();
   const previousPhase = useRef<EventPhase | null>(null);
   const previousConfirmed = useRef(0);
@@ -103,15 +104,15 @@ export default function AudioConductor() {
   }, [audioEnabled, globalTime, isBlackout, isPaused, phase, showAudioLoop]);
 
   useEffect(() => {
-    if (!audioEnabled || isPaused || isBlackout) return;
-    if (confirmedCount > previousConfirmed.current) {
+    const shouldPlayCue = audioEnabled && !isPaused && !isBlackout && !(showAudioUrl && showAudioDucksCues);
+    if (shouldPlayCue && confirmedCount > previousConfirmed.current) {
       audioManager.play('touch');
     }
     previousConfirmed.current = confirmedCount;
-  }, [audioEnabled, confirmedCount, isBlackout, isPaused]);
+  }, [audioEnabled, confirmedCount, isBlackout, isPaused, showAudioDucksCues, showAudioUrl]);
 
   useEffect(() => {
-    if (!audioEnabled || isPaused || isBlackout) return;
+    if (!audioEnabled || isPaused || isBlackout || (showAudioUrl && showAudioDucksCues)) return;
     if (previousPhase.current === phase) return;
 
     previousPhase.current = phase;
@@ -120,16 +121,16 @@ export default function AudioConductor() {
     if (cue) {
       audioManager.play(cue);
     }
-  }, [audioEnabled, phase, isBlackout, isPaused]);
+  }, [audioEnabled, phase, isBlackout, isPaused, showAudioDucksCues, showAudioUrl]);
 
   useEffect(() => {
-    if (!audioEnabled || isPaused || isBlackout || phase !== EventPhase.COUNTDOWN) return;
+    if (!audioEnabled || isPaused || isBlackout || (showAudioUrl && showAudioDucksCues) || phase !== EventPhase.COUNTDOWN) return;
     const remaining = Math.max(0, Math.ceil(timelineConfig.countdown - globalTime));
     if (remaining !== previousCountdownTick.current) {
       previousCountdownTick.current = remaining;
       audioManager.play('countdown');
     }
-  }, [audioEnabled, globalTime, isBlackout, isPaused, phase, timelineConfig.countdown]);
+  }, [audioEnabled, globalTime, isBlackout, isPaused, phase, showAudioDucksCues, showAudioUrl, timelineConfig.countdown]);
 
   return null;
 }

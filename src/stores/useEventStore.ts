@@ -41,6 +41,7 @@ interface EventState {
   showAudioUrl: string | null;
   showAudioVolume: number;
   showAudioLoop: boolean;
+  showAudioDucksCues: boolean;
   customBackgroundHTML: string;
   customBackgroundVideo: string | null;
   backgroundVideoOpacity: number;
@@ -124,6 +125,7 @@ interface EventState {
   setShowAudioUrl: (url: string | null) => void;
   setShowAudioVolume: (volume: number) => void;
   setShowAudioLoop: (loop: boolean) => void;
+  setShowAudioDucksCues: (enabled: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
   setCustomBackgroundVideo: (url: string | null) => void;
   setBackgroundVideoOpacity: (opacity: number) => void;
@@ -196,6 +198,7 @@ export const useEventStore = create<EventState>()(
   showAudioUrl: null,
   showAudioVolume: 0.65,
   showAudioLoop: false,
+  showAudioDucksCues: true,
   customBackgroundHTML: '',
   customBackgroundVideo: null,
   backgroundVideoOpacity: 1,
@@ -292,6 +295,7 @@ export const useEventStore = create<EventState>()(
   setShowAudioUrl: (url) => set({ showAudioUrl: url }),
   setShowAudioVolume: (volume) => set({ showAudioVolume: Math.max(0, Math.min(1, volume)) }),
   setShowAudioLoop: (loop) => set({ showAudioLoop: loop }),
+  setShowAudioDucksCues: (enabled) => set({ showAudioDucksCues: enabled }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
   setBackgroundVideoOpacity: (opacity) => set({ backgroundVideoOpacity: opacity }),
@@ -389,6 +393,7 @@ export const useEventStore = create<EventState>()(
       showAudioUrl: state.showAudioUrl?.startsWith('blob:') ? null : state.showAudioUrl,
       showAudioVolume: state.showAudioVolume,
       showAudioLoop: state.showAudioLoop,
+      showAudioDucksCues: state.showAudioDucksCues,
     };
     return {
       savedProfiles: {
@@ -468,6 +473,7 @@ export const useEventStore = create<EventState>()(
         showAudioUrl: persistedState?.showAudioUrl ?? null,
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
+        showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
       };
     }
     if (version < 3) {
@@ -478,6 +484,7 @@ export const useEventStore = create<EventState>()(
         showAudioUrl: persistedState?.showAudioUrl ?? null,
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
+        showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
       };
     }
     if (version < 4) {
@@ -486,6 +493,7 @@ export const useEventStore = create<EventState>()(
         showAudioUrl: persistedState?.showAudioUrl ?? null,
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
+        showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
       };
     }
     return persistedState;
@@ -501,6 +509,7 @@ export const useEventStore = create<EventState>()(
     showAudioUrl: state.showAudioUrl?.startsWith('blob:') ? null : state.showAudioUrl,
     showAudioVolume: state.showAudioVolume,
     showAudioLoop: state.showAudioLoop,
+    showAudioDucksCues: state.showAudioDucksCues,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
     nodeGlowStyle: state.nodeGlowStyle,

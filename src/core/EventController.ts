@@ -146,11 +146,21 @@ export class EventController {
 
   public confirmParticipant(id: number) {
     const store = useEventStore.getState();
-    if (store.phase !== EventPhase.WAITING_FOR_PARTICIPANTS && store.phase !== EventPhase.PARTICIPANT_CONFIRMING) {
+    if (store.phase === EventPhase.IDLE || store.phase === EventPhase.BOOT) {
+      store.setBlackout(false);
+      store.setPaused(false);
+      store.setShowNodes(true);
+      store.setGlobalTime(0);
+      store.setAutoAdvanceEnabled(false);
+      store.setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
+    }
+
+    const activeStore = useEventStore.getState();
+    if (activeStore.phase !== EventPhase.WAITING_FOR_PARTICIPANTS && activeStore.phase !== EventPhase.PARTICIPANT_CONFIRMING) {
       return;
     }
 
-    store.updateParticipant(id, { status: 'CONFIRMED', progress: 100 });
+    activeStore.updateParticipant(id, { status: 'CONFIRMED', progress: 100 });
     
     // Check if all are confirmed
     const state = useEventStore.getState();

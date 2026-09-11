@@ -86,7 +86,9 @@ export default function OperatorPanel() {
     showAudioLoop,
     setShowAudioUrl,
     setShowAudioVolume,
-    setShowAudioLoop
+    setShowAudioLoop,
+    showAudioDucksCues,
+    setShowAudioDucksCues
   } = store;
   
   const t = translations[language || 'vi'];
@@ -144,6 +146,10 @@ export default function OperatorPanel() {
   const handleActivateAll = () => eventController.activateAll();
   const handleReset = () => eventController.resetEvent();
   const handleConfirm = (id: number) => eventController.confirmParticipant(id);
+  const handleTimelineChange = (key: keyof typeof timelineConfig, value: string) => {
+    const parsed = Number(value);
+    updateTimeline(key, Number.isFinite(parsed) ? Math.max(0, Math.min(60, parsed)) : 0);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, key: 'customLogoCenter' | 'customLogoFly1' | 'customLogoFly2') => {
     const file = e.target.files?.[0];
@@ -551,7 +557,7 @@ export default function OperatorPanel() {
               </div>
               <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
                 <label className="block">
-                  <span className="text-[9px] text-gray-500">{t.audioVolume} {Math.round(audioVolume * 100)}%</span>
+                  <span className="text-[9px] text-gray-500">{t.cueVolume} {Math.round(audioVolume * 100)}%</span>
                   <input type="range" min="0" max="1" step="0.01" value={audioVolume} onChange={(e) => setAudioVolume(Number(e.target.value))} className="w-full accent-gab-cyan" />
                 </label>
                 <button onClick={unlockAndTestAudio} className="px-2 py-1.5 rounded bg-cyan-950/80 border border-cyan-800 text-gab-cyan text-[10px] font-bold hover:bg-cyan-900">
@@ -574,7 +580,7 @@ export default function OperatorPanel() {
                 />
                 <div className="grid grid-cols-[1fr_auto] gap-2 items-center mb-2">
                   <label className="block">
-                    <span className="text-[9px] text-gray-500">{t.audioVolume} {Math.round(showAudioVolume * 100)}%</span>
+                    <span className="text-[9px] text-gray-500">{t.trackVolume} {Math.round(showAudioVolume * 100)}%</span>
                     <input type="range" min="0" max="1" step="0.01" value={showAudioVolume} onChange={(e) => setShowAudioVolume(Number(e.target.value))} className="w-full accent-gab-cyan" />
                   </label>
                   <label className="flex items-center gap-1 text-[10px] text-gray-300">
@@ -582,6 +588,10 @@ export default function OperatorPanel() {
                     {t.showAudioLoop}
                   </label>
                 </div>
+                <label className="mb-2 flex items-start gap-2 text-[10px] text-gray-300 leading-tight" title={t.showAudioDucksCuesHint}>
+                  <input type="checkbox" checked={showAudioDucksCues} onChange={(e) => setShowAudioDucksCues(e.target.checked)} className="mt-0.5 accent-gab-cyan" />
+                  <span>{t.showAudioDucksCues}</span>
+                </label>
                 <input
                   type="file"
                   accept="audio/*"
@@ -697,7 +707,7 @@ export default function OperatorPanel() {
                     <input 
                       type="number" min="0" max="60" step="0.5" 
                       value={timelineConfig[item.key as keyof typeof timelineConfig]} 
-                      onChange={(e) => updateTimeline(item.key as keyof typeof timelineConfig, Math.max(0, Number(e.target.value)))} 
+                      onChange={(e) => handleTimelineChange(item.key as keyof typeof timelineConfig, e.target.value)} 
                       className="w-16 bg-[#0E1217] border border-gray-700 rounded px-2 py-1 text-xs text-right font-mono" 
                     />
                   </div>
