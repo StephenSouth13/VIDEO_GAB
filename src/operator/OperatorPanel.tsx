@@ -3,6 +3,7 @@ import { eventController } from '../core/EventController';
 import { useState, useRef, useEffect } from 'react';
 import { translations } from '../locales/translations';
 import { audioManager } from '../audio/AudioManager';
+import LedStage from '../visual/LedStage';
 
 export default function OperatorPanel() {
   const store = useEventStore();
@@ -711,7 +712,7 @@ export default function OperatorPanel() {
                      transformOrigin: '0 0'
                    }}
                  >
-                   <iframe src="/led?edit=true" className="w-full h-full border-0 pointer-events-auto" />
+                   <LedStage editPreview />
                  </div>
                  
                  <div className="absolute top-2 left-2 bg-gab-cyan/90 text-[10px] text-black font-bold px-2 py-1 rounded backdrop-blur z-30 shadow">

@@ -16,9 +16,14 @@ import EnergyTrailSystem from './EnergyTrailSystem';
 import ExplosionSystem from './ExplosionSystem';
 import CardSpawner from './CardSpawner';
 
-const isEditPreview = new URLSearchParams(window.location.search).get('edit') === 'true';
+const isUrlEditPreview = new URLSearchParams(window.location.search).get('edit') === 'true';
 
-export default function LedStage() {
+interface LedStageProps {
+  editPreview?: boolean;
+}
+
+export default function LedStage({ editPreview = false }: LedStageProps) {
+  const isEditPreview = editPreview || isUrlEditPreview;
   const { 
     phase, 
     isBlackout, 
@@ -39,12 +44,13 @@ export default function LedStage() {
   const [failedVideoUrl, setFailedVideoUrl] = useState<string | null>(null);
   
   useEffect(() => {
+    if (isEditPreview) return;
     // Prevent default scrolling on LED stage
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = 'auto';
     };
-  }, []);
+  }, [isEditPreview]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -79,7 +85,7 @@ export default function LedStage() {
   };
 
   return (
-    <div className="w-full h-screen overflow-hidden relative bg-black flex items-center justify-center">
+    <div className={`${isEditPreview ? 'w-full h-full' : 'w-full h-screen'} overflow-hidden relative bg-black flex items-center justify-center`}>
       <div 
         className="relative overflow-hidden shrink-0"
         style={{ ...frameStyle, backgroundColor }}

@@ -14,11 +14,12 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
   const layout = useEventStore(state => state.layout[layoutKey]) as any;
   const updateLayout = useEventStore(state => state.updateLayout);
   
-  const isEditMode = new URLSearchParams(window.location.search).get('edit') === 'true';
+  const isEditMode = new URLSearchParams(window.location.search).get('edit') === 'true' || window.location.pathname.startsWith('/operator');
 
   const x = isEndPos ? (layout?.endX ?? 0) : (layout?.x ?? 0);
   const y = isEndPos ? (layout?.endY ?? 0) : (layout?.y ?? 0);
   const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+  const safeScale = clamp(Number(layout?.scale ?? 1) || 1, 0.25, 3);
 
   return (
     <motion.div
@@ -44,7 +45,7 @@ export default function DraggableItem({ layoutKey, children, className, isEndPos
         top: '50%',
         x: `calc(-50% + ${clamp(x, -1500, 1500)}px)`,
         y: `calc(-50% + ${clamp(y, -520, 520)}px)`,
-        scale: layout?.scale ?? 1,
+        scale: safeScale,
         pointerEvents: isEditMode ? 'auto' : undefined
       }}
     >
