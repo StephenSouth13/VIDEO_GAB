@@ -340,6 +340,55 @@ export default function OperatorPanel() {
     window.dispatchEvent(new CustomEvent('gab-test-show-audio'));
   };
 
+  const renderLayoutNumber = (
+    label: string,
+    value: number,
+    onChange: (value: number) => void,
+    options: { min?: number; max?: number; step?: number } = {}
+  ) => (
+    <label className="block">
+      <span className="text-[9px] text-gray-500">{label}</span>
+      <input
+        type="number"
+        min={options.min ?? -1500}
+        max={options.max ?? 1500}
+        step={options.step ?? 1}
+        value={Number.isFinite(value) ? value : 0}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[10px]"
+      />
+    </label>
+  );
+
+  const renderPositionControls = (
+    title: string,
+    key: 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
+    mode: 'xy' | 'end' = 'xy'
+  ) => {
+    const item = layout[key] as any;
+    const xKey = mode === 'end' ? 'endX' : 'x';
+    const yKey = mode === 'end' ? 'endY' : 'y';
+
+    return (
+      <div className="bg-[#0E1217] p-3 rounded-lg border border-gray-800">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-bold text-gray-300 text-[11px]">{title}</span>
+          <button
+            onClick={() => updateLayout(key, mode === 'end' ? { endX: 0, endY: 0, scale: 1 } : { x: 0, y: 0, scale: 1 })}
+            className="text-[9px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700"
+          >
+            Reset
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {renderLayoutNumber('X', item?.[xKey] ?? 0, (value) => updateLayout(key, { [xKey]: value }))}
+          {renderLayoutNumber('Y', item?.[yKey] ?? 0, (value) => updateLayout(key, { [yKey]: value }))}
+          {renderLayoutNumber('Scale', item?.scale ?? 1, (value) => updateLayout(key, { scale: value }), { min: 0.2, max: 3, step: 0.05 })}
+        </div>
+      </div>
+    );
+  };
+
   const applyScenario1Ceremony = () => {
     applyBundledLogos();
     store.resetLayout();
@@ -353,10 +402,10 @@ export default function OperatorPanel() {
       line1: 'CHÚC MỪNG',
       line2: 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM|ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG',
       x: 0,
-      y: 24,
+      y: 140,
       scale: 1
     });
-    updateLayout('logo', { x: 0, y: 0, scale: 0.92 });
+    updateLayout('logo', { x: 0, y: -255, scale: 0.92 });
     updateLayout('counter', { x: 0, y: -25, scale: 1 });
     updateLayout('cardVietkings', { endX: -560, endY: -185, scale: 0.92 });
     updateLayout('cardGAB', { endX: 560, endY: 185, scale: 0.92 });
@@ -1235,6 +1284,14 @@ export default function OperatorPanel() {
                      <label className="text-gray-500 text-[10px]">{t.textSize}</label>
                      <input type="range" min="0.3" max="2.5" step="0.05" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Vị trí màn kết / Final positions</h3>
+                  {renderPositionControls('Logo trung tâm màn kết', 'logo')}
+                  {renderPositionControls('Cụm chữ màn kết', 'finalMessage')}
+                  {renderPositionControls('Số đếm 400+', 'counter')}
+                  {renderPositionControls('Thẻ Vietkings', 'cardVietkings', 'end')}
+                  {renderPositionControls('Thẻ GAB', 'cardGAB', 'end')}
                 </div>
              </div>
           </div>

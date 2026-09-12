@@ -51,28 +51,32 @@ export default function FinalScreen() {
           animate={{ opacity: visible ? 1 : 0 }}
           transition={{ duration: 0.9, ease: 'easeOut' }}
         />
-        <div className="absolute inset-0 z-[80] flex items-center justify-center text-center select-none pointer-events-none">
+        {showCenterLogoFinal && (
+          <DraggableItem layoutKey="logo" className="z-[86] flex items-center justify-center">
+            <motion.img
+              src={customLogoCenter || '/logo/GAB.png'}
+              alt="GAB Logo"
+              className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
+              initial={{ opacity: 0, scale: 0.82 }}
+              animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              onError={(e: any) => e.currentTarget.style.display = 'none'}
+            />
+          </DraggableItem>
+        )}
+        <DraggableItem layoutKey="finalMessage" className="z-[84] flex items-center justify-center text-center select-none">
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 24, scale: visible ? 1 : 0.97 }}
             transition={{ duration: 0.9, ease: 'easeOut' }}
             className="ceremony-final-content flex flex-col items-center justify-center"
           >
-            <motion.img
-              src={customLogoCenter || '/logo/GAB.png'}
-              alt="GAB Logo"
-              className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain mb-[clamp(10px,1.3vw,22px)] drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
-              initial={{ opacity: 0, scale: 0.82 }}
-              animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
-              transition={{ duration: 0.7, ease: 'easeOut' }}
-              onError={(e: any) => e.currentTarget.style.display = 'none'}
-            />
             <div className="ceremony-final-counter">{EVENT_CONFIG.counter.finalValue}{EVENT_CONFIG.counter.suffix}</div>
             <h1 className="ceremony-final-title">{ceremonyLine1}</h1>
             <h2 className="ceremony-final-line">{ceremonyLine2}</h2>
             <h2 className="ceremony-final-line">{ceremonyLine3}</h2>
           </motion.div>
-        </div>
+        </DraggableItem>
       </>
     );
   }
