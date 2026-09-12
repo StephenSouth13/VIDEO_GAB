@@ -1331,6 +1331,34 @@ export default function OperatorPanel() {
                   {renderPositionControls('Số đếm 400+', 'counter')}
                   {renderPositionControls('Thẻ Vietkings', 'cardVietkings', 'end')}
                   {renderPositionControls('Thẻ GAB', 'cardGAB', 'end')}
+                  <div className="bg-[#0E1217] p-3 rounded-lg border border-cyan-900/70">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="font-bold text-gab-cyan text-[11px] uppercase">Chỉnh toàn bộ layout</span>
+                      <div className="grid grid-cols-2 gap-1">
+                        <button onClick={() => nudgeWholeLayoutY(-20)} className="rounded bg-cyan-950/70 border border-cyan-800 px-2 py-1 text-[9px] text-gab-cyan hover:bg-cyan-900">Tất cả ↑</button>
+                        <button onClick={() => nudgeWholeLayoutY(20)} className="rounded bg-gray-800 px-2 py-1 text-[9px] text-gray-200 hover:bg-gray-700">Tất cả ↓</button>
+                      </div>
+                    </div>
+                    {renderPositionControls('Số đếm ngược', 'countdown')}
+                  </div>
+                  <div className="bg-[#0E1217] p-3 rounded-lg border border-cyan-900/70">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-gab-cyan text-[11px] uppercase">Code tay layout JSON</span>
+                      <div className="flex gap-1">
+                        <button onClick={reloadLayoutCode} className="text-[9px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">Nạp hiện tại</button>
+                        <button onClick={applyLayoutCode} className="text-[9px] px-2 py-0.5 rounded bg-gab-cyan text-black font-bold hover:opacity-90">Áp dụng</button>
+                      </div>
+                    </div>
+                    <textarea
+                      value={layoutCode}
+                      onChange={(e) => setLayoutCode(e.target.value)}
+                      spellCheck={false}
+                      className="h-44 w-full resize-y rounded border border-gray-800 bg-black p-2 font-mono text-[10px] leading-relaxed text-gray-200 outline-none focus:border-gab-cyan"
+                    />
+                    <p className={`mt-1 text-[9px] ${layoutCodeError.startsWith('Đã') ? 'text-gab-cyan' : 'text-orange-300'}`}>
+                      {layoutCodeError || 'Y âm = lên cao, Y dương = xuống thấp. Scale chỉnh kích thước.'}
+                    </p>
+                  </div>
                 </div>
              </div>
           </div>
