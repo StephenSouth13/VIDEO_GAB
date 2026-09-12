@@ -12,19 +12,19 @@ export default function FinalScreen() {
   const line2 = finalMessage.line2?.trim() || 'DA KICH HOAT THE GAB THANH CONG';
 
   return (
-    <DraggableItem layoutKey="finalMessage" className="flex flex-col items-center justify-center text-center w-full max-w-[78vw] select-none z-[80]">
+    <DraggableItem layoutKey="finalMessage" className="flex flex-col items-center justify-center text-center w-full max-w-[72vw] select-none z-[80]">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.95 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col items-center justify-center px-8 py-6 rounded-xl bg-black/35 border border-white/10 backdrop-blur-sm shadow-[0_0_80px_rgba(0,240,255,0.24)]"
+        className="flex flex-col items-center justify-center px-10 py-7 rounded-lg bg-black/35 border border-white/10 backdrop-blur-sm shadow-[0_0_80px_rgba(0,240,255,0.24)]"
       >
         {/* Optional Center Logo for Hero template or when enabled */}
         {(showCenterLogoFinal || finalTemplate === 'center-hero') && (
           <motion.img 
             src={customLogoCenter || "/logo/GAB.png"} 
             alt="Hero Logo"
-            className="w-28 md:w-44 h-auto object-contain mb-5 drop-shadow-[0_0_40px_rgba(0,240,255,0.8)]"
+            className="w-[clamp(96px,8vw,168px)] h-auto object-contain mb-5 drop-shadow-[0_0_40px_rgba(0,240,255,0.8)]"
             initial={{ scale: 0 }}
             animate={{ scale: visible ? 1 : 0 }}
             transition={{ type: "spring", bounce: 0.3 }}
@@ -65,10 +65,10 @@ export default function FinalScreen() {
         {/* 3. STANDARD DUAL CARDS & MINIMAL CLEAN TEMPLATES */}
         {finalTemplate !== 'cyber-hologram' && finalTemplate !== 'golden-prestige' && (
           <>
-            <h1 className="text-4xl md:text-7xl font-bold text-white mb-5 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)] tracking-tight">
+            <h1 className="text-[clamp(30px,3.3vw,70px)] font-bold text-white mb-4 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)] tracking-normal leading-tight whitespace-nowrap">
               {line1}
             </h1>
-            <h2 className="text-2xl md:text-5xl text-gab-cyan-light drop-shadow-[0_0_20px_rgba(91,192,190,0.5)] tracking-wide">
+            <h2 className="text-[clamp(22px,2.2vw,46px)] text-gab-cyan-light drop-shadow-[0_0_20px_rgba(91,192,190,0.5)] tracking-normal leading-tight whitespace-nowrap">
               {line2}
             </h2>
           </>

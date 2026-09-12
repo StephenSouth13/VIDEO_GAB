@@ -2,7 +2,7 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { motion } from 'framer-motion';
 
 export default function EnergyTrailSystem() {
-  const { phase, trailColor, energyType, isPaused } = useEventStore();
+  const { phase, trailColor, energyType, isPaused, layout } = useEventStore();
   
   const isConvergenceActive = 
     phase === EventPhase.ENERGY_CONVERGENCE || 
@@ -12,16 +12,21 @@ export default function EnergyTrailSystem() {
     return null;
   }
 
-  // Generate 24 multi-directional converging beam angles (360 degrees around the screen)
-  const beamCount = 28;
+  const logoTarget = layout?.logo || { x: 0, y: 0 };
+  const targetStyle = {
+    left: `calc(50% + ${logoTarget.x || 0}px)`,
+    top: `calc(50% + ${logoTarget.y || 0}px)`,
+  };
+
+  // Generate a dense 360 degree ring of beams so the logo feels pulled by energy from every side.
+  const beamCount = 44;
   const beams = Array.from({ length: beamCount }, (_, i) => {
     const angle = (i * (360 / beamCount));
     const rad = (angle * Math.PI) / 180;
-    // Start far outside the screen bounds (800 - 1200px out)
-    const distance = 950 + (i % 4) * 80;
+    const distance = 760 + (i % 5) * 90;
     const startX = Math.cos(rad) * distance;
     const startY = Math.sin(rad) * distance;
-    return { id: i, angle, distance, startX, startY, delay: (i % 7) * 0.12, duration: 0.8 + (i % 3) * 0.25 };
+    return { id: i, angle, distance, startX, startY, delay: (i % 11) * 0.055, duration: 1.05 + (i % 4) * 0.08 };
   });
   
   return (
@@ -33,30 +38,56 @@ export default function EnergyTrailSystem() {
       {/* 1. EXPERT CONVERGENCE (TIA CHUYÊN GIA TỰU HỢP VỀ LOGO)         */}
       {/* ============================================================ */}
       {(energyType === 'expert-convergence' || energyType === 'default') && (
-        <div className="relative w-full h-full flex items-center justify-center">
-          {/* Streams of high-velocity photon rays zooming from perimeter to center */}
+        <div className="absolute w-0 h-0" style={targetStyle}>
+          {/* Smooth radial beams anchored on the logo center. */}
           {beams.map((b) => (
             <motion.div
               key={b.id}
-              className="absolute h-1.5 rounded-full origin-right mix-blend-screen"
+              className="absolute h-[5px] rounded-full mix-blend-screen"
               style={{
-                background: `linear-gradient(90deg, transparent, ${trailColor}, #FFFFFF)`,
-                boxShadow: `0 0 15px ${trailColor}, 0 0 30px #FFFFFF`,
-                width: '320px',
-                transform: `rotate(${b.angle + 180}deg) translate(${b.distance || 600}px, 0)`
+                left: 0,
+                top: 0,
+                width: 'clamp(340px, 32vw, 900px)',
+                x: '-100%',
+                y: '-50%',
+                rotate: b.angle,
+                transformOrigin: '100% 50%',
+                background: `linear-gradient(90deg, transparent 0%, ${trailColor} 58%, #FFFFFF 100%)`,
+                boxShadow: `0 0 18px ${trailColor}, 0 0 34px rgba(255,255,255,0.72)`,
               }}
               animate={{
-                transform: [
-                  `rotate(${b.angle + 180}deg) translate(800px, 0)`,
-                  `rotate(${b.angle + 180}deg) translate(0px, 0)`
-                ],
-                opacity: [0, 1, 0.9, 0],
-                scaleX: [0.2, 1.4, 0.4]
+                opacity: [0, 0.95, 0.65, 0],
+                scaleX: [0.08, 1, 0.22],
+                filter: ['blur(3px)', 'blur(0px)', 'blur(1px)']
               }}
               transition={{
                 duration: b.duration,
                 repeat: Infinity,
                 delay: b.delay,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+
+          {beams.slice(0, 24).map((b) => (
+            <motion.div
+              key={`spark-${b.id}`}
+              className="absolute w-2.5 h-2.5 rounded-full bg-white mix-blend-screen"
+              style={{
+                left: 0,
+                top: 0,
+                boxShadow: `0 0 18px #FFFFFF, 0 0 34px ${trailColor}`,
+              }}
+              animate={{
+                x: [b.startX, b.startX * 0.34, 0],
+                y: [b.startY, b.startY * 0.34, 0],
+                opacity: [0, 1, 0],
+                scale: [0.25, 1.2, 0.1]
+              }}
+              transition={{
+                duration: 1.08,
+                repeat: Infinity,
+                delay: b.delay + 0.08,
                 ease: "easeIn"
               }}
             />
@@ -73,7 +104,7 @@ export default function EnergyTrailSystem() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="w-48 h-48 rounded-full blur-xl mix-blend-screen"
+            className="absolute -left-24 -top-24 w-48 h-48 rounded-full blur-xl mix-blend-screen"
             style={{
               background: `radial-gradient(circle, #FFFFFF 0%, ${trailColor} 50%, transparent 80%)`,
               boxShadow: `0 0 60px ${trailColor}`
@@ -94,7 +125,7 @@ export default function EnergyTrailSystem() {
                 delay: ring * 0.7,
                 ease: "easeOut"
               }}
-              className="absolute w-64 h-64 rounded-full border-2 mix-blend-screen"
+              className="absolute -left-32 -top-32 w-64 h-64 rounded-full border-2 mix-blend-screen"
               style={{ borderColor: trailColor }}
             />
           ))}

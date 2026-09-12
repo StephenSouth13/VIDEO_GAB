@@ -347,13 +347,13 @@ export default function OperatorPanel() {
       line1: 'CHUC MUNG CAC KY LUC GIA',
       line2: 'DA KICH HOAT THE GAB THANH CONG',
       x: 0,
-      y: -50,
-      scale: 1
+      y: 72,
+      scale: 0.86
     });
-    updateLayout('logo', { x: 0, y: -45, scale: 1 });
+    updateLayout('logo', { x: 0, y: 0, scale: 0.92 });
     updateLayout('counter', { x: 0, y: -25, scale: 1 });
-    updateLayout('cardVietkings', { endX: -520, endY: -210, scale: 1 });
-    updateLayout('cardGAB', { endX: 520, endY: 185, scale: 1 });
+    updateLayout('cardVietkings', { endX: -560, endY: -185, scale: 0.92 });
+    updateLayout('cardGAB', { endX: 560, endY: 185, scale: 0.92 });
     setStageSize(3840, 1355);
     setStageFit('fill');
     setStageOverscan(0);
