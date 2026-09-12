@@ -133,6 +133,107 @@ export default function EnergyTrailSystem() {
         </div>
       )}
 
+      {energyType === 'meteor-shower' && (
+        <div className="absolute w-0 h-0" style={targetStyle}>
+          {Array.from({ length: 96 }).map((_, i) => {
+            const angle = (i * 137.5) % 360;
+            const rad = (angle * Math.PI) / 180;
+            const distance = 860 + (i % 7) * 95;
+            const startX = Math.cos(rad) * distance;
+            const startY = Math.sin(rad) * distance;
+            const size = 3 + (i % 5);
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white mix-blend-screen"
+                style={{
+                  left: 0,
+                  top: 0,
+                  width: `${size}px`,
+                  height: `${size}px`,
+                  boxShadow: `0 0 12px #fff, 0 0 24px ${trailColor}`,
+                }}
+                animate={{
+                  x: [startX, startX * 0.5, startX * 0.16, 0],
+                  y: [startY, startY * 0.5, startY * 0.16, 0],
+                  opacity: [0, 1, 0.8, 0],
+                  scale: [0.25, 1.25, 0.7, 0.05],
+                }}
+                transition={{ duration: 0.9 + (i % 6) * 0.08, repeat: Infinity, delay: (i % 24) * 0.045, ease: 'easeIn' }}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {energyType === 'star-crossfire' && (
+        <div className="absolute w-0 h-0" style={targetStyle}>
+          {Array.from({ length: 72 }).map((_, i) => {
+            const side = i % 4;
+            const lane = ((i * 73) % 100) - 50;
+            const startX = side === 0 ? -1100 : side === 1 ? 1100 : lane * 18;
+            const startY = side === 2 ? -620 : side === 3 ? 620 : lane * 10;
+            const angle = Math.atan2(-startY, -startX) * 180 / Math.PI;
+            return (
+              <motion.div
+                key={i}
+                className="absolute h-[3px] w-28 rounded-full mix-blend-screen"
+                style={{
+                  left: 0,
+                  top: 0,
+                  background: `linear-gradient(90deg, transparent, #fff, ${trailColor})`,
+                  boxShadow: `0 0 10px ${trailColor}`,
+                }}
+                animate={{
+                  x: [startX, startX * 0.42, 0],
+                  y: [startY, startY * 0.42, 0],
+                  opacity: [0, 0.95, 0],
+                  scaleX: [0.25, 1.1, 0.08],
+                  rotate: [angle, angle, angle],
+                }}
+                transition={{ duration: 0.78 + (i % 5) * 0.06, repeat: Infinity, delay: (i % 18) * 0.055, ease: 'easeIn' }}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {energyType === 'comet-orbit' && (
+        <div className="absolute w-0 h-0" style={targetStyle}>
+          {[0, 1, 2].map((ring) => (
+            <motion.div
+              key={`ring-${ring}`}
+              className="absolute rounded-full border mix-blend-screen"
+              style={{
+                left: `${-260 - ring * 90}px`,
+                top: `${-120 - ring * 46}px`,
+                width: `${520 + ring * 180}px`,
+                height: `${240 + ring * 92}px`,
+                borderColor: ring % 2 ? 'rgba(255,255,255,0.22)' : `${trailColor}66`,
+                boxShadow: `0 0 24px ${trailColor}55`,
+              }}
+              animate={{ rotate: ring % 2 ? -360 : 360, opacity: [0.2, 0.55, 0.2] }}
+              transition={{ duration: 4.5 + ring, repeat: Infinity, ease: 'linear' }}
+            />
+          ))}
+          {Array.from({ length: 54 }).map((_, i) => {
+            const angle = (i * 360) / 54;
+            const rad = (angle * Math.PI) / 180;
+            const startX = Math.cos(rad) * (520 + (i % 4) * 90);
+            const startY = Math.sin(rad) * (230 + (i % 4) * 44);
+            return (
+              <motion.div
+                key={`comet-${i}`}
+                className="absolute w-3 h-3 rounded-full bg-white mix-blend-screen"
+                style={{ left: 0, top: 0, boxShadow: `0 0 16px #fff, 0 0 30px ${trailColor}` }}
+                animate={{ x: [startX, startX * 0.65, 0], y: [startY, startY * 0.65, 0], opacity: [0, 1, 0], scale: [0.35, 1.2, 0.1] }}
+                transition={{ duration: 1.2 + (i % 4) * 0.12, repeat: Infinity, delay: (i % 18) * 0.07, ease: 'easeInOut' }}
+              />
+            );
+          })}
+        </div>
+      )}
+
       {/* ============================================================ */}
       {/* 2. LASER MATRIX (MA TRẬN LASER CÔNG NGHỆ CAO)                 */}
       {/* ============================================================ */}

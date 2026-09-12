@@ -63,7 +63,7 @@ interface EventState {
   touchAutomationSpeed: number;
   backgroundType: 'particles' | 'starfield' | 'digital-network' | 'matrix' | 'nebula' | 'quantum' | 'aurora' | 'light-tunnel' | 'scanlines' | 'prism';
   explosionType: 'cosmic-expansion' | 'vortex-spin' | 'supernova' | 'black-hole' | 'confetti' | 'cyber-ring' | 'golden-burst' | 'shockwave' | 'radial-strobe' | 'glass-shatter' | 'data-burst' | 'aurora-flare';
-  energyType: 'expert-convergence' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'ribbon-weave' | 'orbital-rings' | 'rain-up' | 'heartbeat-pulse' | 'default';
+  energyType: 'expert-convergence' | 'meteor-shower' | 'star-crossfire' | 'comet-orbit' | 'laser-matrix' | 'cosmic-vortex' | 'golden-streams' | 'spiral-charge' | 'spirit-bomb' | 'ribbon-weave' | 'orbital-rings' | 'rain-up' | 'heartbeat-pulse' | 'default';
   trailColor: string;
   backgroundColor: string;
   explosionColor: string;

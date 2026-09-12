@@ -387,11 +387,13 @@ export default function OperatorPanel() {
 
   const applyScenarioVideoShow = () => {
     applyScenario1Ceremony();
-    setBackgroundType('aurora');
-    setEnergyType('ribbon-weave');
-    setExplosionType('aurora-flare');
-    setBackgroundVideoSource('/video-demo/0328(1).mp4');
-    setBackgroundVideoOpacity(0.32);
+    setBackgroundType('light-tunnel');
+    setEnergyType('meteor-shower');
+    setExplosionType('radial-strobe');
+    setTrailColor('#7DD3FC');
+    setExplosionColor('#FACC15');
+    setBackgroundVideoSource(null);
+    setBackgroundVideoOpacity(1);
     setBackgroundVideoFit('cover');
   };
 
@@ -404,11 +406,15 @@ export default function OperatorPanel() {
     applyScenario1Ceremony();
     store.setFinalTemplate('dual-cards');
     setBackgroundType('prism');
-    setEnergyType('orbital-rings');
+    setEnergyType('comet-orbit');
     setExplosionType('golden-burst');
-    setBackgroundVideoSource('/video-demo/Visual_PlaceCard.mp4');
-    setBackgroundVideoOpacity(0.28);
+    setTrailColor('#FDE68A');
+    setExplosionColor('#FACC15');
+    setBackgroundVideoSource(null);
+    setBackgroundVideoOpacity(1);
     setBackgroundVideoFit('cover');
+    store.setShowCardVietkings(true);
+    store.setShowCardGAB(true);
   };
 
   const runScenarioPlaceCard = () => {
@@ -457,14 +463,14 @@ export default function OperatorPanel() {
         run: runScenarioVideoShow,
         verify: () => {
           const state = useEventStore.getState();
-          return state.backgroundType === 'aurora' && state.customBackgroundVideo === '/video-demo/0328(1).mp4';
+          return state.backgroundType === 'light-tunnel' && state.energyType === 'meteor-shower' && state.customBackgroundVideo === null;
         }
       },
       {
         run: runScenarioPlaceCard,
         verify: () => {
           const state = useEventStore.getState();
-          return state.backgroundType === 'prism' && state.customBackgroundVideo === '/video-demo/Visual_PlaceCard.mp4';
+          return state.backgroundType === 'prism' && state.energyType === 'comet-orbit' && state.customBackgroundVideo === null;
         }
       }
     ];
@@ -1097,6 +1103,9 @@ export default function OperatorPanel() {
                      <option value="golden-streams">{t.engGolden}</option>
                      <option value="spiral-charge">{t.engSpiral}</option>
                      <option value="spirit-bomb">{t.engSpiritBomb}</option>
+                     <option value="meteor-shower">Meteor Shower - sao băng tụ logo</option>
+                     <option value="star-crossfire">Star Crossfire - bắn chéo 4 phía</option>
+                     <option value="comet-orbit">Comet Orbit - sao quỹ đạo tụ logo</option>
                      <option value="ribbon-weave">Ribbon Weave</option>
                      <option value="orbital-rings">Orbital Rings</option>
                      <option value="rain-up">Light Rain Up</option>
