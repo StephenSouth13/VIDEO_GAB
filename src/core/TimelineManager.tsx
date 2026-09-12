@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 
-export function getPhaseAtTime(time: number, config: any): EventPhase {
+function getPhaseAtTime(time: number, config: any): EventPhase {
   let acc = 0;
   if (time < acc) return EventPhase.IDLE;
   acc += config.countdown;
@@ -23,13 +23,15 @@ export default function TimelineManager() {
   useEffect(() => {
     let lastTime = performance.now();
     let rafId: number;
+    let intervalId: number;
 
     // If inside an embedded iframe in editor, don't run a second duplicate timer
     const isEmbeddedIframe = window !== window.top && window.location.search.includes('edit=true');
     if (isEmbeddedIframe) return;
 
-    const loop = (currentTime: number) => {
-      const delta = Math.min((currentTime - lastTime) / 1000, 0.1); // in seconds, clamp spike
+    const tick = (currentTime: number) => {
+      if (currentTime <= lastTime) return;
+      const delta = Math.min((currentTime - lastTime) / 1000, 0.12);
       lastTime = currentTime;
 
       const state = useEventStore.getState();
@@ -43,30 +45,43 @@ export default function TimelineManager() {
         EventPhase.SUCCESS
       ].includes(state.phase as any);
 
-      if (isActivePhase) {
-        if (!state.isPaused && !state.isScrubbing) {
-          const newTime = state.globalTime + delta;
-          if (newTime <= state.totalDuration + 1) { // 1 sec buffer
-            useEventStore.setState({ globalTime: newTime });
-            const expectedPhase = getPhaseAtTime(newTime, state.timelineConfig);
-            if (expectedPhase !== state.phase) {
-              useEventStore.setState({ phase: expectedPhase });
-            }
-          }
-        } else if (state.isScrubbing) {
-          // While scrubbing, map the scrubber time to phase
-          const expectedPhase = getPhaseAtTime(state.globalTime, state.timelineConfig);
-          if (expectedPhase !== state.phase) {
-             useEventStore.setState({ phase: expectedPhase });
-          }
-        }
+      if (!isActivePhase) {
+        lastTime = currentTime;
+        return;
       }
 
+      if (!state.isPaused && !state.isScrubbing) {
+        const newTime = state.globalTime + delta;
+        const cappedTime = Math.min(newTime, state.totalDuration);
+        const expectedPhase = getPhaseAtTime(cappedTime, state.timelineConfig);
+        const nextState: { globalTime: number; phase?: EventPhase } = { globalTime: cappedTime };
+
+        if (expectedPhase !== state.phase) {
+          nextState.phase = expectedPhase;
+        }
+
+        useEventStore.setState(nextState);
+      } else if (state.isScrubbing) {
+        // While scrubbing, map the scrubber time to phase
+        const expectedPhase = getPhaseAtTime(state.globalTime, state.timelineConfig);
+        if (expectedPhase !== state.phase) {
+           useEventStore.setState({ phase: expectedPhase });
+        }
+      }
+    };
+
+    const loop = (currentTime: number) => {
+      tick(currentTime);
       rafId = requestAnimationFrame(loop);
     };
 
     rafId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafId);
+    intervalId = window.setInterval(() => tick(performance.now()), 100);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   return null;

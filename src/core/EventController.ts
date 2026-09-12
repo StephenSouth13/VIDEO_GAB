@@ -209,6 +209,8 @@ export class EventController {
 
   public startCountdown() {
     const store = useEventStore.getState();
+    store.setPaused(false);
+    store.setScrubbing(false);
     store.setGlobalTime(0);
     store.setPhase(EventPhase.COUNTDOWN);
   }

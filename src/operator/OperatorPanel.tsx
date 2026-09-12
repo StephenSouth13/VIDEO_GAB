@@ -1,6 +1,7 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 import { eventController } from '../core/EventController';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import type { PointerEvent } from 'react';
 import { translations } from '../locales/translations';
 import { audioManager } from '../audio/AudioManager';
 import LedStage from '../visual/LedStage';
@@ -132,6 +133,34 @@ export default function OperatorPanel() {
       window.removeEventListener('resize', calcSize);
     };
   }, [stageWidth, stageHeight]);
+
+  useEffect(() => {
+    const stopScrubbing = () => setScrubbing(false);
+
+    window.addEventListener('pointerup', stopScrubbing);
+    window.addEventListener('pointercancel', stopScrubbing);
+    window.addEventListener('mouseup', stopScrubbing);
+    window.addEventListener('touchend', stopScrubbing);
+    window.addEventListener('blur', stopScrubbing);
+
+    return () => {
+      window.removeEventListener('pointerup', stopScrubbing);
+      window.removeEventListener('pointercancel', stopScrubbing);
+      window.removeEventListener('mouseup', stopScrubbing);
+      window.removeEventListener('touchend', stopScrubbing);
+      window.removeEventListener('blur', stopScrubbing);
+    };
+  }, [setScrubbing]);
+
+  const beginTimelineScrub = useCallback((event: PointerEvent<HTMLInputElement>) => {
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    setScrubbing(true);
+  }, [setScrubbing]);
+
+  const endTimelineScrub = useCallback((event: PointerEvent<HTMLInputElement>) => {
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    setScrubbing(false);
+  }, [setScrubbing]);
 
   const handleActivateAll = () => eventController.activateAll();
   const handleReset = () => eventController.resetEvent();
@@ -726,8 +755,9 @@ export default function OperatorPanel() {
               <input 
                  type="range" min="0" max={totalDuration} step="0.1" 
                  value={globalTime} 
-                 onMouseDown={() => setScrubbing(true)} onMouseUp={() => setScrubbing(false)}
-                 onTouchStart={() => setScrubbing(true)} onTouchEnd={() => setScrubbing(false)}
+                 onPointerDown={beginTimelineScrub}
+                 onPointerUp={endTimelineScrub}
+                 onPointerCancel={endTimelineScrub}
                  onChange={(e) => setGlobalTime(Number(e.target.value))} 
                  className="w-full accent-gab-cyan cursor-pointer"
               />

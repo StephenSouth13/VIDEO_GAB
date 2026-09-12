@@ -25,11 +25,21 @@ function OperatorRoute() {
   );
 }
 
+function LedRoute() {
+  return (
+    <>
+      <LedStage />
+      <TimelineManager />
+      <AudioConductor />
+    </>
+  );
+}
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/led" element={<LedStage />} />
+        <Route path="/led" element={<LedRoute />} />
         <Route path="/operator" element={<OperatorRoute />} />
         <Route path="*" element={<Navigate to="/operator" />} />
       </Routes>
