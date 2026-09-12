@@ -9,7 +9,46 @@ export default function FinalScreen() {
 
   const finalMessage = layout?.finalMessage || EVENT_CONFIG.finalMessage;
   const line1 = finalMessage.line1?.trim() || 'CHUC MUNG CAC KY LUC GIA';
-  const line2 = finalMessage.line2?.trim() || 'DA KICH HOAT THE GAB THANH CONG';
+  const line2Parts = (finalMessage.line2?.trim() || 'DA KICH HOAT THE GAB THANH CONG').split('|');
+  const line2 = line2Parts[0]?.trim() || 'DA KICH HOAT THE GAB THANH CONG';
+  const line3 = line2Parts[1]?.trim();
+
+  if (finalTemplate === 'center-hero') {
+    return (
+      <>
+        <motion.div
+          className="ceremony-final-bg absolute inset-0 z-[55] pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: visible ? 1 : 0 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        />
+        <DraggableItem layoutKey="finalMessage" className="flex flex-col items-center justify-center text-center w-full max-w-[94vw] select-none z-[80]">
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.97 }}
+            animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 24, scale: visible ? 1 : 0.97 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+            className="ceremony-final-content flex flex-col items-center justify-center"
+          >
+            {(showCenterLogoFinal || finalTemplate === 'center-hero') && (
+              <motion.img
+                src={customLogoCenter || "/logo/GAB.png"}
+                alt="GAB Logo"
+                className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain mb-[clamp(10px,1.3vw,22px)] drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
+                initial={{ opacity: 0, scale: 0.82 }}
+                animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+                onError={(e: any) => e.currentTarget.style.display = 'none'}
+              />
+            )}
+            <div className="ceremony-final-counter">{EVENT_CONFIG.counter.finalValue}{EVENT_CONFIG.counter.suffix}</div>
+            <h1 className="ceremony-final-title">{line1}</h1>
+            <h2 className="ceremony-final-line">{line2}</h2>
+            {line3 && <h2 className="ceremony-final-line">{line3}</h2>}
+          </motion.div>
+        </DraggableItem>
+      </>
+    );
+  }
 
   return (
     <DraggableItem layoutKey="finalMessage" className="flex flex-col items-center justify-center text-center w-full max-w-[72vw] select-none z-[80]">
@@ -20,7 +59,7 @@ export default function FinalScreen() {
         className="flex flex-col items-center justify-center px-10 py-7 rounded-lg bg-black/35 border border-white/10 backdrop-blur-sm shadow-[0_0_80px_rgba(0,240,255,0.24)]"
       >
         {/* Optional Center Logo for Hero template or when enabled */}
-        {(showCenterLogoFinal || finalTemplate === 'center-hero') && (
+        {showCenterLogoFinal && (
           <motion.img 
             src={customLogoCenter || "/logo/GAB.png"} 
             alt="Hero Logo"

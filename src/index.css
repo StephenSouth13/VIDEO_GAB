@@ -151,3 +151,79 @@ body, html {
 .stage-particle-aurora {
   opacity: 0.7;
 }
+
+.ceremony-final-bg {
+  background:
+    radial-gradient(ellipse at 50% 76%, rgba(125, 211, 252, 0.55) 0%, rgba(14, 165, 233, 0.34) 20%, rgba(2, 6, 23, 0) 48%),
+    linear-gradient(180deg, rgba(8, 145, 178, 0.28) 0%, rgba(2, 6, 23, 0.1) 34%, rgba(2, 6, 23, 0) 100%),
+    repeating-linear-gradient(18deg, rgba(147, 197, 253, 0.12) 0 1px, transparent 1px 96px),
+    repeating-linear-gradient(154deg, rgba(125, 211, 252, 0.1) 0 1px, transparent 1px 120px);
+  overflow: hidden;
+}
+
+.ceremony-final-bg::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  bottom: 16%;
+  height: 20%;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.72), rgba(125, 211, 252, 0.42) 28%, rgba(14, 165, 233, 0.18) 58%, transparent 72%),
+    repeating-linear-gradient(0deg, rgba(191, 219, 254, 0.16) 0 2px, transparent 2px 10px);
+  filter: blur(2px) saturate(1.35);
+  opacity: 0.86;
+}
+
+.ceremony-final-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(125, 211, 252, 0.55) 0 3px, transparent 4px),
+    radial-gradient(circle at 78% 24%, rgba(147, 197, 253, 0.45) 0 3px, transparent 4px),
+    radial-gradient(circle at 34% 48%, rgba(255, 255, 255, 0.48) 0 2px, transparent 3px),
+    radial-gradient(circle at 66% 54%, rgba(125, 211, 252, 0.5) 0 2px, transparent 3px);
+  background-size: 180px 140px, 240px 160px, 160px 120px, 210px 150px;
+  animation: ceremonySparkle 9s linear infinite;
+  opacity: 0.75;
+}
+
+@keyframes ceremonySparkle {
+  0% { background-position: 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 180px -140px, -240px -160px, 160px -120px, -210px -150px; }
+}
+
+.ceremony-final-content {
+  transform: translateY(-1.5vh);
+}
+
+.ceremony-final-counter {
+  margin-bottom: clamp(8px, 1vw, 16px);
+  color: #fff7cc;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 3.2vw, 72px);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(253, 224, 71, 0.95), 0 0 28px rgba(255, 255, 255, 0.55);
+}
+
+.ceremony-final-title,
+.ceremony-final-line {
+  color: #fff8d7;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.14;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(253, 224, 71, 0.9), 0 0 22px rgba(255, 255, 255, 0.68), 0 2px 8px rgba(0, 0, 0, 0.85);
+  white-space: nowrap;
+}
+
+.ceremony-final-title {
+  margin-bottom: clamp(10px, 1.1vw, 20px);
+  font-size: clamp(44px, 4vw, 88px);
+}
+
+.ceremony-final-line {
+  font-size: clamp(30px, 3vw, 66px);
+}

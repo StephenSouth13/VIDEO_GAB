@@ -341,14 +341,16 @@ export default function OperatorPanel() {
     store.resetLayout();
     store.setFinalTemplate('center-hero');
     store.setShowCenterLogoFinal(true);
+    store.setShowCardVietkings(false);
+    store.setShowCardGAB(false);
     store.updateCardConfig('vietkings', { scale: 0.95, rotate: -8 });
     store.updateCardConfig('gab', { scale: 0.95, rotate: 8 });
     updateLayout('finalMessage', {
-      line1: 'CHUC MUNG CAC KY LUC GIA',
-      line2: 'DA KICH HOAT THE GAB THANH CONG',
+      line1: 'CHÚC MỪNG',
+      line2: 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM|ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG',
       x: 0,
-      y: 72,
-      scale: 0.86
+      y: 24,
+      scale: 1
     });
     updateLayout('logo', { x: 0, y: 0, scale: 0.92 });
     updateLayout('counter', { x: 0, y: -25, scale: 1 });
