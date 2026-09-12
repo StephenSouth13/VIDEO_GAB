@@ -89,6 +89,8 @@ export default function OperatorPanel() {
   const t = translations[language || 'vi'];
   const [profileName, setProfileName] = useState('');
   const [scenarioSmokeStatus, setScenarioSmokeStatus] = useState('');
+  const [layoutCode, setLayoutCode] = useState(() => JSON.stringify(useEventStore.getState().layout, null, 2));
+  const [layoutCodeError, setLayoutCodeError] = useState('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewDim, setPreviewDim] = useState({ width: 640, height: 360, scale: 640 / 1920 });
 
@@ -362,12 +364,13 @@ export default function OperatorPanel() {
 
   const renderPositionControls = (
     title: string,
-    key: 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
+    key: 'countdown' | 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
     mode: 'xy' | 'end' = 'xy'
   ) => {
     const item = layout[key] as any;
     const xKey = mode === 'end' ? 'endX' : 'x';
     const yKey = mode === 'end' ? 'endY' : 'y';
+    const nudgeY = (delta: number) => updateLayout(key, { [yKey]: (item?.[yKey] ?? 0) + delta });
 
     return (
       <div className="bg-[#0E1217] p-3 rounded-lg border border-gray-800">
@@ -385,8 +388,44 @@ export default function OperatorPanel() {
           {renderLayoutNumber('Y', item?.[yKey] ?? 0, (value) => updateLayout(key, { [yKey]: value }))}
           {renderLayoutNumber('Scale', item?.scale ?? 1, (value) => updateLayout(key, { scale: value }), { min: 0.2, max: 3, step: 0.05 })}
         </div>
+        <div className="grid grid-cols-4 gap-1.5 mt-2">
+          <button onClick={() => nudgeY(-50)} className="rounded bg-cyan-950/70 border border-cyan-800 px-1 py-1 text-[9px] text-gab-cyan hover:bg-cyan-900">↑50</button>
+          <button onClick={() => nudgeY(-10)} className="rounded bg-cyan-950/70 border border-cyan-800 px-1 py-1 text-[9px] text-gab-cyan hover:bg-cyan-900">↑10</button>
+          <button onClick={() => nudgeY(10)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">↓10</button>
+          <button onClick={() => nudgeY(50)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">↓50</button>
+        </div>
       </div>
     );
+  };
+
+  const nudgeWholeLayoutY = (delta: number) => {
+    (Object.keys(layout) as Array<keyof typeof layout>).forEach((key) => {
+      const item = layout[key] as any;
+      if ('endY' in item) {
+        updateLayout(key, { endY: (item.endY ?? 0) + delta });
+      } else {
+        updateLayout(key, { y: (item.y ?? 0) + delta });
+      }
+    });
+  };
+
+  const reloadLayoutCode = () => {
+    setLayoutCode(JSON.stringify(useEventStore.getState().layout, null, 2));
+    setLayoutCodeError('');
+  };
+
+  const applyLayoutCode = () => {
+    try {
+      const parsed = JSON.parse(layoutCode);
+      (Object.keys(layout) as Array<keyof typeof layout>).forEach((key) => {
+        if (parsed[key] && typeof parsed[key] === 'object') {
+          updateLayout(key, parsed[key]);
+        }
+      });
+      setLayoutCodeError('Đã áp dụng layout JSON.');
+    } catch (error) {
+      setLayoutCodeError(error instanceof Error ? error.message : 'JSON không hợp lệ');
+    }
   };
 
   const applyScenario1Ceremony = () => {
