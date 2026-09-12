@@ -27,16 +27,6 @@ export default function OperatorPanel() {
     setBackgroundColor, 
     explosionColor, 
     setExplosionColor, 
-    customBackgroundVideo,
-    setCustomBackgroundVideo,
-    backgroundVideoOpacity,
-    setBackgroundVideoOpacity,
-    backgroundVideoFit,
-    setBackgroundVideoFit,
-    backgroundVideoPlaybackRate,
-    setBackgroundVideoPlaybackRate,
-    backgroundVideoPaused,
-    setBackgroundVideoPaused,
     layout, 
     updateLayout, 
     timelineConfig, 
@@ -162,19 +152,6 @@ export default function OperatorPanel() {
     }
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setCustomBackgroundVideo(URL.createObjectURL(file));
-      setBackgroundVideoPaused(false);
-    }
-  };
-
-  const setBackgroundVideoSource = (url: string | null) => {
-    setCustomBackgroundVideo(url);
-    setBackgroundVideoPaused(false);
-  };
-
   const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -185,19 +162,16 @@ export default function OperatorPanel() {
   
   const handleTestExplosion = () => {
     applyBundledLogos();
-    setBackgroundVideoPaused(false);
     eventController.jumpToPhase(EventPhase.EXPLOSION);
   };
 
   const handleTestEnergy = () => {
     applyBundledLogos();
-    setBackgroundVideoPaused(false);
     eventController.jumpToPhase(EventPhase.ENERGY_CONVERGENCE);
   };
 
   const handleTestFinalScreen = () => {
     applyBundledLogos();
-    setBackgroundVideoPaused(false);
     eventController.jumpToPhase(EventPhase.SUCCESS);
   };
 
@@ -205,14 +179,11 @@ export default function OperatorPanel() {
     if (targetPhase === EventPhase.SUCCESS) {
       applyBundledLogos();
     }
-    setBackgroundVideoPaused(false);
     eventController.jumpToPhase(targetPhase);
   };
 
   const applyAutoDirectorPreset = (preset: typeof autoDirectorPreset) => {
     setAutoDirectorPreset(preset);
-    setBackgroundVideoSource(null);
-    setBackgroundVideoPaused(false);
     setShowNodes(true);
 
     if (preset === 'premium-led') {
@@ -320,7 +291,6 @@ export default function OperatorPanel() {
     setShowNodes(true);
     setStageFit('fill');
     setStageOverscan(0);
-    setBackgroundVideoPaused(false);
     eventController.startShowNow();
   };
 
@@ -367,8 +337,6 @@ export default function OperatorPanel() {
     setExplosionColor('#00F0FF');
     setNodeShape('hand');
     setNodeGlowStyle('energy');
-    setBackgroundVideoSource(null);
-    setBackgroundVideoPaused(false);
     updateTimeline('countdown', 5);
     updateTimeline('reveal', 3);
     updateTimeline('energy', 6.5);
@@ -392,9 +360,6 @@ export default function OperatorPanel() {
     setExplosionType('radial-strobe');
     setTrailColor('#7DD3FC');
     setExplosionColor('#FACC15');
-    setBackgroundVideoSource(null);
-    setBackgroundVideoOpacity(1);
-    setBackgroundVideoFit('cover');
   };
 
   const runScenarioVideoShow = () => {
@@ -410,9 +375,6 @@ export default function OperatorPanel() {
     setExplosionType('golden-burst');
     setTrailColor('#FDE68A');
     setExplosionColor('#FACC15');
-    setBackgroundVideoSource(null);
-    setBackgroundVideoOpacity(1);
-    setBackgroundVideoFit('cover');
     store.setShowCardVietkings(true);
     store.setShowCardGAB(true);
   };
@@ -456,21 +418,21 @@ export default function OperatorPanel() {
         run: runScenario1Ceremony,
         verify: () => {
           const state = useEventStore.getState();
-          return state.backgroundType === 'digital-network' && state.customBackgroundVideo === null;
+          return state.backgroundType === 'digital-network';
         }
       },
       {
         run: runScenarioVideoShow,
         verify: () => {
           const state = useEventStore.getState();
-          return state.backgroundType === 'light-tunnel' && state.energyType === 'meteor-shower' && state.customBackgroundVideo === null;
+          return state.backgroundType === 'light-tunnel' && state.energyType === 'meteor-shower';
         }
       },
       {
         run: runScenarioPlaceCard,
         verify: () => {
           const state = useEventStore.getState();
-          return state.backgroundType === 'prism' && state.energyType === 'comet-orbit' && state.customBackgroundVideo === null;
+          return state.backgroundType === 'prism' && state.energyType === 'comet-orbit';
         }
       }
     ];
@@ -987,7 +949,7 @@ export default function OperatorPanel() {
             </div>
           </div>
 
-          {/* 3. VFX NỔ, TỤ NĂNG LƯỢNG & VIDEO BACKGROUND */}
+          {/* 3. VFX NỔ, TỤ NĂNG LƯỢNG & NỀN CODE */}
           <div className="p-4 border-b border-gray-800">
             <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">{t.vfxEnvironment}</h2>
             
@@ -1006,62 +968,6 @@ export default function OperatorPanel() {
                   <option value="scanlines">Cyber Scanlines</option>
                   <option value="prism">Prism Ceremony</option>
                 </select>
-              </div>
-
-              {/* VIDEO BACKGROUND EMBED */}
-              <div className="bg-[#0E1217] p-2.5 rounded border border-gray-800">
-                 <div className="flex justify-between items-center mb-1">
-                    <label className="text-gray-300 font-bold text-[11px]">{t.videoBg}</label>
-                    {customBackgroundVideo && (
-                      <button onClick={() => setBackgroundVideoSource(null)} className="text-[10px] text-red-400 hover:underline">Reset</button>
-                    )}
-                 </div>
-                 <input 
-                   type="text" 
-                   value={customBackgroundVideo || ''} 
-                   onChange={(e) => setBackgroundVideoSource(e.target.value || null)} 
-                   placeholder={t.videoUrlPlaceholder} 
-                   className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[11px] mb-2 font-mono" 
-                 />
-                 <div className="grid grid-cols-2 gap-1.5 mb-2">
-                   <button onClick={() => setBackgroundVideoSource('/video-demo/0328(1).mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
-                     Demo 0328
-                   </button>
-                   <button onClick={() => setBackgroundVideoSource('/video-demo/Visual_PlaceCard.mp4')} className="bg-cyan-950/60 hover:bg-cyan-900 border border-cyan-800 text-[10px] text-gab-cyan font-bold rounded py-1">
-                     PlaceCard
-                   </button>
-                 </div>
-                 <input 
-                   type="file" 
-                   accept="video/*" 
-                   onChange={handleVideoUpload} 
-                   className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-white hover:file:bg-gray-700" 
-                 />
-                 {customBackgroundVideo && (
-                   <div className="mt-2 pt-2 border-t border-gray-800 space-y-2">
-                     <div className="grid grid-cols-3 gap-2">
-                       <label className="block">
-                         <span className="text-[10px] text-gray-500">Fit</span>
-                         <select value={backgroundVideoFit} onChange={(e) => setBackgroundVideoFit(e.target.value as typeof backgroundVideoFit)} className="w-full bg-black border border-gray-700 rounded px-1 py-1 text-[10px] text-white">
-                           <option value="cover">Cover</option>
-                           <option value="contain">Contain</option>
-                           <option value="fill">Fill</option>
-                         </select>
-                       </label>
-                       <label className="block">
-                         <span className="text-[10px] text-gray-500">Speed</span>
-                         <input type="number" min="0.25" max="3" step="0.05" value={backgroundVideoPlaybackRate} onChange={(e) => setBackgroundVideoPlaybackRate(Number(e.target.value))} className="w-full bg-black border border-gray-700 rounded px-1 py-1 text-[10px] text-white" />
-                       </label>
-                       <button onClick={() => setBackgroundVideoPaused(!backgroundVideoPaused)} className="self-end bg-gray-800 hover:bg-gray-700 text-[10px] font-bold rounded py-1.5">
-                         {backgroundVideoPaused ? 'PLAY' : 'PAUSE'}
-                       </button>
-                     </div>
-                     <label className="block">
-                       <span className="text-[10px] text-gray-500">Opacity: {Math.round(backgroundVideoOpacity * 100)}%</span>
-                       <input type="range" min="0" max="1" step="0.01" value={backgroundVideoOpacity} onChange={(e) => setBackgroundVideoOpacity(Number(e.target.value))} className="w-full accent-gab-cyan" />
-                     </label>
-                   </div>
-                 )}
               </div>
 
               {/* EXPLOSION SELECTOR */}

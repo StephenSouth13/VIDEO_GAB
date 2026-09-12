@@ -1,5 +1,5 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
 // Components
 import LogoReveal from './LogoReveal';
@@ -24,11 +24,6 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     phase, 
     isBlackout, 
     customBackgroundHTML, 
-    customBackgroundVideo, 
-    backgroundVideoOpacity,
-    backgroundVideoFit,
-    backgroundVideoPlaybackRate,
-    backgroundVideoPaused,
     backgroundColor,
     backgroundType,
     stageWidth,
@@ -36,8 +31,6 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     stageFit,
     stageOverscan
   } = useEventStore();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [failedVideoUrl, setFailedVideoUrl] = useState<string | null>(null);
   
   useEffect(() => {
     if (isEditPreview) return;
@@ -48,17 +41,6 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     };
   }, [isEditPreview]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.playbackRate = backgroundVideoPlaybackRate || 1;
-    if (backgroundVideoPaused) {
-      video.pause();
-    } else {
-      void video.play().catch(() => undefined);
-    }
-  }, [backgroundVideoPaused, backgroundVideoPlaybackRate, customBackgroundVideo]);
-  
   if (isBlackout) {
     return <div className="w-full h-screen bg-black"></div>;
   }
@@ -87,24 +69,6 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
         style={{ ...frameStyle, backgroundColor }}
       >
       
-      {/* Background Video Layer */}
-      {customBackgroundVideo && failedVideoUrl !== customBackgroundVideo && (
-        <video 
-          ref={videoRef}
-          src={customBackgroundVideo} 
-          autoPlay={!backgroundVideoPaused}
-          loop 
-          muted 
-          playsInline 
-          className="absolute inset-0 w-full h-full z-0 pointer-events-none"
-          style={{
-            opacity: backgroundVideoOpacity,
-            objectFit: backgroundVideoFit === 'fill' ? 'fill' : backgroundVideoFit
-          }}
-          onError={() => setFailedVideoUrl(customBackgroundVideo)}
-        />
-      )}
-
       {/* Custom Embedded Background Layer */}
       {customBackgroundHTML && (
         <div 

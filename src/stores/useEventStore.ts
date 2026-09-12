@@ -43,11 +43,6 @@ interface EventState {
   showAudioLoop: boolean;
   showAudioDucksCues: boolean;
   customBackgroundHTML: string;
-  customBackgroundVideo: string | null;
-  backgroundVideoOpacity: number;
-  backgroundVideoFit: 'cover' | 'contain' | 'fill';
-  backgroundVideoPlaybackRate: number;
-  backgroundVideoPaused: boolean;
   particleCount: number;
   nodeShape: 'rectangle' | 'circle' | 'hand' | 'card' | 'diamond' | 'hexagon' | 'shield' | 'star' | 'cylinder' | 'ring';
   nodeGlowStyle: 'classic' | 'energy' | 'blinding' | 'neon' | 'plasma' | 'halo';
@@ -127,11 +122,6 @@ interface EventState {
   setShowAudioLoop: (loop: boolean) => void;
   setShowAudioDucksCues: (enabled: boolean) => void;
   setCustomBackgroundHTML: (html: string) => void;
-  setCustomBackgroundVideo: (url: string | null) => void;
-  setBackgroundVideoOpacity: (opacity: number) => void;
-  setBackgroundVideoFit: (fit: EventState['backgroundVideoFit']) => void;
-  setBackgroundVideoPlaybackRate: (rate: number) => void;
-  setBackgroundVideoPaused: (paused: boolean) => void;
   setParticleCount: (count: number) => void;
   setNodeShape: (shape: EventState['nodeShape']) => void;
   setNodeGlowStyle: (style: EventState['nodeGlowStyle']) => void;
@@ -200,11 +190,6 @@ export const useEventStore = create<EventState>()(
   showAudioLoop: false,
   showAudioDucksCues: true,
   customBackgroundHTML: '',
-  customBackgroundVideo: null,
-  backgroundVideoOpacity: 1,
-  backgroundVideoFit: 'cover',
-  backgroundVideoPlaybackRate: 1,
-  backgroundVideoPaused: false,
   particleCount: 2000,
   nodeShape: 'rectangle',
   nodeGlowStyle: 'energy',
@@ -297,11 +282,6 @@ export const useEventStore = create<EventState>()(
   setShowAudioLoop: (loop) => set({ showAudioLoop: loop }),
   setShowAudioDucksCues: (enabled) => set({ showAudioDucksCues: enabled }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
-  setCustomBackgroundVideo: (url) => set({ customBackgroundVideo: url }),
-  setBackgroundVideoOpacity: (opacity) => set({ backgroundVideoOpacity: opacity }),
-  setBackgroundVideoFit: (fit) => set({ backgroundVideoFit: fit }),
-  setBackgroundVideoPlaybackRate: (rate) => set({ backgroundVideoPlaybackRate: rate }),
-  setBackgroundVideoPaused: (paused) => set({ backgroundVideoPaused: paused }),
   setParticleCount: (count) => set({ particleCount: count }),
   setNodeShape: (shape) => set({ nodeShape: shape }),
   setNodeGlowStyle: (style) => set({ nodeGlowStyle: style }),
@@ -371,11 +351,6 @@ export const useEventStore = create<EventState>()(
       trailColor: state.trailColor,
       backgroundColor: state.backgroundColor,
       explosionColor: state.explosionColor,
-      customBackgroundVideo: state.customBackgroundVideo?.startsWith('blob:') ? null : state.customBackgroundVideo,
-      backgroundVideoOpacity: state.backgroundVideoOpacity,
-      backgroundVideoFit: state.backgroundVideoFit,
-      backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,
-      backgroundVideoPaused: state.backgroundVideoPaused,
       timelineConfig: state.timelineConfig,
       layout: state.layout,
       customLogoCenter: state.customLogoCenter,
@@ -448,7 +423,7 @@ export const useEventStore = create<EventState>()(
   resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
-  version: 4,
+  version: 5,
   migrate: (persistedState: any, version) => {
     if (version < 2) {
       return {
@@ -458,10 +433,6 @@ export const useEventStore = create<EventState>()(
         stageHeight: persistedState?.stageHeight ?? 1080,
         stageFit: persistedState?.stageFit === 'contain' ? 'fill' : (persistedState?.stageFit ?? 'fill'),
         stageOverscan: persistedState?.stageOverscan ?? 0,
-        backgroundVideoOpacity: persistedState?.backgroundVideoOpacity ?? 1,
-        backgroundVideoFit: persistedState?.backgroundVideoFit ?? 'cover',
-        backgroundVideoPlaybackRate: persistedState?.backgroundVideoPlaybackRate ?? 1,
-        backgroundVideoPaused: persistedState?.backgroundVideoPaused ?? false,
         nodeGlowStyle: persistedState?.nodeGlowStyle ?? 'energy',
         scenarioNames: persistedState?.scenarioNames ?? {
           ceremony: 'S1 GAB Ceremony Core',
@@ -496,7 +467,20 @@ export const useEventStore = create<EventState>()(
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
       };
     }
-    return persistedState;
+    const {
+      customBackgroundVideo,
+      backgroundVideoOpacity,
+      backgroundVideoFit,
+      backgroundVideoPlaybackRate,
+      backgroundVideoPaused,
+      ...codeOnlyState
+    } = persistedState ?? {};
+    void customBackgroundVideo;
+    void backgroundVideoOpacity;
+    void backgroundVideoFit;
+    void backgroundVideoPlaybackRate;
+    void backgroundVideoPaused;
+    return codeOnlyState;
   },
   partialize: (state) => ({
     phase: state.phase,
@@ -529,11 +513,6 @@ export const useEventStore = create<EventState>()(
     trailColor: state.trailColor,
     backgroundColor: state.backgroundColor,
     explosionColor: state.explosionColor,
-    customBackgroundVideo: state.customBackgroundVideo?.startsWith('blob:') ? null : state.customBackgroundVideo,
-    backgroundVideoOpacity: state.backgroundVideoOpacity,
-    backgroundVideoFit: state.backgroundVideoFit,
-    backgroundVideoPlaybackRate: state.backgroundVideoPlaybackRate,
-    backgroundVideoPaused: state.backgroundVideoPaused,
     globalTime: state.globalTime,
     totalDuration: state.totalDuration,
     isScrubbing: false,

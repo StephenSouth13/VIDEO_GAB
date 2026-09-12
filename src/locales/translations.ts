@@ -162,8 +162,6 @@ export const translations = {
     
     bgColor: "Màu nền sân khấu",
     energyColor: "Màu tia năng lượng",
-    videoBg: "Nhúng Video Nền (MP4 / WebM)",
-    videoUrlPlaceholder: "Dán link video nền hoặc tải file...",
     
     // Logo Asset Manager
     assetManager: "QUẢN LÝ & XÓA / SỬA LOGO MÀN KẾT",
@@ -350,8 +348,6 @@ export const translations = {
     
     bgColor: "Stage Background Color",
     energyColor: "Energy Ray Color",
-    videoBg: "Background Video Overlay (MP4 / WebM)",
-    videoUrlPlaceholder: "Paste video URL or upload file...",
     
     // Logo Asset Manager
     assetManager: "FINAL SCREEN LOGO MANAGER",
