@@ -75,9 +75,13 @@ export default function OperatorPanel() {
     showAudioUrl,
     showAudioVolume,
     showAudioLoop,
+    showAudioStart,
+    showAudioEnd,
     setShowAudioUrl,
     setShowAudioVolume,
     setShowAudioLoop,
+    setShowAudioStart,
+    setShowAudioEnd,
     showAudioDucksCues,
     setShowAudioDucksCues
   } = store;
@@ -333,6 +337,7 @@ export default function OperatorPanel() {
     audioManager.setMute(!audioEnabled);
     audioManager.setVolume(audioVolume);
     audioManager.play('ready');
+    window.dispatchEvent(new CustomEvent('gab-test-show-audio'));
   };
 
   const applyScenario1Ceremony = () => {
@@ -585,6 +590,16 @@ export default function OperatorPanel() {
                   <label className="flex items-center gap-1 text-[10px] text-gray-300">
                     <input type="checkbox" checked={showAudioLoop} onChange={(e) => setShowAudioLoop(e.target.checked)} className="accent-gab-cyan" />
                     {t.showAudioLoop}
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <label className="block">
+                    <span className="text-[9px] text-gray-500">{t.trackStart}</span>
+                    <input type="number" min="0" step="0.1" value={showAudioStart} onChange={(e) => setShowAudioStart(Number(e.target.value))} className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[10px]" />
+                  </label>
+                  <label className="block">
+                    <span className="text-[9px] text-gray-500">{t.trackEnd}</span>
+                    <input type="number" min="0" step="0.1" value={showAudioEnd} onChange={(e) => setShowAudioEnd(Number(e.target.value))} className="w-full bg-black border border-gray-700 rounded px-2 py-1 text-white text-[10px]" />
                   </label>
                 </div>
                 <label className="mb-2 flex items-start gap-2 text-[10px] text-gray-300 leading-tight" title={t.showAudioDucksCuesHint}>

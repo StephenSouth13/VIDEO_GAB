@@ -42,6 +42,8 @@ interface EventState {
   showAudioVolume: number;
   showAudioLoop: boolean;
   showAudioDucksCues: boolean;
+  showAudioStart: number;
+  showAudioEnd: number;
   customBackgroundHTML: string;
   particleCount: number;
   nodeShape: 'rectangle' | 'circle' | 'hand' | 'card' | 'diamond' | 'hexagon' | 'shield' | 'star' | 'cylinder' | 'ring';
@@ -121,6 +123,8 @@ interface EventState {
   setShowAudioVolume: (volume: number) => void;
   setShowAudioLoop: (loop: boolean) => void;
   setShowAudioDucksCues: (enabled: boolean) => void;
+  setShowAudioStart: (seconds: number) => void;
+  setShowAudioEnd: (seconds: number) => void;
   setCustomBackgroundHTML: (html: string) => void;
   setParticleCount: (count: number) => void;
   setNodeShape: (shape: EventState['nodeShape']) => void;
@@ -189,6 +193,8 @@ export const useEventStore = create<EventState>()(
   showAudioVolume: 0.65,
   showAudioLoop: false,
   showAudioDucksCues: true,
+  showAudioStart: 0,
+  showAudioEnd: 0,
   customBackgroundHTML: '',
   particleCount: 2000,
   nodeShape: 'rectangle',
@@ -281,6 +287,8 @@ export const useEventStore = create<EventState>()(
   setShowAudioVolume: (volume) => set({ showAudioVolume: Math.max(0, Math.min(1, volume)) }),
   setShowAudioLoop: (loop) => set({ showAudioLoop: loop }),
   setShowAudioDucksCues: (enabled) => set({ showAudioDucksCues: enabled }),
+  setShowAudioStart: (seconds) => set({ showAudioStart: Math.max(0, Number.isFinite(seconds) ? seconds : 0) }),
+  setShowAudioEnd: (seconds) => set({ showAudioEnd: Math.max(0, Number.isFinite(seconds) ? seconds : 0) }),
   setCustomBackgroundHTML: (html) => set({ customBackgroundHTML: html }),
   setParticleCount: (count) => set({ particleCount: count }),
   setNodeShape: (shape) => set({ nodeShape: shape }),
@@ -369,6 +377,8 @@ export const useEventStore = create<EventState>()(
       showAudioVolume: state.showAudioVolume,
       showAudioLoop: state.showAudioLoop,
       showAudioDucksCues: state.showAudioDucksCues,
+      showAudioStart: state.showAudioStart,
+      showAudioEnd: state.showAudioEnd,
     };
     return {
       savedProfiles: {
@@ -445,6 +455,8 @@ export const useEventStore = create<EventState>()(
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
+        showAudioStart: persistedState?.showAudioStart ?? 0,
+        showAudioEnd: persistedState?.showAudioEnd ?? 0,
       };
     }
     if (version < 3) {
@@ -456,6 +468,8 @@ export const useEventStore = create<EventState>()(
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
+        showAudioStart: persistedState?.showAudioStart ?? 0,
+        showAudioEnd: persistedState?.showAudioEnd ?? 0,
       };
     }
     if (version < 4) {
@@ -465,6 +479,8 @@ export const useEventStore = create<EventState>()(
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
         showAudioLoop: persistedState?.showAudioLoop ?? false,
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
+        showAudioStart: persistedState?.showAudioStart ?? 0,
+        showAudioEnd: persistedState?.showAudioEnd ?? 0,
       };
     }
     const {
@@ -494,6 +510,8 @@ export const useEventStore = create<EventState>()(
     showAudioVolume: state.showAudioVolume,
     showAudioLoop: state.showAudioLoop,
     showAudioDucksCues: state.showAudioDucksCues,
+    showAudioStart: state.showAudioStart,
+    showAudioEnd: state.showAudioEnd,
     particleCount: state.particleCount,
     nodeShape: state.nodeShape,
     nodeGlowStyle: state.nodeGlowStyle,

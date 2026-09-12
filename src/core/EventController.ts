@@ -1,4 +1,5 @@
 import { useEventStore, EventPhase } from '../stores/useEventStore';
+import { isShowClockPhase, startShowClock, stopShowClock } from './ShowClock';
 
 class PausableTimer {
   private timerId: number | null = null;
@@ -53,6 +54,7 @@ export class EventController {
   public boot() {
     if (this.currentTimer) this.currentTimer.clear();
     this.clearDemoInterval();
+    stopShowClock();
     const store = useEventStore.getState();
     store.setGlobalTime(0);
     store.setScrubbing(false);
@@ -133,14 +135,17 @@ export class EventController {
       store.setPhase(EventPhase.IDLE);
       window.setTimeout(() => {
         useEventStore.getState().setPhase(phase);
+        if (isShowClockPhase(phase)) startShowClock();
       }, 20);
       return;
     }
 
     store.setPhase(phase);
+    if (isShowClockPhase(phase)) startShowClock();
   }
 
   public startWaiting() {
+    stopShowClock();
     useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
   }
 
@@ -213,6 +218,7 @@ export class EventController {
     store.setScrubbing(false);
     store.setGlobalTime(0);
     store.setPhase(EventPhase.COUNTDOWN);
+    startShowClock();
   }
 
   public startShowNow() {
@@ -227,6 +233,7 @@ export class EventController {
     this.confirmAllParticipants();
     store.setGlobalTime(0);
     store.setPhase(EventPhase.COUNTDOWN);
+    startShowClock();
   }
 
   public cancelCountdown() {
@@ -258,6 +265,7 @@ export class EventController {
   public resetEvent() {
     if (this.currentTimer) this.currentTimer.clear();
     this.clearDemoInterval();
+    stopShowClock();
     const store = useEventStore.getState();
     store.setPhase(EventPhase.RESETTING);
     store.setPaused(false);
@@ -346,6 +354,9 @@ export class EventController {
   public togglePause() {
     const store = useEventStore.getState();
     store.setPaused(!store.isPaused);
+    if (store.isPaused) {
+      startShowClock();
+    }
   }
 }
 
