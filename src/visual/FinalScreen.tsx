@@ -3,15 +3,29 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import DraggableItem from './DraggableItem';
 import { motion } from 'framer-motion';
 
+const vietnamizeFinalLine = (value: string, fallback: string) => {
+  const normalized = value.trim().toUpperCase();
+  const map: Record<string, string> = {
+    'CHUC MUNG': 'CHÚC MỪNG',
+    'CHUC MUNG CAC KY LUC GIA': 'CHÚC MỪNG',
+    'CONG DONG KY LUC GIA VIET NAM': 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM',
+    'DA KICH HOAT THE GAB THANH CONG': 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG',
+  };
+  return map[normalized] || value.trim() || fallback;
+};
+
 export default function FinalScreen() {
   const { phase, layout, finalTemplate, showCenterLogoFinal, customLogoCenter } = useEventStore();
   const visible = phase === EventPhase.SUCCESS;
 
   const finalMessage = layout?.finalMessage || EVENT_CONFIG.finalMessage;
-  const line1 = finalMessage.line1?.trim() || 'CHUC MUNG CAC KY LUC GIA';
-  const line2Parts = (finalMessage.line2?.trim() || 'DA KICH HOAT THE GAB THANH CONG').split('|');
-  const line2 = line2Parts[0]?.trim() || 'DA KICH HOAT THE GAB THANH CONG';
+  const line1 = finalMessage.line1?.trim() || 'CHÚC MỪNG';
+  const line2Parts = (finalMessage.line2?.trim() || 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM|ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG').split('|');
+  const line2 = line2Parts[0]?.trim() || 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM';
   const line3 = line2Parts[1]?.trim();
+  const ceremonyLine1 = vietnamizeFinalLine(line1, 'CHÚC MỪNG');
+  const ceremonyLine2 = vietnamizeFinalLine(line2, 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM');
+  const ceremonyLine3 = vietnamizeFinalLine(line3 || 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG', 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG');
 
   if (finalTemplate === 'center-hero') {
     return (
@@ -22,7 +36,7 @@ export default function FinalScreen() {
           animate={{ opacity: visible ? 1 : 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
         />
-        <DraggableItem layoutKey="finalMessage" className="flex flex-col items-center justify-center text-center w-full max-w-[94vw] select-none z-[80]">
+        <div className="absolute inset-0 z-[80] flex items-center justify-center text-center select-none pointer-events-none">
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 24, scale: visible ? 1 : 0.97 }}
@@ -41,11 +55,11 @@ export default function FinalScreen() {
               />
             )}
             <div className="ceremony-final-counter">{EVENT_CONFIG.counter.finalValue}{EVENT_CONFIG.counter.suffix}</div>
-            <h1 className="ceremony-final-title">{line1}</h1>
-            <h2 className="ceremony-final-line">{line2}</h2>
-            {line3 && <h2 className="ceremony-final-line">{line3}</h2>}
+            <h1 className="ceremony-final-title">{ceremonyLine1}</h1>
+            <h2 className="ceremony-final-line">{ceremonyLine2}</h2>
+            <h2 className="ceremony-final-line">{ceremonyLine3}</h2>
           </motion.div>
-        </DraggableItem>
+        </div>
       </>
     );
   }

@@ -195,7 +195,8 @@ body, html {
 }
 
 .ceremony-final-content {
-  transform: translateY(-1.5vh);
+  width: min(94vw, 2400px);
+  transform: translateY(-1vh);
 }
 
 .ceremony-final-counter {
@@ -217,13 +218,14 @@ body, html {
   text-transform: uppercase;
   text-shadow: 0 0 8px rgba(253, 224, 71, 0.9), 0 0 22px rgba(255, 255, 255, 0.68), 0 2px 8px rgba(0, 0, 0, 0.85);
   white-space: nowrap;
+  max-width: 94vw;
 }
 
 .ceremony-final-title {
   margin-bottom: clamp(10px, 1.1vw, 20px);
-  font-size: clamp(44px, 4vw, 88px);
+  font-size: clamp(40px, 3.6vw, 82px);
 }
 
 .ceremony-final-line {
-  font-size: clamp(30px, 3vw, 66px);
+  font-size: clamp(27px, 2.6vw, 58px);
 }
