@@ -14,7 +14,7 @@ export default function CardSpawner() {
     finalCardGABConfig
   } = useEventStore();
 
-  if (phase !== EventPhase.SUCCESS) return null;
+  if (phase !== EventPhase.SUCCESS || finalTemplate === 'center-hero') return null;
 
   // Compute template-specific target transforms
   let vietkingsRot = finalCardVietkingsConfig.rotate ?? -15;

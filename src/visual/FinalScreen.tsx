@@ -3,13 +3,22 @@ import { useEventStore, EventPhase } from '../stores/useEventStore';
 import DraggableItem from './DraggableItem';
 import { motion } from 'framer-motion';
 
+const CEREMONY_TITLE = 'CH\u00daC M\u1eeaNG';
+const CEREMONY_COMMUNITY = 'C\u1ed8NG \u0110\u1ed2NG K\u1ef6 L\u1ee4C GIA VI\u1ec6T NAM';
+const CEREMONY_ACTIVATED = '\u0110\u00c3 K\u00cdCH HO\u1ea0T TH\u1eba GAB TH\u00c0NH C\u00d4NG';
+
 const vietnamizeFinalLine = (value: string, fallback: string) => {
-  const normalized = value.trim().toUpperCase();
+  const normalized = value
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/\s+/g, ' ');
   const map: Record<string, string> = {
-    'CHUC MUNG': 'CHÚC MỪNG',
-    'CHUC MUNG CAC KY LUC GIA': 'CHÚC MỪNG',
-    'CONG DONG KY LUC GIA VIET NAM': 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM',
-    'DA KICH HOAT THE GAB THANH CONG': 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG',
+    'CHUC MUNG': CEREMONY_TITLE,
+    'CHUC MUNG CAC KY LUC GIA': CEREMONY_TITLE,
+    'CONG DONG KY LUC GIA VIET NAM': CEREMONY_COMMUNITY,
+    'DA KICH HOAT THE GAB THANH CONG': CEREMONY_ACTIVATED,
   };
   return map[normalized] || value.trim() || fallback;
 };
@@ -19,13 +28,19 @@ export default function FinalScreen() {
   const visible = phase === EventPhase.SUCCESS;
 
   const finalMessage = layout?.finalMessage || EVENT_CONFIG.finalMessage;
-  const line1 = finalMessage.line1?.trim() || 'CHÚC MỪNG';
-  const line2Parts = (finalMessage.line2?.trim() || 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM|ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG').split('|');
-  const line2 = line2Parts[0]?.trim() || 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM';
+  const line1 = finalMessage.line1?.trim() || CEREMONY_TITLE;
+  const line2Parts = (finalMessage.line2?.trim() || `${CEREMONY_COMMUNITY}|${CEREMONY_ACTIVATED}`).split('|');
+  const line2 = line2Parts[0]?.trim() || CEREMONY_COMMUNITY;
   const line3 = line2Parts[1]?.trim();
-  const ceremonyLine1 = vietnamizeFinalLine(line1, 'CHÚC MỪNG');
-  const ceremonyLine2 = vietnamizeFinalLine(line2, 'CỘNG ĐỒNG KỶ LỤC GIA VIỆT NAM');
-  const ceremonyLine3 = vietnamizeFinalLine(line3 || 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG', 'ĐÃ KÍCH HOẠT THẺ GAB THÀNH CÔNG');
+
+  const ceremonyLine1 = vietnamizeFinalLine(line1, CEREMONY_TITLE);
+  let ceremonyLine2 = vietnamizeFinalLine(line2, CEREMONY_COMMUNITY);
+  let ceremonyLine3 = line3 ? vietnamizeFinalLine(line3, CEREMONY_ACTIVATED) : CEREMONY_ACTIVATED;
+
+  if (ceremonyLine2 === CEREMONY_ACTIVATED) {
+    ceremonyLine2 = CEREMONY_COMMUNITY;
+    ceremonyLine3 = CEREMONY_ACTIVATED;
+  }
 
   if (finalTemplate === 'center-hero') {
     return (
@@ -34,26 +49,24 @@ export default function FinalScreen() {
           className="ceremony-final-bg absolute inset-0 z-[55] pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: visible ? 1 : 0 }}
-          transition={{ duration: 0.9, ease: "easeOut" }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
         />
         <div className="absolute inset-0 z-[80] flex items-center justify-center text-center select-none pointer-events-none">
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.97 }}
             animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 24, scale: visible ? 1 : 0.97 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
             className="ceremony-final-content flex flex-col items-center justify-center"
           >
-            {(showCenterLogoFinal || finalTemplate === 'center-hero') && (
-              <motion.img
-                src={customLogoCenter || "/logo/GAB.png"}
-                alt="GAB Logo"
-                className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain mb-[clamp(10px,1.3vw,22px)] drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
-                initial={{ opacity: 0, scale: 0.82 }}
-                animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-                onError={(e: any) => e.currentTarget.style.display = 'none'}
-              />
-            )}
+            <motion.img
+              src={customLogoCenter || '/logo/GAB.png'}
+              alt="GAB Logo"
+              className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain mb-[clamp(10px,1.3vw,22px)] drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
+              initial={{ opacity: 0, scale: 0.82 }}
+              animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              onError={(e: any) => e.currentTarget.style.display = 'none'}
+            />
             <div className="ceremony-final-counter">{EVENT_CONFIG.counter.finalValue}{EVENT_CONFIG.counter.suffix}</div>
             <h1 className="ceremony-final-title">{ceremonyLine1}</h1>
             <h2 className="ceremony-final-line">{ceremonyLine2}</h2>
@@ -69,23 +82,21 @@ export default function FinalScreen() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.95 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
         className="flex flex-col items-center justify-center px-10 py-7 rounded-lg bg-black/35 border border-white/10 backdrop-blur-sm shadow-[0_0_80px_rgba(0,240,255,0.24)]"
       >
-        {/* Optional Center Logo for Hero template or when enabled */}
         {showCenterLogoFinal && (
-          <motion.img 
-            src={customLogoCenter || "/logo/GAB.png"} 
+          <motion.img
+            src={customLogoCenter || '/logo/GAB.png'}
             alt="Hero Logo"
             className="w-[clamp(96px,8vw,168px)] h-auto object-contain mb-5 drop-shadow-[0_0_40px_rgba(0,240,255,0.8)]"
             initial={{ scale: 0 }}
             animate={{ scale: visible ? 1 : 0 }}
-            transition={{ type: "spring", bounce: 0.3 }}
-            onError={(e: any) => e.currentTarget.style.display='none'}
+            transition={{ type: 'spring', bounce: 0.3 }}
+            onError={(e: any) => e.currentTarget.style.display = 'none'}
           />
         )}
 
-        {/* 1. CYBER HOLOGRAM TEMPLATE */}
         {finalTemplate === 'cyber-hologram' && (
           <div className="relative p-6 md:p-10 border-2 border-cyan-400/50 bg-black/50 backdrop-blur-md rounded-2xl shadow-[0_0_50px_rgba(0,240,255,0.4)]">
             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-400"></div>
@@ -102,10 +113,9 @@ export default function FinalScreen() {
           </div>
         )}
 
-        {/* 2. GOLDEN PRESTIGE TEMPLATE */}
         {finalTemplate === 'golden-prestige' && (
           <div className="relative p-6 md:p-10 border-2 border-yellow-500/40 bg-black/60 backdrop-blur-md rounded-3xl shadow-[0_0_60px_rgba(250,204,21,0.5)]">
-            <div className="text-yellow-400 text-2xl md:text-3xl mb-2 tracking-[0.3em] uppercase font-serif">✦ VIETNAM RECORD HOLDERS ✦</div>
+            <div className="text-yellow-400 text-2xl md:text-3xl mb-2 tracking-[0.3em] uppercase font-serif">VIETNAM RECORD HOLDERS</div>
             <h1 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-yellow-300 to-yellow-600 mb-5 drop-shadow-[0_0_40px_rgba(250,204,21,0.8)]">
               {line1}
             </h1>
@@ -115,7 +125,6 @@ export default function FinalScreen() {
           </div>
         )}
 
-        {/* 3. STANDARD DUAL CARDS & MINIMAL CLEAN TEMPLATES */}
         {finalTemplate !== 'cyber-hologram' && finalTemplate !== 'golden-prestige' && (
           <>
             <h1 className="text-[clamp(30px,3.3vw,70px)] font-bold text-white mb-4 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)] tracking-normal leading-tight whitespace-nowrap">

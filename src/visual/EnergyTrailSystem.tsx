@@ -18,15 +18,14 @@ export default function EnergyTrailSystem() {
     top: `calc(50% + ${logoTarget.y || 0}px)`,
   };
 
-  // Generate a dense 360 degree ring of beams so the logo feels pulled by energy from every side.
-  const beamCount = 44;
+  const beamCount = 64;
   const beams = Array.from({ length: beamCount }, (_, i) => {
     const angle = (i * (360 / beamCount));
     const rad = (angle * Math.PI) / 180;
     const distance = 760 + (i % 5) * 90;
     const startX = Math.cos(rad) * distance;
     const startY = Math.sin(rad) * distance;
-    return { id: i, angle, distance, startX, startY, delay: (i % 11) * 0.055, duration: 1.05 + (i % 4) * 0.08 };
+    return { id: i, angle, distance, startX, startY, delay: (i % 16) * 0.045, duration: 0.95 + (i % 5) * 0.06 };
   });
   
   return (
@@ -39,26 +38,26 @@ export default function EnergyTrailSystem() {
       {/* ============================================================ */}
       {(energyType === 'expert-convergence' || energyType === 'default') && (
         <div className="absolute w-0 h-0" style={targetStyle}>
-          {/* Smooth radial beams anchored on the logo center. */}
+          {/* Soft guidance rays: kept faint so the motion reads as stars flying into the logo, not a blinding laser burst. */}
           {beams.map((b) => (
             <motion.div
               key={b.id}
-              className="absolute h-[5px] rounded-full mix-blend-screen"
+              className="absolute h-[2px] rounded-full mix-blend-screen"
               style={{
                 left: 0,
                 top: 0,
-                width: 'clamp(340px, 32vw, 900px)',
+                width: 'clamp(300px, 27vw, 760px)',
                 x: '-100%',
                 y: '-50%',
                 rotate: b.angle,
                 transformOrigin: '100% 50%',
-                background: `linear-gradient(90deg, transparent 0%, ${trailColor} 58%, #FFFFFF 100%)`,
-                boxShadow: `0 0 18px ${trailColor}, 0 0 34px rgba(255,255,255,0.72)`,
+                background: `linear-gradient(90deg, transparent 0%, ${trailColor} 66%, rgba(255,255,255,0.85) 100%)`,
+                boxShadow: `0 0 8px ${trailColor}`,
               }}
               animate={{
-                opacity: [0, 0.95, 0.65, 0],
-                scaleX: [0.08, 1, 0.22],
-                filter: ['blur(3px)', 'blur(0px)', 'blur(1px)']
+                opacity: [0, 0.28, 0.18, 0],
+                scaleX: [0.04, 0.72, 0.18],
+                filter: ['blur(2px)', 'blur(0.5px)', 'blur(1px)']
               }}
               transition={{
                 duration: b.duration,
@@ -69,25 +68,27 @@ export default function EnergyTrailSystem() {
             />
           ))}
 
-          {beams.slice(0, 24).map((b) => (
+          {beams.map((b) => (
             <motion.div
               key={`spark-${b.id}`}
-              className="absolute w-2.5 h-2.5 rounded-full bg-white mix-blend-screen"
+              className="absolute rounded-full bg-white mix-blend-screen"
               style={{
                 left: 0,
                 top: 0,
-                boxShadow: `0 0 18px #FFFFFF, 0 0 34px ${trailColor}`,
+                width: `${3 + (b.id % 4) * 1.2}px`,
+                height: `${3 + (b.id % 4) * 1.2}px`,
+                boxShadow: `0 0 10px #FFFFFF, 0 0 18px ${trailColor}`,
               }}
               animate={{
-                x: [b.startX, b.startX * 0.34, 0],
-                y: [b.startY, b.startY * 0.34, 0],
+                x: [b.startX, b.startX * 0.58, b.startX * 0.2, 0],
+                y: [b.startY, b.startY * 0.58, b.startY * 0.2, 0],
                 opacity: [0, 1, 0],
-                scale: [0.25, 1.2, 0.1]
+                scale: [0.35, 1.25, 0.7, 0.05]
               }}
               transition={{
-                duration: 1.08,
+                duration: b.duration,
                 repeat: Infinity,
-                delay: b.delay + 0.08,
+                delay: b.delay,
                 ease: "easeIn"
               }}
             />
@@ -97,17 +98,17 @@ export default function EnergyTrailSystem() {
           <motion.div
             animate={{
               scale: [0.8, 1.4, 0.9],
-              opacity: [0.6, 1, 0.7]
+              opacity: [0.22, 0.42, 0.22]
             }}
             transition={{
               duration: 1.2,
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="absolute -left-24 -top-24 w-48 h-48 rounded-full blur-xl mix-blend-screen"
+            className="absolute -left-20 -top-20 w-40 h-40 rounded-full blur-xl mix-blend-screen"
             style={{
-              background: `radial-gradient(circle, #FFFFFF 0%, ${trailColor} 50%, transparent 80%)`,
-              boxShadow: `0 0 60px ${trailColor}`
+              background: `radial-gradient(circle, rgba(255,255,255,0.7) 0%, ${trailColor} 46%, transparent 78%)`,
+              boxShadow: `0 0 34px ${trailColor}`
             }}
           />
 
