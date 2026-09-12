@@ -103,6 +103,7 @@ interface EventState {
   
   layout: {
     countdown: { x: number; y: number; scale: number };
+    nodes: { x: number; y: number; scale: number };
     logo: { x: number; y: number; scale: number };
     counter: { x: number; y: number; scale: number };
     finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
@@ -165,6 +166,7 @@ interface EventState {
 
 const createDefaultLayout = (): EventState['layout'] => ({
   countdown: { x: 0, y: 0, scale: 1 },
+  nodes: { x: 0, y: 0, scale: 1 },
   logo: { x: 0, y: -35, scale: 1 },
   counter: { x: 0, y: 0, scale: 1 },
   finalMessage: { 

@@ -1,7 +1,7 @@
 import { useEventStore } from '../stores/useEventStore';
 
 export default function ParticipantNodes() {
-  const { participants, nodeShape, nodeGlowStyle, showNodes } = useEventStore();
+  const { participants, nodeShape, nodeGlowStyle, showNodes, layout } = useEventStore();
   const nodes = Object.values(participants);
   
   if (nodes.length === 0 || !showNodes) return null;
@@ -45,9 +45,17 @@ export default function ParticipantNodes() {
     },
   };
   const glow = glowMap[nodeGlowStyle] || glowMap.energy;
+  const nodeLayout = layout.nodes || { x: 0, y: 0, scale: 1 };
+  const nodeScale = Math.min(3, Math.max(0.25, Number(nodeLayout.scale ?? 1) || 1));
 
   return (
-    <div className="absolute bottom-[6%] left-0 right-0 flex justify-evenly items-end px-2 md:px-10 z-30 w-full overflow-visible select-none">
+    <div
+      className="absolute bottom-[6%] left-0 right-0 flex justify-evenly items-end px-2 md:px-10 z-30 w-full overflow-visible select-none"
+      style={{
+        transform: `translate(${nodeLayout.x || 0}px, ${nodeLayout.y || 0}px) scale(${nodeScale})`,
+        transformOrigin: '50% 100%'
+      }}
+    >
       {nodes.map(node => {
         const isConfirmed = node.status === 'CONFIRMED';
         

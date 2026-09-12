@@ -89,7 +89,20 @@ export default function OperatorPanel() {
   const t = translations[language || 'vi'];
   const [profileName, setProfileName] = useState('');
   const [scenarioSmokeStatus, setScenarioSmokeStatus] = useState('');
-  const [layoutCode, setLayoutCode] = useState(() => JSON.stringify(useEventStore.getState().layout, null, 2));
+  const getLayoutForEditor = () => {
+    const current = useEventStore.getState().layout as any;
+    return {
+      countdown: { x: 0, y: 0, scale: 1, ...(current.countdown || {}) },
+      nodes: { x: 0, y: 0, scale: 1, ...(current.nodes || {}) },
+      logo: { x: 0, y: 0, scale: 1, ...(current.logo || {}) },
+      counter: { x: 0, y: 0, scale: 1, ...(current.counter || {}) },
+      finalMessage: { line1: '', line2: '', x: 0, y: 0, scale: 1, ...(current.finalMessage || {}) },
+      cardVietkings: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, ...(current.cardVietkings || {}) },
+      cardGAB: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, ...(current.cardGAB || {}) }
+    };
+  };
+
+  const [layoutCode, setLayoutCode] = useState(() => JSON.stringify(getLayoutForEditor(), null, 2));
   const [layoutCodeError, setLayoutCodeError] = useState('');
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const [previewDim, setPreviewDim] = useState({ width: 640, height: 360, scale: 640 / 1920 });
@@ -364,7 +377,7 @@ export default function OperatorPanel() {
 
   const renderPositionControls = (
     title: string,
-    key: 'countdown' | 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
+    key: 'countdown' | 'nodes' | 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
     mode: 'xy' | 'end' = 'xy'
   ) => {
     const item = layout[key] as any;
@@ -399,9 +412,10 @@ export default function OperatorPanel() {
   };
 
   const nudgeWholeLayoutY = (delta: number) => {
-    (Object.keys(layout) as Array<keyof typeof layout>).forEach((key) => {
-      const item = layout[key] as any;
-      if ('endY' in item) {
+    const keys = ['countdown', 'nodes', 'logo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
+    keys.forEach((key) => {
+      const item = (layout[key] || {}) as any;
+      if (key === 'cardVietkings' || key === 'cardGAB') {
         updateLayout(key, { endY: (item.endY ?? 0) + delta });
       } else {
         updateLayout(key, { y: (item.y ?? 0) + delta });
@@ -410,14 +424,15 @@ export default function OperatorPanel() {
   };
 
   const reloadLayoutCode = () => {
-    setLayoutCode(JSON.stringify(useEventStore.getState().layout, null, 2));
+    setLayoutCode(JSON.stringify(getLayoutForEditor(), null, 2));
     setLayoutCodeError('');
   };
 
   const applyLayoutCode = () => {
     try {
       const parsed = JSON.parse(layoutCode);
-      (Object.keys(layout) as Array<keyof typeof layout>).forEach((key) => {
+      const keys = ['countdown', 'nodes', 'logo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
+      keys.forEach((key) => {
         if (parsed[key] && typeof parsed[key] === 'object') {
           updateLayout(key, parsed[key]);
         }
@@ -1327,6 +1342,7 @@ export default function OperatorPanel() {
                 <div className="space-y-2">
                   <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Vị trí màn kết / Final positions</h3>
                   {renderPositionControls('Logo trung tâm màn kết', 'logo')}
+                  {renderPositionControls('Cụm nodes / cảm biến', 'nodes')}
                   {renderPositionControls('Cụm chữ màn kết', 'finalMessage')}
                   {renderPositionControls('Số đếm 400+', 'counter')}
                   {renderPositionControls('Thẻ Vietkings', 'cardVietkings', 'end')}
