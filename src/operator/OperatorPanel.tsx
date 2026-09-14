@@ -95,10 +95,12 @@ export default function OperatorPanel() {
       countdown: { x: 0, y: 0, scale: 1, ...(current.countdown || {}) },
       nodes: { x: 0, y: 0, scale: 1, ...(current.nodes || {}) },
       logo: { x: 0, y: 0, scale: 1, ...(current.logo || {}) },
+      revealLogo: { x: 0, y: -35, scale: 1, rotate: 0, opacity: 1, ...(current.revealLogo || current.logo || {}) },
+      centerFinalLogo: { x: 0, y: -255, scale: 1, rotate: 0, opacity: 1, ...(current.centerFinalLogo || current.logo || {}) },
       counter: { x: 0, y: 0, scale: 1, ...(current.counter || {}) },
       finalMessage: { line1: '', line2: '', x: 0, y: 0, scale: 1, ...(current.finalMessage || {}) },
-      cardVietkings: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, ...(current.cardVietkings || {}) },
-      cardGAB: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, ...(current.cardGAB || {}) }
+      cardVietkings: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, rotate: 0, opacity: 1, ...(current.cardVietkings || {}) },
+      cardGAB: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, rotate: 0, opacity: 1, ...(current.cardGAB || {}) }
     };
   };
 
@@ -377,12 +379,15 @@ export default function OperatorPanel() {
 
   const renderPositionControls = (
     title: string,
-    key: 'countdown' | 'nodes' | 'logo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
+    key: 'countdown' | 'nodes' | 'logo' | 'revealLogo' | 'centerFinalLogo' | 'finalMessage' | 'counter' | 'cardVietkings' | 'cardGAB',
     mode: 'xy' | 'end' = 'xy'
   ) => {
     const item = layout[key] as any;
     const xKey = mode === 'end' ? 'endX' : 'x';
     const yKey = mode === 'end' ? 'endY' : 'y';
+    const maxX = Math.max(1500, Math.round((stageWidth || 1920) / 2));
+    const maxY = Math.max(520, Math.round((stageHeight || 1080) / 2));
+    const nudgeX = (delta: number) => updateLayout(key, { [xKey]: (item?.[xKey] ?? 0) + delta });
     const nudgeY = (delta: number) => updateLayout(key, { [yKey]: (item?.[yKey] ?? 0) + delta });
 
     return (
@@ -390,18 +395,26 @@ export default function OperatorPanel() {
         <div className="flex items-center justify-between mb-2">
           <span className="font-bold text-gray-300 text-[11px]">{title}</span>
           <button
-            onClick={() => updateLayout(key, mode === 'end' ? { endX: 0, endY: 0, scale: 1 } : { x: 0, y: 0, scale: 1 })}
+            onClick={() => updateLayout(key, mode === 'end' ? { endX: 0, endY: 0, scale: 1, rotate: 0, opacity: 1 } : { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 })}
             className="text-[9px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 hover:bg-gray-700"
           >
             Reset
           </button>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {renderLayoutNumber('X', item?.[xKey] ?? 0, (value) => updateLayout(key, { [xKey]: value }))}
-          {renderLayoutNumber('Y', item?.[yKey] ?? 0, (value) => updateLayout(key, { [yKey]: value }))}
+          {renderLayoutNumber('X', item?.[xKey] ?? 0, (value) => updateLayout(key, { [xKey]: value }), { min: -maxX, max: maxX })}
+          {renderLayoutNumber('Y', item?.[yKey] ?? 0, (value) => updateLayout(key, { [yKey]: value }), { min: -maxY, max: maxY })}
           {renderLayoutNumber('Scale', item?.scale ?? 1, (value) => updateLayout(key, { scale: value }), { min: 0.2, max: 3, step: 0.05 })}
         </div>
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {renderLayoutNumber('Rotate', item?.rotate ?? 0, (value) => updateLayout(key, { rotate: value }), { min: -180, max: 180, step: 1 })}
+          {renderLayoutNumber('Opacity', item?.opacity ?? 1, (value) => updateLayout(key, { opacity: value }), { min: 0, max: 1, step: 0.05 })}
+        </div>
         <div className="grid grid-cols-4 gap-1.5 mt-2">
+          <button onClick={() => nudgeX(-50)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">←50</button>
+          <button onClick={() => nudgeX(-10)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">←10</button>
+          <button onClick={() => nudgeX(10)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">→10</button>
+          <button onClick={() => nudgeX(50)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">→50</button>
           <button onClick={() => nudgeY(-50)} className="rounded bg-cyan-950/70 border border-cyan-800 px-1 py-1 text-[9px] text-gab-cyan hover:bg-cyan-900">↑50</button>
           <button onClick={() => nudgeY(-10)} className="rounded bg-cyan-950/70 border border-cyan-800 px-1 py-1 text-[9px] text-gab-cyan hover:bg-cyan-900">↑10</button>
           <button onClick={() => nudgeY(10)} className="rounded bg-gray-800 px-1 py-1 text-[9px] text-gray-200 hover:bg-gray-700">↓10</button>
@@ -412,7 +425,7 @@ export default function OperatorPanel() {
   };
 
   const nudgeWholeLayoutY = (delta: number) => {
-    const keys = ['countdown', 'nodes', 'logo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
+    const keys = ['countdown', 'nodes', 'revealLogo', 'centerFinalLogo', 'logo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
     keys.forEach((key) => {
       const item = (layout[key] || {}) as any;
       if (key === 'cardVietkings' || key === 'cardGAB') {
@@ -431,7 +444,7 @@ export default function OperatorPanel() {
   const applyLayoutCode = () => {
     try {
       const parsed = JSON.parse(layoutCode);
-      const keys = ['countdown', 'nodes', 'logo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
+      const keys = ['countdown', 'nodes', 'logo', 'revealLogo', 'centerFinalLogo', 'finalMessage', 'counter', 'cardVietkings', 'cardGAB'] as Array<keyof typeof layout>;
       keys.forEach((key) => {
         if (parsed[key] && typeof parsed[key] === 'object') {
           updateLayout(key, parsed[key]);
@@ -459,6 +472,8 @@ export default function OperatorPanel() {
       y: 140,
       scale: 1
     });
+    updateLayout('revealLogo', { x: 0, y: -35, scale: 1, rotate: 0, opacity: 1 });
+    updateLayout('centerFinalLogo', { x: 0, y: -255, scale: 0.92, rotate: 0, opacity: 1 });
     updateLayout('logo', { x: 0, y: -255, scale: 0.92 });
     updateLayout('counter', { x: 0, y: -25, scale: 1 });
     updateLayout('cardVietkings', { endX: -560, endY: -185, scale: 0.92 });
@@ -1252,6 +1267,11 @@ export default function OperatorPanel() {
                        </div>
                     </div>
                   )}
+                  {store.showCardVietkings && (
+                    <div className="mt-2">
+                      {renderPositionControls('Vị trí thẻ Vietkings', 'cardVietkings', 'end')}
+                    </div>
+                  )}
                </div>
 
                {/* CARD 2 (GAB CARD) */}
@@ -1297,6 +1317,11 @@ export default function OperatorPanel() {
                        </div>
                     </div>
                   )}
+                  {store.showCardGAB && (
+                    <div className="mt-2">
+                      {renderPositionControls('Vị trí thẻ GAB', 'cardGAB', 'end')}
+                    </div>
+                  )}
                </div>
 
                {/* CENTER LOGO */}
@@ -1317,6 +1342,10 @@ export default function OperatorPanel() {
                   <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'customLogoCenter')} className="w-full text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:bg-gray-800 file:text-white hover:file:bg-gray-700"/>
                   <div className="h-12 mt-2 rounded border border-gray-800 bg-black/40 flex items-center justify-center">
                     <img src={store.customLogoCenter || '/logo/GAB.png'} className="max-h-10 max-w-full object-contain" alt="Center logo preview" onError={(e: any) => e.currentTarget.style.display='none'} />
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {renderPositionControls('Logo lúc reveal / tụ năng lượng', 'revealLogo')}
+                    {renderPositionControls('Logo trung tâm màn kết', 'centerFinalLogo')}
                   </div>
                </div>
 
@@ -1341,7 +1370,8 @@ export default function OperatorPanel() {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-[11px] font-bold text-gab-cyan uppercase">Vị trí màn kết / Final positions</h3>
-                  {renderPositionControls('Logo trung tâm màn kết', 'logo')}
+                  {renderPositionControls('Logo lúc reveal / tụ năng lượng', 'revealLogo')}
+                  {renderPositionControls('Logo trung tâm màn kết', 'centerFinalLogo')}
                   {renderPositionControls('Cụm nodes / cảm biến', 'nodes')}
                   {renderPositionControls('Cụm chữ màn kết', 'finalMessage')}
                   {renderPositionControls('Số đếm 400+', 'counter')}

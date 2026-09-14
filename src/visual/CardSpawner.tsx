@@ -52,7 +52,7 @@ export default function CardSpawner() {
               rotate: vietkingsRot
             }}
             transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
-            className={vietkingsCardStyle}
+            className={`final-card-glow ${vietkingsCardStyle}`}
           >
             <img 
               src={customLogoFly1 || "/logo/vietkings.webp"} 
@@ -76,7 +76,7 @@ export default function CardSpawner() {
               rotate: gabRot
             }}
             transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
-            className={gabCardStyle}
+            className={`final-card-glow ${gabCardStyle}`}
           >
             <img 
               src={customLogoFly2 || "/logo/GAB.png"} 

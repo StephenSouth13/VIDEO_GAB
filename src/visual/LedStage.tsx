@@ -66,6 +66,7 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     <div className={`${isEditPreview ? 'w-full h-full' : 'w-full h-screen'} overflow-hidden relative bg-black flex items-center justify-center`}>
       <div 
         className="relative overflow-hidden shrink-0"
+        data-stage-frame="true"
         style={{ ...frameStyle, backgroundColor }}
       >
       
@@ -78,6 +79,8 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
       )}
 
       <StageParticleOverlay />
+
+      <div className="stage-kinetic-light absolute inset-0 z-[7] pointer-events-none" aria-hidden="true" />
 
       {['aurora', 'light-tunnel', 'scanlines', 'prism'].includes(backgroundType) && (
         <div className={`led-atmosphere led-atmosphere-${backgroundType} absolute inset-0 z-[8] pointer-events-none mix-blend-screen`} />

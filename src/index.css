@@ -152,6 +152,82 @@ body, html {
   opacity: 0.7;
 }
 
+@keyframes stageKineticSweep {
+  0% { transform: translate3d(-34%, -18%, 0) rotate(18deg); opacity: 0.12; }
+  42% { opacity: 0.48; }
+  100% { transform: translate3d(34%, 18%, 0) rotate(18deg); opacity: 0.12; }
+}
+
+.stage-kinetic-light {
+  mix-blend-mode: screen;
+  opacity: 0.76;
+  background:
+    linear-gradient(104deg, transparent 0 38%, rgba(255, 255, 255, 0.2) 43%, rgba(125, 211, 252, 0.2) 48%, transparent 55%),
+    linear-gradient(76deg, transparent 0 42%, rgba(250, 204, 21, 0.13) 48%, transparent 55%);
+  animation: stageKineticSweep 7.5s ease-in-out infinite alternate;
+  filter: blur(1px);
+}
+
+@keyframes logoAuraPulse {
+  0% { transform: translate(-50%, -50%) scale(0.78) rotate(0deg); opacity: 0.28; }
+  50% { transform: translate(-50%, -50%) scale(1.18) rotate(180deg); opacity: 0.78; }
+  100% { transform: translate(-50%, -50%) scale(0.78) rotate(360deg); opacity: 0.28; }
+}
+
+.logo-energy-aura,
+.final-logo-orbit {
+  left: 50%;
+  top: 50%;
+  width: min(50vw, 620px);
+  height: min(50vw, 620px);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.logo-energy-aura {
+  background:
+    conic-gradient(from 0deg, transparent, rgba(34, 211, 238, 0.58), rgba(255, 255, 255, 0.62), rgba(250, 204, 21, 0.48), transparent),
+    radial-gradient(circle, rgba(255,255,255,0.18), rgba(34,211,238,0.12) 42%, transparent 68%);
+  filter: blur(8px);
+  animation: logoAuraPulse 5s linear infinite;
+}
+
+.logo-reveal-image,
+.final-logo-image,
+.final-card-glow {
+  position: relative;
+  z-index: 1;
+}
+
+.logo-reveal-image,
+.final-logo-image {
+  animation: logoFloatBreath 3.2s ease-in-out infinite;
+}
+
+@keyframes logoFloatBreath {
+  0%, 100% { filter: drop-shadow(0 0 28px rgba(34, 211, 238, 0.72)); }
+  50% { filter: drop-shadow(0 0 48px rgba(250, 204, 21, 0.9)); }
+}
+
+.final-logo-orbit {
+  width: min(24vw, 320px);
+  height: min(24vw, 320px);
+  border: 1px solid rgba(250, 204, 21, 0.36);
+  box-shadow: 0 0 44px rgba(250, 204, 21, 0.22), inset 0 0 36px rgba(34, 211, 238, 0.18);
+  animation: logoAuraPulse 6.6s linear infinite reverse;
+}
+
+.final-card-glow {
+  animation: finalCardBreath 3.8s ease-in-out infinite;
+}
+
+@keyframes finalCardBreath {
+  0%, 100% { filter: drop-shadow(0 0 18px rgba(34, 211, 238, 0.36)); }
+  50% { filter: drop-shadow(0 0 34px rgba(250, 204, 21, 0.54)); }
+}
+
 .ceremony-final-bg {
   background:
     radial-gradient(ellipse at 50% 76%, rgba(125, 211, 252, 0.55) 0%, rgba(14, 165, 233, 0.34) 20%, rgba(2, 6, 23, 0) 48%),

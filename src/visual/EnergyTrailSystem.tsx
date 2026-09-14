@@ -12,7 +12,7 @@ export default function EnergyTrailSystem() {
     return null;
   }
 
-  const logoTarget = layout?.logo || { x: 0, y: 0 };
+  const logoTarget = layout?.revealLogo || layout?.logo || { x: 0, y: 0 };
   const targetStyle = {
     left: `calc(50% + ${logoTarget.x || 0}px)`,
     top: `calc(50% + ${logoTarget.y || 0}px)`,

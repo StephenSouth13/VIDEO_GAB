@@ -28,6 +28,11 @@ export default function FinalScreen() {
   const visible = phase === EventPhase.SUCCESS;
 
   const finalMessage = layout?.finalMessage || EVENT_CONFIG.finalMessage;
+  const centerFinalLogoLayout = layout?.centerFinalLogo || { x: 0, y: 0, scale: 1, rotate: 0, opacity: 1 };
+  const inlineLogoStyle = {
+    transform: `translate(${centerFinalLogoLayout.x || 0}px, ${centerFinalLogoLayout.y || 0}px) scale(${centerFinalLogoLayout.scale || 1}) rotate(${centerFinalLogoLayout.rotate || 0}deg)`,
+    opacity: centerFinalLogoLayout.opacity ?? 1,
+  };
   const line1 = finalMessage.line1?.trim() || CEREMONY_TITLE;
   const line2Parts = (finalMessage.line2?.trim() || `${CEREMONY_COMMUNITY}|${CEREMONY_ACTIVATED}`).split('|');
   const line2 = line2Parts[0]?.trim() || CEREMONY_COMMUNITY;
@@ -52,11 +57,12 @@ export default function FinalScreen() {
           transition={{ duration: 0.9, ease: 'easeOut' }}
         />
         {showCenterLogoFinal && (
-          <DraggableItem layoutKey="logo" className="z-[86] flex items-center justify-center">
+          <DraggableItem layoutKey="centerFinalLogo" className="z-[86] flex items-center justify-center">
+            <div className="final-logo-orbit absolute inset-0" />
             <motion.img
               src={customLogoCenter || '/logo/GAB.png'}
               alt="GAB Logo"
-              className="w-[clamp(116px,8.5vw,190px)] h-auto object-contain drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
+              className="final-logo-image w-[clamp(116px,8.5vw,190px)] h-auto object-contain drop-shadow-[0_0_35px_rgba(253,224,71,0.82)]"
               initial={{ opacity: 0, scale: 0.82 }}
               animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.82 }}
               transition={{ duration: 0.7, ease: 'easeOut' }}
@@ -90,15 +96,18 @@ export default function FinalScreen() {
         className="flex flex-col items-center justify-center px-10 py-7 rounded-lg bg-black/35 border border-white/10 backdrop-blur-sm shadow-[0_0_80px_rgba(0,240,255,0.24)]"
       >
         {showCenterLogoFinal && (
-          <motion.img
-            src={customLogoCenter || '/logo/GAB.png'}
-            alt="Hero Logo"
-            className="w-[clamp(96px,8vw,168px)] h-auto object-contain mb-5 drop-shadow-[0_0_40px_rgba(0,240,255,0.8)]"
-            initial={{ scale: 0 }}
-            animate={{ scale: visible ? 1 : 0 }}
-            transition={{ type: 'spring', bounce: 0.3 }}
-            onError={(e: any) => e.currentTarget.style.display = 'none'}
-          />
+          <div className="relative z-[2] mb-5 flex items-center justify-center" style={inlineLogoStyle}>
+            <div className="final-logo-orbit absolute inset-0" />
+            <motion.img
+              src={customLogoCenter || '/logo/GAB.png'}
+              alt="Hero Logo"
+              className="final-logo-image w-[clamp(96px,8vw,168px)] h-auto object-contain drop-shadow-[0_0_40px_rgba(0,240,255,0.8)]"
+              initial={{ scale: 0 }}
+              animate={{ scale: visible ? 1 : 0 }}
+              transition={{ type: 'spring', bounce: 0.3 }}
+              onError={(e: any) => e.currentTarget.style.display = 'none'}
+            />
+          </div>
         )}
 
         {finalTemplate === 'cyber-hologram' && (

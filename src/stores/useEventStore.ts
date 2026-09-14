@@ -105,10 +105,12 @@ interface EventState {
     countdown: { x: number; y: number; scale: number };
     nodes: { x: number; y: number; scale: number };
     logo: { x: number; y: number; scale: number };
+    revealLogo: { x: number; y: number; scale: number; rotate: number; opacity: number };
+    centerFinalLogo: { x: number; y: number; scale: number; rotate: number; opacity: number };
     counter: { x: number; y: number; scale: number };
     finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
-    cardVietkings: { x: number; y: number; scale: number; endX: number; endY: number };
-    cardGAB: { x: number; y: number; scale: number; endX: number; endY: number };
+    cardVietkings: { x: number; y: number; scale: number; endX: number; endY: number; rotate?: number; opacity?: number };
+    cardGAB: { x: number; y: number; scale: number; endX: number; endY: number; rotate?: number; opacity?: number };
   };
   
   // Actions
@@ -168,6 +170,8 @@ const createDefaultLayout = (): EventState['layout'] => ({
   countdown: { x: 0, y: 0, scale: 1 },
   nodes: { x: 0, y: 0, scale: 1 },
   logo: { x: 0, y: -35, scale: 1 },
+  revealLogo: { x: 0, y: -35, scale: 1, rotate: 0, opacity: 1 },
+  centerFinalLogo: { x: 0, y: -255, scale: 1, rotate: 0, opacity: 1 },
   counter: { x: 0, y: 0, scale: 1 },
   finalMessage: { 
     line1: "CHUC MUNG CAC KY LUC GIA", 
@@ -176,8 +180,8 @@ const createDefaultLayout = (): EventState['layout'] => ({
     y: -40, 
     scale: 1 
   },
-  cardVietkings: { x: -300, y: -100, scale: 1, endX: -430, endY: -170 },
-  cardGAB: { x: 300, y: 100, scale: 1, endX: 430, endY: 170 }
+  cardVietkings: { x: -300, y: -100, scale: 1, endX: -430, endY: -170, rotate: 0, opacity: 1 },
+  cardGAB: { x: 300, y: 100, scale: 1, endX: 430, endY: 170, rotate: 0, opacity: 1 }
 });
 
 export const useEventStore = create<EventState>()(
@@ -435,10 +439,45 @@ export const useEventStore = create<EventState>()(
   resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
-  version: 5,
+  version: 6,
   migrate: (persistedState: any, version) => {
-    if (version < 2) {
+    const withModernLayout = (state: any) => {
+      const defaults = createDefaultLayout();
+      const current = state?.layout ?? {};
+      const legacyLogo = current.logo ?? defaults.logo;
       return {
+        ...state,
+        layout: {
+          ...defaults,
+          ...current,
+          revealLogo: {
+            ...defaults.revealLogo,
+            x: legacyLogo.x ?? defaults.revealLogo.x,
+            y: legacyLogo.y ?? defaults.revealLogo.y,
+            scale: legacyLogo.scale ?? defaults.revealLogo.scale,
+            ...(current.revealLogo ?? {})
+          },
+          centerFinalLogo: {
+            ...defaults.centerFinalLogo,
+            x: legacyLogo.x ?? defaults.centerFinalLogo.x,
+            y: legacyLogo.y ?? defaults.centerFinalLogo.y,
+            scale: legacyLogo.scale ?? defaults.centerFinalLogo.scale,
+            ...(current.centerFinalLogo ?? {})
+          },
+          cardVietkings: {
+            ...defaults.cardVietkings,
+            ...(current.cardVietkings ?? {})
+          },
+          cardGAB: {
+            ...defaults.cardGAB,
+            ...(current.cardGAB ?? {})
+          }
+        }
+      };
+    };
+
+    if (version < 2) {
+      return withModernLayout({
         ...persistedState,
         devicePreset: persistedState?.devicePreset ?? 'led-fhd',
         stageWidth: persistedState?.stageWidth ?? 1920,
@@ -459,10 +498,10 @@ export const useEventStore = create<EventState>()(
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
         showAudioStart: persistedState?.showAudioStart ?? 0,
         showAudioEnd: persistedState?.showAudioEnd ?? 0,
-      };
+      });
     }
     if (version < 3) {
-      return {
+      return withModernLayout({
         ...persistedState,
         audioEnabled: persistedState?.audioEnabled ?? true,
         audioVolume: persistedState?.audioVolume ?? 0.75,
@@ -472,10 +511,10 @@ export const useEventStore = create<EventState>()(
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
         showAudioStart: persistedState?.showAudioStart ?? 0,
         showAudioEnd: persistedState?.showAudioEnd ?? 0,
-      };
+      });
     }
     if (version < 4) {
-      return {
+      return withModernLayout({
         ...persistedState,
         showAudioUrl: persistedState?.showAudioUrl ?? null,
         showAudioVolume: persistedState?.showAudioVolume ?? 0.65,
@@ -483,7 +522,7 @@ export const useEventStore = create<EventState>()(
         showAudioDucksCues: persistedState?.showAudioDucksCues ?? true,
         showAudioStart: persistedState?.showAudioStart ?? 0,
         showAudioEnd: persistedState?.showAudioEnd ?? 0,
-      };
+      });
     }
     const {
       customBackgroundVideo,
@@ -498,7 +537,7 @@ export const useEventStore = create<EventState>()(
     void backgroundVideoFit;
     void backgroundVideoPlaybackRate;
     void backgroundVideoPaused;
-    return codeOnlyState;
+    return version < 6 ? withModernLayout(codeOnlyState) : withModernLayout(codeOnlyState);
   },
   partialize: (state) => ({
     phase: state.phase,
