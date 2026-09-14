@@ -2,14 +2,22 @@ import { EVENT_CONFIG } from '../config/eventConfig';
 import { useEventStore, EventPhase } from '../stores/useEventStore';
 import DraggableItem from './DraggableItem';
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 
 const CEREMONY_TITLE = 'CH\u00daC M\u1eeaNG';
 const CEREMONY_COMMUNITY = 'C\u1ed8NG \u0110\u1ed2NG K\u1ef6 L\u1ee4C GIA VI\u1ec6T NAM';
 const CEREMONY_ACTIVATED = '\u0110\u00c3 K\u00cdCH HO\u1ea0T TH\u1eba GAB TH\u00c0NH C\u00d4NG';
 
+const cleanFinalText = (value: string) =>
+  value
+    .replace(/\s+/g, ' ')
+    .replace(/ĐỒ\s+NG/gi, 'ĐỒNG')
+    .replace(/HOẠT\s+THẺ/gi, 'HOẠT THẺ')
+    .trim();
+
 const vietnamizeFinalLine = (value: string, fallback: string) => {
-  const normalized = value
-    .trim()
+  const cleaned = cleanFinalText(value);
+  const normalized = cleaned
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase()
@@ -18,9 +26,10 @@ const vietnamizeFinalLine = (value: string, fallback: string) => {
     'CHUC MUNG': CEREMONY_TITLE,
     'CHUC MUNG CAC KY LUC GIA': CEREMONY_TITLE,
     'CONG DONG KY LUC GIA VIET NAM': CEREMONY_COMMUNITY,
+    'CONG DO NG KY LUC GIA VIET NAM': CEREMONY_COMMUNITY,
     'DA KICH HOAT THE GAB THANH CONG': CEREMONY_ACTIVATED,
   };
-  return map[normalized] || value.trim() || fallback;
+  return map[normalized] || cleaned || fallback;
 };
 
 export default function FinalScreen() {
@@ -33,10 +42,17 @@ export default function FinalScreen() {
     transform: `translate(${centerFinalLogoLayout.x || 0}px, ${centerFinalLogoLayout.y || 0}px) scale(${centerFinalLogoLayout.scale || 1}) rotate(${centerFinalLogoLayout.rotate || 0}deg)`,
     opacity: centerFinalLogoLayout.opacity ?? 1,
   };
-  const line1 = finalMessage.line1?.trim() || CEREMONY_TITLE;
+  const finalMessageStyle = {
+    '--final-title-size': `${finalMessage.titleSize ?? 82}px`,
+    '--final-line-size': `${finalMessage.lineSize ?? 54}px`,
+    '--final-counter-size': `${finalMessage.counterSize ?? 72}px`,
+    '--final-letter-spacing': `${finalMessage.letterSpacing ?? 0}px`,
+    '--final-line-gap': `${finalMessage.lineGap ?? 10}px`,
+  } as CSSProperties;
+  const line1 = cleanFinalText(finalMessage.line1 || '') || CEREMONY_TITLE;
   const line2Parts = (finalMessage.line2?.trim() || `${CEREMONY_COMMUNITY}|${CEREMONY_ACTIVATED}`).split('|');
-  const line2 = line2Parts[0]?.trim() || CEREMONY_COMMUNITY;
-  const line3 = line2Parts[1]?.trim();
+  const line2 = cleanFinalText(line2Parts[0] || '') || CEREMONY_COMMUNITY;
+  const line3 = line2Parts[1] ? cleanFinalText(line2Parts[1]) : '';
 
   const ceremonyLine1 = vietnamizeFinalLine(line1, CEREMONY_TITLE);
   let ceremonyLine2 = vietnamizeFinalLine(line2, CEREMONY_COMMUNITY);
@@ -76,6 +92,7 @@ export default function FinalScreen() {
             animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 24, scale: visible ? 1 : 0.97 }}
             transition={{ duration: 0.9, ease: 'easeOut' }}
             className="ceremony-final-content flex flex-col items-center justify-center"
+            style={finalMessageStyle}
           >
             <div className="ceremony-final-counter">{EVENT_CONFIG.counter.finalValue}{EVENT_CONFIG.counter.suffix}</div>
             <h1 className="ceremony-final-title">{ceremonyLine1}</h1>

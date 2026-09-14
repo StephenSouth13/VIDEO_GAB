@@ -108,7 +108,18 @@ interface EventState {
     revealLogo: { x: number; y: number; scale: number; rotate: number; opacity: number };
     centerFinalLogo: { x: number; y: number; scale: number; rotate: number; opacity: number };
     counter: { x: number; y: number; scale: number };
-    finalMessage: { line1: string; line2: string; x: number; y: number; scale: number };
+    finalMessage: {
+      line1: string;
+      line2: string;
+      x: number;
+      y: number;
+      scale: number;
+      titleSize: number;
+      lineSize: number;
+      counterSize: number;
+      letterSpacing: number;
+      lineGap: number;
+    };
     cardVietkings: { x: number; y: number; scale: number; endX: number; endY: number; rotate?: number; opacity?: number };
     cardGAB: { x: number; y: number; scale: number; endX: number; endY: number; rotate?: number; opacity?: number };
   };
@@ -178,7 +189,12 @@ const createDefaultLayout = (): EventState['layout'] => ({
     line2: "DA KICH HOAT THE GAB THANH CONG", 
     x: 0,
     y: -40, 
-    scale: 1 
+    scale: 1,
+    titleSize: 82,
+    lineSize: 54,
+    counterSize: 72,
+    letterSpacing: 0,
+    lineGap: 10
   },
   cardVietkings: { x: -300, y: -100, scale: 1, endX: -430, endY: -170, rotate: 0, opacity: 1 },
   cardGAB: { x: 300, y: 100, scale: 1, endX: 430, endY: 170, rotate: 0, opacity: 1 }
@@ -439,7 +455,7 @@ export const useEventStore = create<EventState>()(
   resetLayout: () => set({ layout: createDefaultLayout() })
 }), {
   name: 'gab-event-storage',
-  version: 6,
+  version: 7,
   migrate: (persistedState: any, version) => {
     const withModernLayout = (state: any) => {
       const defaults = createDefaultLayout();
@@ -463,6 +479,10 @@ export const useEventStore = create<EventState>()(
             y: legacyLogo.y ?? defaults.centerFinalLogo.y,
             scale: legacyLogo.scale ?? defaults.centerFinalLogo.scale,
             ...(current.centerFinalLogo ?? {})
+          },
+          finalMessage: {
+            ...defaults.finalMessage,
+            ...(current.finalMessage ?? {})
           },
           cardVietkings: {
             ...defaults.cardVietkings,

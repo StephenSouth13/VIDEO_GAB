@@ -29,7 +29,11 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     stageWidth,
     stageHeight,
     stageFit,
-    stageOverscan
+    stageOverscan,
+    showNodes,
+    setShowNodes,
+    participants,
+    resetParticipants
   } = useEventStore();
   
   useEffect(() => {
@@ -41,6 +45,22 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
     };
   }, [isEditPreview]);
 
+  useEffect(() => {
+    if (isEditPreview) return;
+    const shouldShowNodes = [
+      EventPhase.BOOT,
+      EventPhase.IDLE,
+      EventPhase.WAITING_FOR_PARTICIPANTS,
+      EventPhase.PARTICIPANT_CONFIRMING,
+      EventPhase.ALL_PARTICIPANTS_READY,
+      EventPhase.RESETTING
+    ].includes(phase as any);
+
+    if (!shouldShowNodes) return;
+    if (!showNodes) setShowNodes(true);
+    if (Object.keys(participants).length === 0) resetParticipants();
+  }, [isEditPreview, participants, phase, resetParticipants, setShowNodes, showNodes]);
+
   if (isBlackout) {
     return <div className="w-full h-screen bg-black"></div>;
   }
@@ -49,15 +69,15 @@ export default function LedStage({ editPreview = false }: LedStageProps) {
   const safeStageHeight = Math.max(1, stageHeight || 1080);
   const stageAspect = safeStageWidth / safeStageHeight;
   const safeStageOverscan = Number.isFinite(stageOverscan) ? stageOverscan : 0;
-  const fillWidth = stageFit === 'stretch' || stageFit === 'fill';
-  const fillHeight = stageFit === 'stretch' || stageFit === 'fill';
+  const isStretchFit = stageFit === 'stretch';
+  const isCoverFit = stageFit === 'cover' || stageFit === 'fill';
   const frameStyle = {
     width: isEditPreview 
       ? `${safeStageWidth}px`
-      : fillWidth ? '100vw' : stageFit === 'cover' ? `max(100vw, calc(100vh * ${stageAspect}))` : `min(100vw, calc(100vh * ${stageAspect}))`,
+      : isStretchFit ? '100vw' : isCoverFit ? `max(100vw, calc(100vh * ${stageAspect}))` : `min(100vw, calc(100vh * ${stageAspect}))`,
     height: isEditPreview
       ? `${safeStageHeight}px`
-      : fillHeight ? '100vh' : stageFit === 'cover' ? `max(100vh, calc(100vw / ${stageAspect}))` : `min(100vh, calc(100vw / ${stageAspect}))`,
+      : isStretchFit ? '100vh' : isCoverFit ? `max(100vh, calc(100vw / ${stageAspect}))` : `min(100vh, calc(100vw / ${stageAspect}))`,
     transform: `scale(${1 + safeStageOverscan / 100})`,
     transformOrigin: 'center center'
   };

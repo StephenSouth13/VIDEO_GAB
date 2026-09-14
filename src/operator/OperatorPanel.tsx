@@ -98,7 +98,19 @@ export default function OperatorPanel() {
       revealLogo: { x: 0, y: -35, scale: 1, rotate: 0, opacity: 1, ...(current.revealLogo || current.logo || {}) },
       centerFinalLogo: { x: 0, y: -255, scale: 1, rotate: 0, opacity: 1, ...(current.centerFinalLogo || current.logo || {}) },
       counter: { x: 0, y: 0, scale: 1, ...(current.counter || {}) },
-      finalMessage: { line1: '', line2: '', x: 0, y: 0, scale: 1, ...(current.finalMessage || {}) },
+      finalMessage: {
+        line1: '',
+        line2: '',
+        x: 0,
+        y: 0,
+        scale: 1,
+        titleSize: 82,
+        lineSize: 54,
+        counterSize: 72,
+        letterSpacing: 0,
+        lineGap: 10,
+        ...(current.finalMessage || {})
+      },
       cardVietkings: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, rotate: 0, opacity: 1, ...(current.cardVietkings || {}) },
       cardGAB: { x: 0, y: 0, endX: 0, endY: 0, scale: 1, rotate: 0, opacity: 1, ...(current.cardGAB || {}) }
     };
@@ -321,9 +333,15 @@ export default function OperatorPanel() {
 
   const runSavedProfile = (name: string) => {
     loadProfile(name);
+    eventController.prepareScenarioEdit();
     window.setTimeout(() => {
-      eventController.startShowNow();
+      eventController.activateAll();
     }, 60);
+  };
+
+  const loadSavedProfile = (name: string) => {
+    loadProfile(name);
+    eventController.prepareScenarioEdit();
   };
 
   const applyBundledLogos = () => {
@@ -341,7 +359,7 @@ export default function OperatorPanel() {
     setShowNodes(true);
     setStageFit('fill');
     setStageOverscan(0);
-    eventController.startShowNow();
+    eventController.activateAll();
   };
 
   const hardResetLocalConfig = () => {
@@ -457,6 +475,7 @@ export default function OperatorPanel() {
   };
 
   const applyScenario1Ceremony = () => {
+    eventController.prepareScenarioEdit();
     applyBundledLogos();
     store.resetLayout();
     store.setFinalTemplate('center-hero');
@@ -472,6 +491,7 @@ export default function OperatorPanel() {
       y: 140,
       scale: 1
     });
+    updateLayout('finalMessage', { titleSize: 82, lineSize: 52, counterSize: 72, letterSpacing: 0, lineGap: 10 });
     updateLayout('revealLogo', { x: 0, y: -35, scale: 1, rotate: 0, opacity: 1 });
     updateLayout('centerFinalLogo', { x: 0, y: -255, scale: 0.92, rotate: 0, opacity: 1 });
     updateLayout('logo', { x: 0, y: -255, scale: 0.92 });
@@ -487,8 +507,6 @@ export default function OperatorPanel() {
     setExplosionType('cosmic-expansion');
     setTrailColor('#FACC15');
     setExplosionColor('#00F0FF');
-    setNodeShape('hand');
-    setNodeGlowStyle('energy');
     updateTimeline('countdown', 5);
     updateTimeline('reveal', 3);
     updateTimeline('energy', 6.5);
@@ -502,7 +520,7 @@ export default function OperatorPanel() {
 
   const runScenario1Ceremony = () => {
     applyScenario1Ceremony();
-    window.setTimeout(() => eventController.startShowNow(), 20);
+    window.setTimeout(() => eventController.activateAll(), 20);
   };
 
   const applyScenarioVideoShow = () => {
@@ -512,11 +530,13 @@ export default function OperatorPanel() {
     setExplosionType('radial-strobe');
     setTrailColor('#7DD3FC');
     setExplosionColor('#FACC15');
+    updateLayout('finalMessage', { titleSize: 76, lineSize: 48, counterSize: 68, letterSpacing: 0, lineGap: 8 });
+    updateLayout('centerFinalLogo', { scale: 0.86 });
   };
 
   const runScenarioVideoShow = () => {
     applyScenarioVideoShow();
-    window.setTimeout(() => eventController.startShowNow(), 20);
+    window.setTimeout(() => eventController.activateAll(), 20);
   };
 
   const applyScenarioPlaceCard = () => {
@@ -529,11 +549,13 @@ export default function OperatorPanel() {
     setExplosionColor('#FACC15');
     store.setShowCardVietkings(true);
     store.setShowCardGAB(true);
+    updateLayout('finalMessage', { titleSize: 70, lineSize: 44, counterSize: 62, letterSpacing: 0, lineGap: 8 });
+    updateLayout('centerFinalLogo', { scale: 0.72 });
   };
 
   const runScenarioPlaceCard = () => {
     applyScenarioPlaceCard();
-    window.setTimeout(() => eventController.startShowNow(), 20);
+    window.setTimeout(() => eventController.activateAll(), 20);
   };
 
   const setPresetTimeline = (seconds: number) => {
@@ -917,7 +939,7 @@ export default function OperatorPanel() {
                      <div key={name} className="flex justify-between items-center bg-[#0E1217] border border-gray-800 px-2 py-1 rounded text-xs">
                         <span className="truncate max-w-[190px] text-gray-300 font-mono">{name}</span>
                         <div className="flex gap-1">
-                          <button onClick={() => loadProfile(name)} className="px-2 py-0.5 bg-gab-cyan/20 text-gab-cyan text-[10px] rounded hover:bg-gab-cyan hover:text-black font-bold">{t.btnLoad}</button>
+                          <button onClick={() => loadSavedProfile(name)} className="px-2 py-0.5 bg-gab-cyan/20 text-gab-cyan text-[10px] rounded hover:bg-gab-cyan hover:text-black font-bold">{t.btnLoad}</button>
                           <button onClick={() => runSavedProfile(name)} className="px-2 py-0.5 bg-yellow-400 text-black text-[10px] rounded hover:bg-yellow-300 font-bold">{t.btnRunScenario}</button>
                           <button onClick={() => deleteProfile(name)} className="px-1.5 py-0.5 text-red-400 hover:text-red-200 text-[10px] rounded" title="Delete">✕</button>
                         </div>
@@ -1366,6 +1388,14 @@ export default function OperatorPanel() {
                   <div>
                      <label className="text-gray-500 text-[10px]">{t.textSize}</label>
                      <input type="range" min="0.3" max="2.5" step="0.05" value={layout.finalMessage.scale} onChange={(e) => updateLayout('finalMessage', { scale: Number(e.target.value) })} className="w-full"/>
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-2 border-t border-gray-800 pt-3">
+                    {renderLayoutNumber('Cỡ CHÚC MỪNG', (layout.finalMessage as any).titleSize ?? 82, (value) => updateLayout('finalMessage', { titleSize: value }), { min: 28, max: 130, step: 1 })}
+                    {renderLayoutNumber('Cỡ dòng phụ', (layout.finalMessage as any).lineSize ?? 54, (value) => updateLayout('finalMessage', { lineSize: value }), { min: 22, max: 100, step: 1 })}
+                    {renderLayoutNumber('Cỡ 400+', (layout.finalMessage as any).counterSize ?? 72, (value) => updateLayout('finalMessage', { counterSize: value }), { min: 24, max: 120, step: 1 })}
+                    {renderLayoutNumber('Giãn chữ', (layout.finalMessage as any).letterSpacing ?? 0, (value) => updateLayout('finalMessage', { letterSpacing: value }), { min: -2, max: 10, step: 0.25 })}
+                    {renderLayoutNumber('Khoảng dòng', (layout.finalMessage as any).lineGap ?? 10, (value) => updateLayout('finalMessage', { lineGap: value }), { min: 0, max: 48, step: 1 })}
+                    {renderLayoutNumber('Cỡ logo kết', (layout.centerFinalLogo as any)?.scale ?? 1, (value) => updateLayout('centerFinalLogo', { scale: value }), { min: 0.2, max: 3, step: 0.05 })}
                   </div>
                 </div>
                 <div className="space-y-2">

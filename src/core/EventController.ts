@@ -56,6 +56,9 @@ export class EventController {
     this.clearDemoInterval();
     stopShowClock();
     const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setShowNodes(true);
     store.setGlobalTime(0);
     store.setScrubbing(false);
     store.resetParticipants();
@@ -88,6 +91,21 @@ export class EventController {
       window.clearInterval(this.currentDemoInterval);
       this.currentDemoInterval = null;
     }
+  }
+
+  public prepareScenarioEdit() {
+    if (this.currentTimer) this.currentTimer.clear();
+    this.clearDemoInterval();
+    stopShowClock();
+    const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setScrubbing(false);
+    store.setAutoAdvanceEnabled(false);
+    store.setShowNodes(true);
+    store.setGlobalTime(0);
+    store.resetParticipants();
+    store.setPhase(EventPhase.IDLE);
   }
 
   public jumpToPhase(phase: EventPhase) {
@@ -146,7 +164,12 @@ export class EventController {
 
   public startWaiting() {
     stopShowClock();
-    useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
+    const store = useEventStore.getState();
+    store.setBlackout(false);
+    store.setPaused(false);
+    store.setShowNodes(true);
+    store.setAutoAdvanceEnabled(true);
+    store.setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
   }
 
   public confirmParticipant(id: number) {
@@ -156,7 +179,7 @@ export class EventController {
       store.setPaused(false);
       store.setShowNodes(true);
       store.setGlobalTime(0);
-      store.setAutoAdvanceEnabled(false);
+      store.setAutoAdvanceEnabled(true);
       store.setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
     }
 
@@ -237,7 +260,10 @@ export class EventController {
   }
 
   public cancelCountdown() {
-    useEventStore.getState().setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
+    const store = useEventStore.getState();
+    store.setShowNodes(true);
+    store.setGlobalTime(0);
+    store.setPhase(EventPhase.WAITING_FOR_PARTICIPANTS);
   }
 
   public showFinalScreen() {
@@ -256,7 +282,7 @@ export class EventController {
     store.setPaused(false);
     store.setShowNodes(true);
     store.setScrubbing(false);
-    store.setAutoAdvanceEnabled(false);
+    store.setAutoAdvanceEnabled(true);
     
     this.confirmAllParticipants();
     this.allParticipantsReady();
@@ -268,10 +294,15 @@ export class EventController {
     stopShowClock();
     const store = useEventStore.getState();
     store.setPhase(EventPhase.RESETTING);
+    store.setBlackout(false);
     store.setPaused(false);
     store.setAutoAdvanceEnabled(false);
+    store.setShowNodes(true);
+    store.setGlobalTime(0);
+    store.setScrubbing(false);
     store.resetParticipants();
     this.setTimer(() => {
+      store.setShowNodes(true);
       store.setPhase(EventPhase.IDLE);
     }, 1000);
   }
@@ -310,6 +341,8 @@ export class EventController {
     this.boot();
     this.startWaiting();
     const store = useEventStore.getState();
+    store.resetParticipants();
+    store.setShowNodes(true);
     store.setAutoAdvanceEnabled(true);
     const mode = store.touchAutomationMode;
     const speedMs = Math.max(80, (store.touchAutomationSpeed ?? 0.35) * 1000);
